@@ -1,13 +1,26 @@
 project(Game)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(SRC_FILES main.cpp)
-set(H_FILES )
+set(SRC_FILES 
+    main.cpp
+    EntityManager.cpp
+)
+
+set(H_FILES 
+    Action.hpp
+    Animation.hpp
+    Assets.hpp
+    Components.hpp
+    Entity.hpp
+    GameEngine.hpp
+    Scene.hpp
+)
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+option(SFML_BUILD_AUDIO "Build audio" ON)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
+target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 target_link_libraries(${PROJECT_NAME} PRIVATE ImGui-SFML::ImGui-SFML)
 
 if(MSVC)
