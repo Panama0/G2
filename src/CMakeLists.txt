@@ -4,6 +4,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SRC_FILES 
     main.cpp
     EntityManager.cpp
+    GameEngine.cpp
 )
 
 set(H_FILES 
