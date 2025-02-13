@@ -18,15 +18,15 @@ public:
     GameEngine();
     void run();
     void update();
-    void quit();
+    void quit() { m_running = false; }
     void changeScene(SceneTypes s);
     
-    const sf::RenderWindow& getWindow() { return m_window; };
+    const sf::RenderWindow& getWindow() { return m_window; }
     void sUserInput();
 private:
     void init();
     
-    std::shared_ptr<Scene> currentScene();
+    std::shared_ptr<Scene> currentScene() { return m_scenes[m_currentScene]; }
     
     std::map<SceneTypes, std::shared_ptr<Scene>> m_scenes;
     sf::RenderWindow m_window;

@@ -1,4 +1,5 @@
 #include "GameEngine.hpp"
+#include "Scene_MainMenu.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "imgui.h"
@@ -14,9 +15,12 @@ GameEngine::GameEngine()
 void GameEngine::init()
 {
     m_window.create(sf::VideoMode{{100,100}}, "G2");
+    m_window.setFramerateLimit(60u);
     ImGui::SFML::Init(m_window);
     
-    // load stuff
+    
+    //* temp
+    m_scenes[SceneTypes::mainmenu] = std::make_shared<Scene_MainMenu>();
     changeScene(SceneTypes::mainmenu);
 }
 
@@ -38,14 +42,16 @@ void GameEngine::update()
     
 }
 
-void GameEngine::quit()
-{
-    m_running = false;
-}
-
 void GameEngine::changeScene(SceneTypes s)
 {
-    // if the scene already exits, change to it, otherwise, create the scene
+    if(m_scenes[s] == nullptr)
+    {
+        std::cerr << "Scene does not exist!\n";
+    }
+    else
+    {
+        m_currentScene = s;
+    }
 }
 
 void GameEngine::sUserInput()
@@ -59,7 +65,5 @@ void GameEngine::sUserInput()
         {
             quit();
         }
-        
-        
     }
 }

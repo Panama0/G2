@@ -5,6 +5,8 @@ set(SRC_FILES
     main.cpp
     EntityManager.cpp
     GameEngine.cpp
+    Scene.cpp
+    Assets.cpp
 )
 
 set(H_FILES 
@@ -15,6 +17,7 @@ set(H_FILES
     Entity.hpp
     GameEngine.hpp
     Scene.hpp
+    Scene_MainMenu.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})
