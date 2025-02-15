@@ -7,6 +7,11 @@
 
 
 using ComponentTuple = std::tuple<
+    cSprite,
+    cTransform,
+    cInput,
+    cBoundingBox,
+    cAnimatedSprite
 >;
 
 class Entity
@@ -49,7 +54,7 @@ private:
     std::string m_tag;
     size_t m_id{};
     
-    Entity(const size_t& id, std::string tag)
+    Entity(size_t id, std::string tag)
         :m_tag{tag}
         ,m_id{id}
     {}

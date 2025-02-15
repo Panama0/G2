@@ -13,8 +13,13 @@ class GameEngine;
 class Scene
 {
 public:
+    Scene() = default;
+    Scene(GameEngine* game)
+        :m_game {game}
+    {}
+
     virtual void update() = 0;
-    virtual void sDoAction() = 0;
+    virtual void sDoAction(const Action& action) = 0;
     virtual void sRender() = 0;
     virtual void init() = 0;
     
@@ -31,8 +36,8 @@ public:
     //* not 100 percent sure this is a good way to solve this
     void registerAsset(AssetType type, std::string name, std::string path, uint32_t frames = 0, uint32_t interval = 0);
     void registerAction(const Action& a);
-private:
-    std::unique_ptr<GameEngine> m_game;
+protected:
+    std::shared_ptr<GameEngine> m_game;
     EntityManager m_entities;
     int m_currentFrame {};
     std::vector<std::string> m_assetNames;

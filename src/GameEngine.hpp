@@ -21,7 +21,7 @@ public:
     void quit() { m_running = false; }
     void changeScene(SceneTypes s);
     
-    const sf::RenderWindow& getWindow() { return m_window; }
+    sf::RenderWindow& getWindow() { return m_window; }
     void sUserInput();
 private:
     void init();

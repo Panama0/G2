@@ -7,6 +7,7 @@ set(SRC_FILES
     GameEngine.cpp
     Scene.cpp
     Assets.cpp
+    Scene_MainMenu.cpp
 )
 
 set(H_FILES 

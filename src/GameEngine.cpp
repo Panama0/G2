@@ -20,7 +20,7 @@ void GameEngine::init()
     
     
     //* temp
-    m_scenes[SceneTypes::mainmenu] = std::make_shared<Scene_MainMenu>();
+    m_scenes[SceneTypes::mainmenu] = std::make_shared<Scene_MainMenu>(this);
     changeScene(SceneTypes::mainmenu);
 }
 
@@ -31,9 +31,7 @@ void GameEngine::run()
     while(m_running)
     {
         sUserInput();
-        
-        // temp
-        m_window.display();
+        currentScene()->update();
     }
 }
 
