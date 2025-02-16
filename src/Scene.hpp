@@ -35,14 +35,16 @@ public:
     };
     //* not 100 percent sure this is a good way to solve this
     void registerAsset(AssetType type, std::string name, std::string path, uint32_t frames = 0, uint32_t interval = 0);
-    void registerAction(const Action& a);
+    void registerAction(sf::Keyboard::Key key, std::string name);
+    
+    const std::map<sf::Keyboard::Key, std::string>& getActionMap() const { return m_actionMap; }
 protected:
     std::shared_ptr<GameEngine> m_game;
     EntityManager m_entities;
     int m_currentFrame {};
     std::vector<std::string> m_assetNames;
     Assets m_assets;
-    std::map<Action, std::string> m_actionMap;
+    std::map<sf::Keyboard::Key, std::string> m_actionMap;
     bool m_paused {false};
     bool m_hasEnded {false};
 };

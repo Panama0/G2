@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-void Scene::registerAction(const Action& a)
+void Scene::registerAction(sf::Keyboard::Key key, std::string name)
 {
-    
+    m_actionMap[key] = name;
 }
 
 void Scene::registerAsset(AssetType type, std::string name, std::string path, uint32_t frames, uint32_t interval)

@@ -8,14 +8,9 @@ public:
         :Scene(game)
     { init(); }
     virtual void update();
-    virtual void sDoAction(const Action& action) {};
+    virtual void sDoAction(const Action& action);
     virtual void sRender();
     virtual void init();
-    
-    enum class ActionType
-    {
-        play,
-    };
 private:
     void spawnMainMenu();
     void spawnButton(sf::FloatRect rect, std::string text, const Action& action);

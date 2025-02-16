@@ -1,14 +1,27 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
-struct Action
+class Action
 {
+public:
+    enum ActionStatus
+    {
+        null,
+        start,
+        end,
+    };
+    
     Action() = default;
-    Action(std::string n, std::string t)
-        :name {n}
-        ,type {t}
+    Action(std::string n, ActionStatus t)
+        :m_name {n}
+        ,m_status {t}
     {}
-    std::string name;
-    std::string type;
+    
+    std::string_view name() const { return m_name; }
+    ActionStatus status() const { return m_status; }
+private:
+    std::string m_name;
+    ActionStatus m_status;
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Scene.hpp"
+#include "Action.hpp"
+
 #include "SFML/Graphics.hpp"
 #include <map>
 
@@ -25,6 +27,7 @@ public:
     void sUserInput();
 private:
     void init();
+    void processKey(sf::Keyboard::Key key, Action::ActionStatus status);
     
     std::shared_ptr<Scene> currentScene() { return m_scenes[m_currentScene]; }
     

@@ -1,5 +1,7 @@
 #include "Scene_MainMenu.hpp"
 
+#include <iostream>
+
 void Scene_MainMenu::update()
 {
     m_entities.update();
@@ -13,8 +15,15 @@ void Scene_MainMenu::update()
             spr.setPosition(pos);
         }
     }
-    
     sRender();
+}
+
+void Scene_MainMenu::sDoAction(const Action& action)
+{
+    if(action.name() == "PrintA" && action.status() == Action::end)
+    {
+        std::cout << "A!!!\n";
+    }
 }
 
 void Scene_MainMenu::sRender()
@@ -35,12 +44,14 @@ void Scene_MainMenu::init()
     registerAsset(AssetType::font, "Menu Font", "../../res/DroidSans.ttf");
     registerAsset(AssetType::texture, "Button1", "../../res/button.png");
     
+    registerAction(sf::Keyboard::Key::A, "PrintA");
+    
     spawnMainMenu();
 }
 
 void Scene_MainMenu::spawnMainMenu()
 {
-    spawnButton({}, "test", Action {"test", "test"});
+
 }
 
 
