@@ -17,6 +17,11 @@ public:
     Scene(GameEngine* game)
         :m_game {game}
     {}
+    enum SceneTypes
+    {
+        mainmenu,
+        gameplay
+    };
 
     virtual void update() = 0;
     virtual void sDoAction(const Action& action) = 0;

@@ -6,12 +6,6 @@
 #include "SFML/Graphics.hpp"
 #include <map>
 
-enum class SceneTypes
-{
-    mainmenu,
-    gameplay,
-};
-
 class Scene;
 
 class GameEngine
@@ -21,7 +15,7 @@ public:
     void run();
     void update();
     void quit() { m_running = false; }
-    void changeScene(SceneTypes s);
+    void changeScene(int s);
     
     sf::RenderWindow& getWindow() { return m_window; }
     void sUserInput();
@@ -31,8 +25,8 @@ private:
     
     std::shared_ptr<Scene> currentScene() { return m_scenes[m_currentScene]; }
     
-    std::map<SceneTypes, std::shared_ptr<Scene>> m_scenes;
+    std::map<int, std::shared_ptr<Scene>> m_scenes;
     sf::RenderWindow m_window;
-    SceneTypes m_currentScene;
+    int m_currentScene;
     bool m_running {false};
 };

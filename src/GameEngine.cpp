@@ -20,8 +20,8 @@ void GameEngine::init()
     if(!ImGui::SFML::Init(m_window)) { std::cerr << "Could not init ImGui!\n"; }
     
     //* temp
-    m_scenes[SceneTypes::mainmenu] = std::make_shared<Scene_MainMenu>(this);
-    changeScene(SceneTypes::mainmenu);
+    m_scenes[0] = std::make_shared<Scene_MainMenu>(this);
+    changeScene(0);
 }
 
 void GameEngine::run()
@@ -40,7 +40,7 @@ void GameEngine::update()
     
 }
 
-void GameEngine::changeScene(SceneTypes s)
+void GameEngine::changeScene(int s)
 {
     if(m_scenes[s] == nullptr)
     {
