@@ -20,9 +20,11 @@ void Scene_MainMenu::update()
 
 void Scene_MainMenu::sDoAction(const Action& action)
 {
-    if(action.name() == "PrintA" && action.status() == Action::end)
+    switch(action.type())
     {
-        std::cout << "A!!!\n";
+        case ActionTypes::printa:
+            if(action.status() == Action::end) { std::cout << "A!\n"; };
+            break;
     }
 }
 
@@ -44,7 +46,7 @@ void Scene_MainMenu::init()
     registerAsset(AssetType::font, "Menu Font", "../../res/DroidSans.ttf");
     registerAsset(AssetType::texture, "Button1", "../../res/button.png");
     
-    registerAction(sf::Keyboard::Key::A, "PrintA");
+    registerAction(sf::Keyboard::Key::A, ActionTypes::printa);
     
     spawnMainMenu();
 }

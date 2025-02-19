@@ -14,14 +14,14 @@ public:
     };
     
     Action() = default;
-    Action(std::string n, ActionStatus t)
-        :m_name {n}
+    Action(int idx, ActionStatus t)
+        :m_index {idx}
         ,m_status {t}
     {}
     
-    std::string_view name() const { return m_name; }
+    int type() const { return m_index; }
     ActionStatus status() const { return m_status; }
 private:
-    std::string m_name;
+    int m_index {0};
     ActionStatus m_status;
 };
