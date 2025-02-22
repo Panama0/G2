@@ -2,21 +2,33 @@
 
 #include "SFML/Graphics.hpp"
 
+#include <iostream>
+
 class Animation
 {
 public:
     Animation() = default;
-    void update();
+    Animation(std::string path, uint32_t frames, uint32_t interval)
+        :m_framecount {frames}
+        ,m_interval {interval}
+    {
+        if(!loadFromFile(path))
+        {
+            std::cerr << "Could not load Animation texture!\n";
+        }
+        m_size = {m_texture.getSize().x / frames, m_texture.getSize().y};
+    }
+    
+    bool loadFromFile(std::string path);
+    void updateSprite();
+    void addSprite(sf::Sprite* sprite) { m_sprite = sprite; }
     bool hasEnded();
-    std::string getName() { return m_name; }
-    sf::Vector2f getSize() { return m_size; }
-    sf::Sprite& getSprite() { return m_sprite; }
+    sf::Vector2u getSize() { return m_size; }
 private:
-    sf::Sprite m_sprite {m_texture};
+    sf::Sprite* m_sprite {};
     sf::Texture m_texture;
-    int m_framecount {};
-    int m_currentFrame {};
-    int m_interval {};
-    sf::Vector2f m_size {};
-    std::string m_name {};
+    uint32_t m_framecount {};
+    uint32_t m_currentGameFrame {};
+    uint32_t m_interval {};
+    sf::Vector2u m_size {};
 };

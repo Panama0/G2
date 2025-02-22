@@ -39,7 +39,7 @@ public:
         sound
     };
     //* not 100 percent sure this is a good way to solve this
-    void registerAsset(AssetType type, std::string name, std::string path, uint32_t frames = 0, uint32_t interval = 0);
+    void registerAsset(AssetType type, std::string name, std::string path, uint32_t frames = 0, uint32_t interval = 0, sf::Vector2f size = {0, 0});
     void registerAction(sf::Keyboard::Key key, int index);
     
     const std::map<sf::Keyboard::Key, int>& getActionMap() const { return m_actionMap; }

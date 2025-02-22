@@ -16,6 +16,7 @@ void Scene_MainMenu::update()
             spr.setScale(transform.scale);
         }
     }
+    sAnimation();
     sRender();
 }
 
@@ -42,10 +43,23 @@ void Scene_MainMenu::sRender()
     m_game->getWindow().display();
 }
 
+void Scene_MainMenu::sAnimation()
+{
+    for(auto& entity : m_entities.getEntities())
+    {
+        if(entity->has<cAnimation>() && entity->has<cSprite>())
+        {
+            entity->get<cAnimation>().animation.updateSprite();
+        }
+    }
+}
+
 void Scene_MainMenu::init()
 {
     registerAsset(AssetType::font, "Menu Font", "../../res/DroidSans.ttf");
     registerAsset(AssetType::texture, "Start", "../../res/start.png");
+    
+    registerAsset(AssetType::animation, "TestAnimation", "../../res/animation test4.png", 4, 60);
     
     registerAction(sf::Keyboard::Key::A, ActionTypes::printa);
     
@@ -55,6 +69,12 @@ void Scene_MainMenu::init()
 void Scene_MainMenu::spawnMainMenu()
 {
     spawnButton(sf::FloatRect{{0.f, 0.f}, {0.f, 0.f}}, "std::string text");
+    
+    auto animationTest = m_entities.addEntity("Animation");
+    animationTest->add<cAnimation>(m_assets.getAnimation("TestAnimation"), true);
+    animationTest->add<cTransform>(sf::Vector2f {300, 300});
+    animationTest->add<cSprite>();
+    animationTest->get<cAnimation>().animation.addSprite(&animationTest->get<cSprite>().sprite);
 }
 
 

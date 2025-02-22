@@ -14,10 +14,11 @@ public:
         :Scene(game)
     { init(); }
     
-    virtual void update();
-    virtual void sDoAction(const Action& action);
-    virtual void sRender();
-    virtual void init();
+    void update();
+    void sDoAction(const Action& action);
+    void sRender();
+    void sAnimation();
+    void init();
 private:
     void spawnMainMenu();
     void spawnButton(sf::FloatRect rect, std::string text);

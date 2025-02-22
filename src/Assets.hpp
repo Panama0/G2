@@ -10,7 +10,7 @@ class Assets
 {
 public:
     bool addTexture(std::string name, std::string path);
-    bool addAnimation(std::string name, uint32_t frames, uint32_t interval);
+    bool addAnimation(std::string name, std::string path, uint32_t frames, uint32_t interval);
     bool addSound(std::string name, std::string path);
     bool addFont(std::string name, std::string path);
     

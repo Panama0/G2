@@ -11,7 +11,8 @@ using ComponentTuple = std::tuple<
     cTransform,
     cInput,
     cBoundingBox,
-    cAnimatedSprite
+    cAnimatedSprite,
+    cAnimation
 >;
 
 class Entity

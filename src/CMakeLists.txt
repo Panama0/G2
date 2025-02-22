@@ -8,6 +8,7 @@ set(SRC_FILES
     Scene.cpp
     Assets.cpp
     Scene_MainMenu.cpp
+    Animation.cpp
 )
 
 set(H_FILES 

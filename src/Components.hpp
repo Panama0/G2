@@ -14,16 +14,18 @@ public:
 class cSprite : public Component
 {
 public:
-    cSprite() = default;
+    cSprite()
+        :sprite {m_defaultTexture}
+    {}
     cSprite(const sf::Texture& tex)
         :sprite {tex}
     {}
     
-    // default texture
-    sf::Image def {sf::Vector2u{100, 100}, sf::Color::Magenta};
+    sf::Sprite sprite;
     
-    sf::Texture texture {def};
-    sf::Sprite sprite{texture};
+private:
+    static inline sf::Image m_defaultImg {sf::Vector2u{100, 100}, sf::Color::Magenta};
+    static inline sf::Texture m_defaultTexture {m_defaultImg};
 };
 
 class cTransform : public Component
@@ -74,6 +76,19 @@ public:
         ,repeat {rep}
     {}
     
+    Animation animation;
+    bool repeat {false};
+};
+
+class cAnimation : public Component
+{
+public:
+        cAnimation() = default;
+        cAnimation(const Animation& an, bool rep = false)
+        :animation {an}
+        ,repeat {rep}
+    {}
+
     Animation animation;
     bool repeat {false};
 };

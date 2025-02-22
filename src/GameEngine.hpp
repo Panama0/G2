@@ -19,9 +19,6 @@ public:
     
     sf::RenderWindow& getWindow() { return m_window; }
     
-    //*temp
-    sf::View& getView() { return m_view; }
-    
     void sUserInput();
 private:
     void init();
