@@ -9,6 +9,7 @@ set(SRC_FILES
     Assets.cpp
     Scene_MainMenu.cpp
     Animation.cpp
+    Window.cpp
 )
 
 set(H_FILES 
@@ -20,6 +21,7 @@ set(H_FILES
     GameEngine.hpp
     Scene.hpp
     Scene_MainMenu.hpp
+    Window.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

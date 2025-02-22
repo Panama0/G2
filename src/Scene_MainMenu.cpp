@@ -32,7 +32,7 @@ void Scene_MainMenu::sDoAction(const Action& action)
 
 void Scene_MainMenu::sRender()
 {
-    m_game->getWindow().clear();
+    m_game->getWindow().beginDraw();
     for(auto& entity : m_entities.getEntities())
     {
         if(entity->has<cSprite>())
@@ -40,7 +40,7 @@ void Scene_MainMenu::sRender()
             m_game->getWindow().draw(entity->get<cSprite>().sprite);
         }
     }
-    m_game->getWindow().display();
+    m_game->getWindow().render();
 }
 
 void Scene_MainMenu::sAnimation()
