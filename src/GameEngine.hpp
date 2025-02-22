@@ -18,6 +18,10 @@ public:
     void changeScene(int s);
     
     sf::RenderWindow& getWindow() { return m_window; }
+    
+    //*temp
+    sf::View& getView() { return m_view; }
+    
     void sUserInput();
 private:
     void init();
@@ -25,8 +29,12 @@ private:
     
     std::shared_ptr<Scene> currentScene() { return m_scenes[m_currentScene]; }
     
+    void updateView(const sf::Vector2u& size);
+    
     std::map<int, std::shared_ptr<Scene>> m_scenes;
     sf::RenderWindow m_window;
+    sf::View m_view;
+    sf::Vector2u m_windowSize;
     int m_currentScene;
     bool m_running {false};
 };

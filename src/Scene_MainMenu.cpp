@@ -11,8 +11,9 @@ void Scene_MainMenu::update()
         if(entity->has<cTransform>() && entity->has<cSprite>())
         {
             auto& spr = entity->get<cSprite>().sprite;
-            const auto& pos = entity->get<cTransform>().pos;
-            spr.setPosition(pos);
+            const auto& transform = entity->get<cTransform>();
+            spr.setPosition(transform.pos);
+            spr.setScale(transform.scale);
         }
     }
     sRender();
@@ -30,7 +31,7 @@ void Scene_MainMenu::sDoAction(const Action& action)
 
 void Scene_MainMenu::sRender()
 {
-    m_game->getWindow().clear(sf::Color{sf::Color::Red});
+    m_game->getWindow().clear();
     for(auto& entity : m_entities.getEntities())
     {
         if(entity->has<cSprite>())
@@ -44,7 +45,7 @@ void Scene_MainMenu::sRender()
 void Scene_MainMenu::init()
 {
     registerAsset(AssetType::font, "Menu Font", "../../res/DroidSans.ttf");
-    registerAsset(AssetType::texture, "Button1", "../../res/button.png");
+    registerAsset(AssetType::texture, "Start", "../../res/start.png");
     
     registerAction(sf::Keyboard::Key::A, ActionTypes::printa);
     
@@ -53,14 +54,19 @@ void Scene_MainMenu::init()
 
 void Scene_MainMenu::spawnMainMenu()
 {
-
+    spawnButton(sf::FloatRect{{0.f, 0.f}, {0.f, 0.f}}, "std::string text");
 }
 
 
-void Scene_MainMenu::spawnButton(sf::FloatRect rect, std::string text, const Action& action)
+void Scene_MainMenu::spawnButton(sf::FloatRect rect, std::string text)
 {
-    auto button = m_entities.addEntity("Button1");
-    button->add<cSprite>(m_assets.getTexture("Button1"));
+    auto button = m_entities.addEntity("Start");
+    button->add<cSprite>(m_assets.getTexture("Start"));
     button->add<cTransform>(sf::Vector2f{0, 20});
     button->add<cBoundingBox>();
+    
+    const auto& dimensions = button->get<cSprite>().sprite.getGlobalBounds().size;
+    button->get<cSprite>().sprite.setOrigin({dimensions.x / 2.f, dimensions.y / 2.f});
+    
+    button->get<cTransform>().pos = {300, 400};
 }

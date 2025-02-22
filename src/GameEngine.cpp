@@ -7,6 +7,7 @@
 #include "imgui-SFML.h"
 
 #include <iostream>
+#include <optional>
 
 GameEngine::GameEngine()
 {
@@ -15,8 +16,13 @@ GameEngine::GameEngine()
 
 void GameEngine::init()
 {
-    m_window.create(sf::VideoMode{{100,100}}, "G2");
+    m_windowSize = {1280, 720};
+    m_window.create(sf::VideoMode{m_windowSize}, "G2");
+    m_view = m_window.getView();
+    
+    updateView(m_windowSize);
     m_window.setFramerateLimit(60u);
+
     if(!ImGui::SFML::Init(m_window)) { std::cerr << "Could not init ImGui!\n"; }
     
     //* temp
@@ -29,7 +35,7 @@ void GameEngine::run()
     m_running = true;
     
     while(m_running)
-    {
+    {      
         sUserInput();
         currentScene()->update();
     }
@@ -67,8 +73,7 @@ void GameEngine::sUserInput()
         // resize view when window changes size
         if(const auto& resized = event->getIf<sf::Event::Resized>())
         {
-            sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-            m_window.setView(sf::View(visibleArea));
+            updateView(resized->size);
         }
         
         // main input handling
@@ -102,4 +107,35 @@ void GameEngine::processKey(sf::Keyboard::Key key, Action::ActionStatus status)
     // create the action and send to the scene for processisng
     Action action {actionMap.at(key), status};
     currentScene()->sDoAction(action);
+}
+
+void GameEngine::updateView(const sf::Vector2u& size)
+{
+    float desiredRatio {static_cast<float>(size.x) / static_cast<float>(size.y)};
+    float currentRatio {m_view.getSize().x / m_view.getSize().y};
+    
+    float sizeX {1.f};
+    float sizeY {1.f};
+    float posX {0.f};
+    float posY {0.f};
+    
+    bool horizontalSpacing {true};
+    if(desiredRatio < currentRatio)
+    {
+        horizontalSpacing = false;
+    }
+    
+    if(horizontalSpacing)
+    {
+        sizeX = currentRatio / desiredRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+    else
+    {
+        sizeY = desiredRatio / currentRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    m_view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
+    m_window.setView(m_view);
 }

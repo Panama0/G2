@@ -37,7 +37,7 @@ public:
     sf::Vector2f pos;
     sf::Vector2f prevPos;
     sf::Vector2f vel;
-    sf::Vector2f scale;
+    sf::Vector2f scale {1.f, 1.f};
     float angle;
 };
 

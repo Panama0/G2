@@ -20,5 +20,5 @@ public:
     virtual void init();
 private:
     void spawnMainMenu();
-    void spawnButton(sf::FloatRect rect, std::string text, const Action& action);
+    void spawnButton(sf::FloatRect rect, std::string text);
 };
