@@ -9,9 +9,6 @@ bool Animation::loadFromFile(std::string path)
 
 void Animation::updateSprite()
 {
-    //* temp
-    m_sprite->setTexture(m_texture);
-    
     uint32_t currentAnimFrame {(m_currentGameFrame / m_interval) % m_framecount};
     
     sf::IntRect renderArea {sf::Vector2i {static_cast<int>(currentAnimFrame * m_size.x), 0}, 
@@ -19,4 +16,14 @@ void Animation::updateSprite()
     m_sprite->setTextureRect(renderArea);
     
     m_currentGameFrame++;
+}
+void Animation::addSprite(sf::Sprite* spr)
+{
+    m_sprite = spr;
+    spr->setTexture(m_texture);
+}
+
+bool Animation::hasEnded()
+{
+    return (m_currentGameFrame / m_interval) >= m_framecount;
 }

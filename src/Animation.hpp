@@ -21,11 +21,11 @@ public:
     
     bool loadFromFile(std::string path);
     void updateSprite();
-    void addSprite(sf::Sprite* sprite) { m_sprite = sprite; }
+    void addSprite(sf::Sprite* sprite);
     bool hasEnded();
     sf::Vector2u getSize() { return m_size; }
 private:
-    sf::Sprite* m_sprite {};
+    sf::Sprite* m_sprite;
     sf::Texture m_texture;
     uint32_t m_framecount {};
     uint32_t m_currentGameFrame {};

@@ -24,8 +24,8 @@ void Scene_MainMenu::sDoAction(const Action& action)
 {
     switch(action.type())
     {
-        case ActionTypes::printa:
-            if(action.status() == Action::end) { std::cout << "A!\n"; };
+        case ActionTypes::FS:
+            if(action.status() == Action::end) { m_game->getWindow().toggleFullscreen(); };
             break;
     }
 }
@@ -35,7 +35,7 @@ void Scene_MainMenu::sRender()
     m_game->getWindow().beginDraw();
     for(auto& entity : m_entities.getEntities())
     {
-        if(entity->has<cSprite>())
+        if(entity->has<cSprite>() && entity->isActive())
         {
             m_game->getWindow().draw(entity->get<cSprite>().sprite);
         }
@@ -49,7 +49,15 @@ void Scene_MainMenu::sAnimation()
     {
         if(entity->has<cAnimation>() && entity->has<cSprite>())
         {
-            entity->get<cAnimation>().animation.updateSprite();
+            auto& animationC = entity->get<cAnimation>();
+            if(animationC.animation.hasEnded())
+            {
+                if(!animationC.repeat)
+                {
+                    entity->destroy();
+                }
+            }
+            animationC.animation.updateSprite();
         }
     }
 }
@@ -61,7 +69,7 @@ void Scene_MainMenu::init()
     
     registerAsset(AssetType::animation, "TestAnimation", "../../res/animation test4.png", 4, 60);
     
-    registerAction(sf::Keyboard::Key::A, ActionTypes::printa);
+    registerAction(sf::Keyboard::Key::M, ActionTypes::FS);
     
     spawnMainMenu();
 }
@@ -71,7 +79,7 @@ void Scene_MainMenu::spawnMainMenu()
     spawnButton(sf::FloatRect{{0.f, 0.f}, {0.f, 0.f}}, "std::string text");
     
     auto animationTest = m_entities.addEntity("Animation");
-    animationTest->add<cAnimation>(m_assets.getAnimation("TestAnimation"), true);
+    animationTest->add<cAnimation>(m_assets.getAnimation("TestAnimation"), false);
     animationTest->add<cTransform>(sf::Vector2f {300, 300});
     animationTest->add<cSprite>();
     animationTest->get<cAnimation>().animation.addSprite(&animationTest->get<cSprite>().sprite);

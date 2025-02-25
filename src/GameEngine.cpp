@@ -50,7 +50,7 @@ void GameEngine::sUserInput()
 {
     while (auto event = m_window.getEvent())
     {
-        // ImGui::SFML::ProcessEvent(m_window1, event.value());
+        ImGui::SFML::ProcessEvent(m_window.getWindow(), event.value());
         if(ImGui::GetIO().WantCaptureMouse) { continue; }
         
         if(event->is<sf::Event::Closed>())

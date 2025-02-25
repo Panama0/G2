@@ -7,7 +7,9 @@
 
 void Window::init()
 {
-    m_window.create(sf::VideoMode{m_renderSpace}, "G2");
+    sf::State state = static_cast<sf::State>(m_isFullscreen);
+
+    m_window.create(sf::VideoMode{m_renderSpace}, "G2", state);
     m_view = m_window.getView();
     
     updateView(static_cast<sf::Vector2f>(m_renderSpace));
@@ -42,4 +44,32 @@ void Window::updateView(sf::Vector2f size)
 
     m_view.setViewport(sf::FloatRect(newPos, newSize));
     m_window.setView(m_view);
+}
+
+void Window::toggleFullscreen(bool mode)
+{
+    if(m_isFullscreen == mode)
+    {
+        return;
+    }
+    
+    m_isFullscreen = mode;
+    
+    
+    m_window.close();
+    init();
+}
+
+void Window::toggleFullscreen()
+{
+    if(m_isFullscreen)
+    {
+        m_isFullscreen = false;
+    }
+    else
+    {
+        m_isFullscreen = true;
+    }
+    m_window.close();
+    init();
 }

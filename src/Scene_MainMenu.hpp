@@ -6,7 +6,7 @@ public:
     enum ActionTypes
     {
         null,
-        printa,
+        FS,
     };
     
     Scene_MainMenu() = default;
