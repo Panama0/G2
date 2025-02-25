@@ -10,6 +10,7 @@ set(SRC_FILES
     Scene_MainMenu.cpp
     Animation.cpp
     Window.cpp
+    Grid.cpp
 )
 
 set(H_FILES 
@@ -22,6 +23,7 @@ set(H_FILES
     Scene.hpp
     Scene_MainMenu.hpp
     Window.hpp
+    Grid.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

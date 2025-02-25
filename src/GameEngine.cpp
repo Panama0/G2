@@ -17,8 +17,9 @@ GameEngine::GameEngine()
 void GameEngine::init()
 {
     m_window.init();
-    
     //* temp
+    m_grid.init({128,128}, {32, 32});
+    
     m_scenes[0] = std::make_shared<Scene_MainMenu>(this);
     changeScene(0);
 }

@@ -3,6 +3,7 @@
 #include "Scene.hpp"
 #include "Action.hpp"
 #include "Window.hpp"
+#include "Grid.hpp"
 
 #include "SFML/Graphics.hpp"
 #include <map>
@@ -28,6 +29,7 @@ private:
     std::map<int, std::shared_ptr<Scene>> m_scenes;
     
     Window m_window;
+    Grid m_grid;
     
     int m_currentScene;
     bool m_running {false};
