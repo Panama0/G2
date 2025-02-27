@@ -24,8 +24,8 @@ public:
     Grid(sf::Vector2u renderSpace, sf::Vector2u squareSize) { init(renderSpace, squareSize); }
     void init(sf::Vector2u renderSpace, sf::Vector2u squareSize);
     
-    sf::Vector2u gridToWorld();
-    sf::Vector2f worldToGrid();
+    const GridSquare& getGridAt(sf::Vector2f worldPos) const;
+    const GridSquare& getGridAt(sf::Vector2u gridPos) const;
     
     // could also return a sprite
     sf::RenderTexture drawToTexture();

@@ -25,3 +25,17 @@ void Grid::init(sf::Vector2u renderSpace, sf::Vector2u squareSize)
         }
     }
 }
+
+const Grid::GridSquare& Grid::getGridAt(sf::Vector2f worldPos) const
+{
+    assert(worldPos.x < m_worldSize.x && worldPos.y < m_worldSize.y && 
+            "worldPos cant be larger than world!\n");
+    sf::Vector2u gp {static_cast<uint32_t>(worldPos.x) / m_squareSize.x,
+                     static_cast<uint32_t>(worldPos.y) / m_squareSize.y};
+    return getGridAt(gp);
+}
+
+const Grid::GridSquare& Grid::getGridAt(sf::Vector2u gridPos) const
+{
+    return m_gridCoords[gridPos.y * m_gridSize.x + gridPos.x];
+}
