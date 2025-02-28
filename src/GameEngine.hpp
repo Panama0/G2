@@ -19,6 +19,7 @@ public:
     void changeScene(int s);
     
     Window& getWindow() { return m_window; }
+    const Grid& getGrid() { return m_grid; }
     
     void sUserInput();
 private:

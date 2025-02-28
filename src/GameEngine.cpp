@@ -18,8 +18,7 @@ void GameEngine::init()
 {
     m_window.init();
     //* temp
-    m_grid.init({128,128}, {32, 32});
-    m_grid.getGridAt(sf::Vector2f{32,32});
+    m_grid.init({1280,720}, {32, 32});
     
     m_scenes[0] = std::make_shared<Scene_MainMenu>(this);
     changeScene(0);

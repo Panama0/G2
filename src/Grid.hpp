@@ -27,12 +27,14 @@ public:
     const GridSquare& getGridAt(sf::Vector2f worldPos) const;
     const GridSquare& getGridAt(sf::Vector2u gridPos) const;
     
-    // could also return a sprite
-    sf::RenderTexture drawToTexture();
+    const sf::Texture& getTexture() const { return m_gridTexture.getTexture(); }
 private:
+    void drawToTexture();
+    
     std::vector<GridSquare> m_gridCoords;
     // size of the grid in grid squares, rounds up
     sf::Vector2u m_gridSize;
     sf::Vector2f m_worldSize;
     sf::Vector2u m_squareSize;
+    sf::RenderTexture m_gridTexture;
 };

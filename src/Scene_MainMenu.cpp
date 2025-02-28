@@ -33,6 +33,8 @@ void Scene_MainMenu::sDoAction(const Action& action)
 void Scene_MainMenu::sRender()
 {
     m_game->getWindow().beginDraw();
+    
+    
     for(auto& entity : m_entities.getEntities())
     {
         if(entity->has<cSprite>() && entity->isActive())
@@ -40,6 +42,8 @@ void Scene_MainMenu::sRender()
             m_game->getWindow().draw(entity->get<cSprite>().sprite);
         }
     }
+    sf::Sprite grid {m_game->getGrid().getTexture()};
+    m_game->getWindow().draw(grid);
     m_game->getWindow().render();
 }
 
