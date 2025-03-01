@@ -1,29 +1,27 @@
 #include "Scene.hpp"
 
-#include <iostream>
 
 void Scene::registerAction(sf::Keyboard::Key key, int index)
 {
     m_actionMap[key] = index;
 }
 
-void Scene::registerAsset(AssetType type, std::string name, std::string path, uint32_t frames, uint32_t interval, sf::Vector2f size)
+void Scene::registerFont(std::string_view name, const std::filesystem::path& fname)
 {
-    if(type == AssetType::font)
-    {
-        m_assets.addFont(name, path);
-    }
-    else if(type == AssetType::texture)
-    {
-        m_assets.addTexture(name, path);
-    }
-    else if(type == AssetType::texture)
-    {
-        m_assets.addTexture(name, path);
-    }
-    else if(type == AssetType::animation)
-    {
-        assert((frames != 0 || interval != 0) && "Cant add empty animation!");
-        m_assets.addAnimation(name, path, frames, interval);
-    }
+    m_assets.addFont(name, fname);
+}
+
+void Scene::registerTexture(std::string_view name, const std::filesystem::path& fname)
+{
+    m_assets.addTexture(name, fname);
+}
+
+void Scene::registerAnimation(std::string_view name, const std::filesystem::path& fname, uint32_t frames, uint32_t interval)
+{
+    m_assets.addAnimation(name, fname, frames, interval);
+}
+
+void Scene::registerSound(std::string_view name, const std::filesystem::path& fname)
+{
+    m_assets.addSound(name, fname);
 }

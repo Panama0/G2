@@ -9,7 +9,8 @@ class Animation
 public:
     Animation() = default;
     Animation(std::string path, uint32_t frames, uint32_t interval)
-        :m_framecount {frames}
+        :isValid {true}
+        ,m_framecount {frames}
         ,m_interval {interval}
     {
         if(!loadFromFile(path))
@@ -24,6 +25,7 @@ public:
     void addSprite(sf::Sprite* sprite);
     bool hasEnded();
     sf::Vector2u getSize() { return m_size; }
+    bool isValid {false};
 private:
     sf::Sprite* m_sprite;
     sf::Texture m_texture;

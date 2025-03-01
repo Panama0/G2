@@ -68,10 +68,13 @@ void Scene_MainMenu::sAnimation()
 
 void Scene_MainMenu::init()
 {
-    registerAsset(AssetType::font, "Menu Font", "../../res/DroidSans.ttf");
-    registerAsset(AssetType::texture, "Start", "../../res/start.png");
+    m_assets.setResourceDir("../../res");
     
-    registerAsset(AssetType::animation, "TestAnimation", "../../res/animation test4.png", 4, 60);
+    registerFont("Menu Font", "DroidSans.ttf");
+    
+    registerAnimation("TestAnimation", "animation test4.png", 4, 60);
+    
+    registerTexture("Start", "start.png");
     
     registerAction(sf::Keyboard::Key::M, ActionTypes::FS);
     

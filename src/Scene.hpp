@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <filesystem>
 
 class GameEngine;
 
@@ -31,20 +32,16 @@ public:
     void simulate(int iterations);
     void doAction(const Action& a);
     
-    enum class AssetType
-    {
-        font,
-        texture,
-        animation,
-        sound
-    };
-    //* not 100 percent sure this is a good way to solve this
-    void registerAsset(AssetType type, std::string name, std::string path, uint32_t frames = 0, uint32_t interval = 0, sf::Vector2f size = {0, 0});
     void registerAction(sf::Keyboard::Key key, int index);
+
+    void registerFont(std::string_view name, const std::filesystem::path& fname);
+    void registerTexture(std::string_view name, const std::filesystem::path& fname);
+    void registerAnimation(std::string_view name, const std::filesystem::path& fname, uint32_t frames, uint32_t interval);
+    void registerSound(std::string_view name, const std::filesystem::path& fname);
     
     const std::map<sf::Keyboard::Key, int>& getActionMap() const { return m_actionMap; }
 protected:
-    std::shared_ptr<GameEngine> m_game;
+    GameEngine* m_game;
     EntityManager m_entities;
     int m_currentFrame {};
     std::vector<std::string> m_assetNames;
