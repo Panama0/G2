@@ -15,10 +15,10 @@ public:
     bool addSound(std::string_view name, const std::filesystem::path& fname);
     bool addFont(std::string_view name, const std::filesystem::path& fname);
     
-    const sf::Texture& getTexture(const char* name) { return m_textures[name]; }
-    const Animation& getAnimation(const char* name) { return m_animations[name]; }
-    const sf::SoundBuffer& getSound(const char* name) { return m_sounds[name]; }
-    const sf::Font& getFont(const char* name) { return m_fonts[name]; }
+    const sf::Texture& getTexture(std::string_view name) { return m_textures[name]; }
+    const Animation& getAnimation(std::string_view  name) { return m_animations[name]; }
+    const sf::SoundBuffer& getSound(std::string_view name) { return m_sounds[name]; }
+    const sf::Font& getFont(std::string_view name) { return m_fonts[name]; }
     
     void setResourceDir(const std::filesystem::path& path) { m_resourcesDir = path; }
 private:

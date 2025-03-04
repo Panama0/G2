@@ -19,7 +19,7 @@ void EntityManager::update()
     m_entitiesToAdd.clear();
 }
 
-const EntityVec& EntityManager::getEntities(std::string tag)
+const EntityVec& EntityManager::getEntities(const std::string& tag)
 {
     if(m_entityMap.find(tag) == m_entityMap.end())  // if it is empty
     {
@@ -28,7 +28,7 @@ const EntityVec& EntityManager::getEntities(std::string tag)
     return m_entityMap[tag];
 }
 
-std::shared_ptr<Entity> EntityManager::addEntity(std::string tag)
+std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
     auto entity = std::shared_ptr<Entity>(new Entity(m_totalEntities++, tag));
     

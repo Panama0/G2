@@ -17,11 +17,11 @@ public:
     void update();
     
     const EntityVec& getEntities() { return m_entities; }
-    const EntityVec& getEntities(std::string tag);
+    const EntityVec& getEntities(const std::string& tag);
     
     const EntityMap& getEntityMap() {return m_entityMap;}
     
-    std::shared_ptr<Entity> addEntity(std::string tag);
+    std::shared_ptr<Entity> addEntity(const std::string& tag);
     
 private:
     void removeDeadEntities(EntityVec& vec);

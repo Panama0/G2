@@ -10,6 +10,7 @@ public:
     void draw(sf::Drawable& drawable) { m_window.draw(drawable); }
     void render() { m_window.display(); }
     void updateView(sf::Vector2f size);
+    const sf::View& getView() { return m_view; }
     std::optional<sf::Event> getEvent() { return m_window.pollEvent(); }
     const sf::Window& getWindow() { return m_window; }
     void toggleFullscreen(bool mode);

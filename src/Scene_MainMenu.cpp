@@ -4,6 +4,7 @@
 
 void Scene_MainMenu::update()
 {
+    m_view = m_game->getWindow().getView();
     m_entities.update();
     
     for(auto& entity : m_entities.getEntities())
@@ -70,38 +71,32 @@ void Scene_MainMenu::init()
 {
     m_assets.setResourceDir("../../res");
     
-    registerFont("Menu Font", "DroidSans.ttf");
-    
-    registerAnimation("TestAnimation", "animation test4.png", 4, 60);
-    
     registerTexture("Start", "start.png");
     
     registerAction(sf::Keyboard::Key::M, ActionTypes::FS);
     
+    m_view = m_game->getWindow().getView();
     spawnMainMenu();
 }
 
 void Scene_MainMenu::spawnMainMenu()
 {
-    spawnButton(sf::FloatRect{{0.f, 0.f}, {0.f, 0.f}}, "std::string text");
+    float offsetX {m_view.getSize().x / 10.f};
+    sf::Vector2f startPos {m_game->getGrid().getGridAt(m_view.getCenter()).worldPos};
+    spawnButton("Start", "Start", startPos);
     
-    auto animationTest = m_entities.addEntity("Animation");
-    animationTest->add<cAnimation>(m_assets.getAnimation("TestAnimation"), false);
-    animationTest->add<cTransform>(sf::Vector2f {300, 300});
-    animationTest->add<cSprite>();
-    animationTest->get<cAnimation>().animation.addSprite(&animationTest->get<cSprite>().sprite);
+    spawnButton("Map", "Start", m_view.getCenter() + sf::Vector2f {0.f, offsetX});
+    spawnButton("SaveLoad", "Start", m_view.getCenter() + sf::Vector2f{0.f, offsetX * 2.f});
 }
 
 
-void Scene_MainMenu::spawnButton(sf::FloatRect rect, std::string text)
+void Scene_MainMenu::spawnButton(const std::string& name, std::string_view tex, sf::Vector2f worldPos)
 {
-    auto button = m_entities.addEntity("Start");
-    button->add<cSprite>(m_assets.getTexture("Start"));
-    button->add<cTransform>(sf::Vector2f{0, 20});
-    button->add<cBoundingBox>();
+    auto button = m_entities.addEntity(name);
+    button->add<cSprite>(m_assets.getTexture(tex));
+    button->add<cTransform>(worldPos);
+    button->get<cTransform>().scale = {3.f, 3.f};
     
     const auto& dimensions = button->get<cSprite>().sprite.getGlobalBounds().size;
     button->get<cSprite>().sprite.setOrigin({dimensions.x / 2.f, dimensions.y / 2.f});
-    
-    button->get<cTransform>().pos = {300, 400};
 }

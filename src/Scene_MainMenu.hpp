@@ -21,5 +21,7 @@ public:
     void init();
 private:
     void spawnMainMenu();
-    void spawnButton(sf::FloatRect rect, std::string text);
+    void spawnButton(const std::string& name, std::string_view tex, sf::Vector2f worldPos);
+    
+    sf::View m_view;
 };
