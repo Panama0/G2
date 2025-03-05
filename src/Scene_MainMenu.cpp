@@ -71,8 +71,12 @@ void Scene_MainMenu::init()
 {
     m_assets.setResourceDir("../../res");
     
+    // buttons
     registerTexture("Start", "start.png");
-    
+    registerTexture("Load", "load.png");
+    registerTexture("Save", "save.png");
+    registerTexture("Editor", "editor.png");
+
     registerAction(sf::Keyboard::Key::M, ActionTypes::FS);
     
     m_view = m_game->getWindow().getView();
@@ -81,12 +85,19 @@ void Scene_MainMenu::init()
 
 void Scene_MainMenu::spawnMainMenu()
 {
-    float offsetX {m_view.getSize().x / 10.f};
+    float offsetY {m_view.getSize().y / 10.f};
     sf::Vector2f startPos {m_game->getGrid().getGridAt(m_view.getCenter()).worldPos};
     spawnButton("Start", "Start", startPos);
     
-    spawnButton("Map", "Start", m_view.getCenter() + sf::Vector2f {0.f, offsetX});
-    spawnButton("SaveLoad", "Start", m_view.getCenter() + sf::Vector2f{0.f, offsetX * 2.f});
+    spawnButton("Map", "Start", m_view.getCenter() + sf::Vector2f {0.f, offsetY * 2.f});
+    
+    const auto& sizeSave = static_cast<sf::Vector2f>(m_assets.getTexture("Save").getSize());
+    const auto& sizeLoad = static_cast<sf::Vector2f>(m_assets.getTexture("Load").getSize());
+    spawnButton("Save", "Save", m_view.getCenter() + sf::Vector2f {-sizeSave.x * 3.f, offsetY * 4.f});
+    spawnButton("Load", "Load", m_view.getCenter() + sf::Vector2f {sizeLoad.x * 3.f, offsetY * 4.f});
+    
+    const auto& sizeEditor = static_cast<sf::Vector2f> (m_assets.getTexture("Editor").getSize());
+    spawnButton("Editor", "Editor", sf::Vector2f {sizeEditor.x * 2.f, offsetY * 9.f});
 }
 
 
