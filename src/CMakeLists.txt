@@ -11,6 +11,8 @@ set(SRC_FILES
     Animation.cpp
     Window.cpp
     Grid.cpp
+    Scene_Editor.cpp
+    GameMap.cpp
 )
 
 set(H_FILES 
@@ -24,6 +26,8 @@ set(H_FILES
     Scene_MainMenu.hpp
     Window.hpp
     Grid.hpp
+    Scene_Editor.hpp
+    GameMap.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

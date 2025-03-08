@@ -77,7 +77,7 @@ void Scene_MainMenu::init()
     registerTexture("Save", "save.png");
     registerTexture("Editor", "editor.png");
 
-    registerAction(sf::Keyboard::Key::M, ActionTypes::FS);
+    registerAction(sf::Keyboard::Key::V, ActionTypes::FS);
     
     m_view = m_game->getWindow().getView();
     spawnMainMenu();

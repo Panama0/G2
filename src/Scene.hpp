@@ -43,7 +43,6 @@ protected:
     GameEngine* m_game;
     EntityManager m_entities;
     int m_currentFrame {};
-    std::vector<std::string> m_assetNames;
     Assets m_assets;
     std::map<sf::Keyboard::Key, int> m_actionMap;
     bool m_paused {false};
