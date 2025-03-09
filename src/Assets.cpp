@@ -30,3 +30,21 @@ bool Assets::addFont(std::string_view name, const std::filesystem::path& fname)
     m_fonts.emplace(name, font);
     return true;
 }
+
+bool Assets::loadTextureDir(const std::filesystem::path path)
+{
+    if(!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
+    {
+        std::cerr << "Failed to load texture dir, path does not exist!\n";
+        return false;
+    }
+    
+    for(const auto& file : std::filesystem::directory_iterator(path))
+    {
+        sf::Texture texture;
+        if(!texture.loadFromFile(file.path())) { return false; };
+        auto cstr = file.path().filename().stem().c_str();
+        m_textures.emplace(cstr, texture);
+    }
+    return true;
+}

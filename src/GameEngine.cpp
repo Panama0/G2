@@ -28,7 +28,9 @@ void GameEngine::run()
     m_running = true;
     
     while(m_running)
-    {      
+    {
+        m_dt = m_clock.restart();
+        
         sUserInput();
         currentScene()->update();
     }

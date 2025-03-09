@@ -19,6 +19,8 @@ public:
     
     Window& getWindow() { return m_window; }
     
+    sf::Time getDT() { return m_dt; }
+    
     void sUserInput();
 private:
     void init();
@@ -32,4 +34,6 @@ private:
     
     int m_currentScene;
     bool m_running {false};
+    sf::Clock m_clock;
+    sf::Time m_dt;
 };

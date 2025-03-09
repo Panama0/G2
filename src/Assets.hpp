@@ -15,6 +15,8 @@ public:
     bool addSound(std::string_view name, const std::filesystem::path& fname);
     bool addFont(std::string_view name, const std::filesystem::path& fname);
     
+    bool loadTextureDir(const std::filesystem::path path);
+    
     const sf::Texture& getTexture(std::string_view name) { return m_textures[name]; }
     const Animation& getAnimation(std::string_view  name) { return m_animations[name]; }
     const sf::SoundBuffer& getSound(std::string_view name) { return m_sounds[name]; }

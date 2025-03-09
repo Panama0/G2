@@ -42,9 +42,10 @@ private:
     bool m_gridVisible {false};
     
     //* --- FOR UI ---
-    sf::Texture m_selectedSpr;
+    sf::Texture m_selectedTile;
+    sf::RenderTexture m_currentTileRenderTex {{200,200}};
     // not sure the type here yet
-    sf::Angle rotation;
+    sf::Angle m_rotation;
     GameMap m_gameMap;
     
     sf::Vector2u m_gridSize;
