@@ -46,6 +46,11 @@ void Window::updateView(sf::Vector2f size)
     m_window.setView(m_view);
 }
 
+sf::Vector2f Window::pixelToCoords(const sf::Vector2i& pixel)
+{
+    return m_window.mapPixelToCoords(pixel, m_view);
+}
+
 void Window::toggleFullscreen(bool mode)
 {
     if(m_isFullscreen == mode)

@@ -39,13 +39,13 @@ public:
 private:
     void drawUI();
     
-    // place mode or remove mode
-    bool m_placing {true};
-    
     bool m_gridVisible {false};
     
+    //* --- FOR UI ---
     sf::Texture m_selectedSpr;
     // not sure the type here yet
     sf::Angle rotation;
     GameMap m_gameMap;
+    
+    sf::Vector2u m_gridSize;
 };

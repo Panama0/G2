@@ -43,7 +43,7 @@ void Scene_MainMenu::sRender()
             m_game->getWindow().draw(entity->get<cSprite>().sprite);
         }
     }
-    sf::Sprite grid {m_game->getGrid().getTexture()};
+    sf::Sprite grid {m_globalGrid.getTexture()};
     m_game->getWindow().draw(grid);
     m_game->getWindow().render();
 }
@@ -86,7 +86,7 @@ void Scene_MainMenu::init()
 void Scene_MainMenu::spawnMainMenu()
 {
     float offsetY {m_view.getSize().y / 10.f};
-    sf::Vector2f startPos {m_game->getGrid().getGridAt(m_view.getCenter()).worldPos};
+    sf::Vector2f startPos {m_globalGrid.getGridAt(m_view.getCenter()).worldPos};
     spawnButton("Start", "Start", startPos);
     
     spawnButton("Map", "Start", m_view.getCenter() + sf::Vector2f {0.f, offsetY * 2.f});

@@ -4,6 +4,7 @@
 #include "EntityManager.hpp"
 #include "Action.hpp"
 #include "Assets.hpp"
+#include "Grid.hpp"
 #include <map>
 #include <string>
 #include <filesystem>
@@ -20,6 +21,7 @@ public:
     enum SceneTypes
     {
         mainmenu,
+        editor,
         gameplay
     };
 
@@ -32,19 +34,24 @@ public:
     void doAction(const Action& a);
     
     void registerAction(sf::Keyboard::Key key, int index);
+    void registerAction(sf::Mouse::Button button, int index);
 
     void registerFont(std::string_view name, const std::filesystem::path& fname);
     void registerTexture(std::string_view name, const std::filesystem::path& fname);
     void registerAnimation(std::string_view name, const std::filesystem::path& fname, uint32_t frames, uint32_t interval);
     void registerSound(std::string_view name, const std::filesystem::path& fname);
     
-    const std::map<sf::Keyboard::Key, int>& getActionMap() const { return m_actionMap; }
+    const std::map<sf::Keyboard::Key, int>& getKeyboardActions() const { return m_keyboardActions; }
+    const std::map<sf::Mouse::Button, int>& getMouseActions() const { return m_mouseActions; }
 protected:
     GameEngine* m_game;
     EntityManager m_entities;
     int m_currentFrame {};
     Assets m_assets;
-    std::map<sf::Keyboard::Key, int> m_actionMap;
+    std::map<sf::Keyboard::Key, int> m_keyboardActions;
+    std::map<sf::Mouse::Button, int> m_mouseActions;
     bool m_paused {false};
     bool m_hasEnded {false};
+    
+    Grid m_globalGrid;
 };

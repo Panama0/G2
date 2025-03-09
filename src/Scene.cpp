@@ -3,7 +3,12 @@
 
 void Scene::registerAction(sf::Keyboard::Key key, int index)
 {
-    m_actionMap[key] = index;
+    m_keyboardActions[key] = index;
+}
+
+void Scene::registerAction(sf::Mouse::Button button, int index)
+{
+    m_mouseActions[button] = index;
 }
 
 void Scene::registerFont(std::string_view name, const std::filesystem::path& fname)

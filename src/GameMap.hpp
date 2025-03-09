@@ -45,4 +45,6 @@ private:
     bool hasChanges {false};
     
     sf::RenderTexture m_mapTexture;
+    sf::Vector2u m_gridSize;
+    sf::Vector2f m_worldSize;
 };
