@@ -5,6 +5,7 @@ bool Assets::addTexture(std::string_view name, const std::filesystem::path& fnam
     sf::Texture texture;
     if(!texture.loadFromFile(m_resourcesDir / fname)) { return false; }
     m_textures.emplace(name, texture);
+    m_textureList.emplace_back(name);
     return true;
 }
 
@@ -14,7 +15,7 @@ bool Assets::addAnimation(std::string_view name, const std::filesystem::path& fn
     if(!animation.isValid) { return false; }
     
     m_animations.emplace(name, animation);
-    
+    m_animationList.emplace_back(name);
     return true;
 }
 
@@ -28,6 +29,7 @@ bool Assets::addFont(std::string_view name, const std::filesystem::path& fname)
     sf::Font font;
     if(!font.openFromFile(m_resourcesDir / fname)) { return false; }
     m_fonts.emplace(name, font);
+    m_fontList.emplace_back(name);
     return true;
 }
 
@@ -43,8 +45,9 @@ bool Assets::loadTextureDir(const std::filesystem::path path)
     {
         sf::Texture texture;
         if(!texture.loadFromFile(file.path())) { return false; };
-        auto cstr = file.path().filename().stem().c_str();
-        m_textures.emplace(cstr, texture);
+        std::string name {file.path().filename().stem().string()};
+        m_textures.emplace(name, texture);
+        m_textureList.emplace_back(name);
     }
     return true;
 }

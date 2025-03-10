@@ -16,13 +16,12 @@ void Scene_Editor::init()
     
     registerTexture("t", "start.png");
     m_assets.loadTextureDir("../../res/tiles/");
+    
+    m_selectedTile = m_assets.getTextureList().at(0);
 }
 
 void Scene_Editor::update()
 {
-    //* temp, we will have to update this later
-    m_selectedTile = m_assets.getTexture("t");
-    
     m_game->getWindow().updateImGui(m_game->getDT());
     ImGui::ShowDemoWindow();
     sRender();
@@ -66,13 +65,13 @@ void Scene_Editor::sRender()
     auto& window = m_game->getWindow();
     window.beginDraw();
     
-    drawUI();
-    
     if(m_gridVisible)
     {
         sf::Sprite grid {m_globalGrid.getTexture()};
         window.draw(grid);
     }
+
+    drawUI();
     window.render();
 }
 
@@ -85,13 +84,13 @@ void Scene_Editor::drawUI()
         {
             ImGui::SeparatorText("Current Tile");
             
-            sf::Sprite currentTile {m_selectedTile};
+            sf::Sprite currentTile {m_assets.getTexture(m_selectedTile)};
             currentTile.setScale({5.f, 5.f});
             currentTile.setRotation(m_rotation);
             currentTile.setOrigin(currentTile.getLocalBounds().getCenter());
             currentTile.setPosition(m_currentTileRenderTex.getView().getCenter());
             
-            if(!m_currentTileRenderTex.resize(m_selectedTile.getSize() * 5u))
+            if(!m_currentTileRenderTex.resize(m_assets.getTexture(m_selectedTile).getSize() * 5u))
             {
                 std::cerr << "Could not Resize!";
             }
@@ -102,6 +101,30 @@ void Scene_Editor::drawUI()
             
             ImGui::SeparatorText("All Tiles");
             
+            size_t tileCount {m_assets.getTextureList().size()};
+            int columnCount{5};
+            
+            if(ImGui::BeginTable("Tile Table", columnCount, ImGuiTableFlags_Borders))
+            {
+                for(size_t i {}; i < tileCount; i++)
+                {
+                    ImGui::TableNextColumn();
+                    std::string name {m_assets.getTextureList().at(i).c_str()};
+                    ImGui::Text("%s", name.c_str());
+                    
+                    ImGui::SameLine();
+                    ImGui::PushID(i);
+                    if(ImGui::Button("Select"))
+                    {
+                        m_selectedTile = name;
+                    }
+                    ImGui::PopID();
+                    
+                    ImGui::Image(m_assets.getTexture(name));
+                }
+                
+                ImGui::EndTable();
+            }
             
             ImGui::EndTabItem();
         }

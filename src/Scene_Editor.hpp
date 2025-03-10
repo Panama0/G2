@@ -42,7 +42,7 @@ private:
     bool m_gridVisible {false};
     
     //* --- FOR UI ---
-    sf::Texture m_selectedTile;
+    std::string m_selectedTile;
     sf::RenderTexture m_currentTileRenderTex {{200,200}};
     // not sure the type here yet
     sf::Angle m_rotation;

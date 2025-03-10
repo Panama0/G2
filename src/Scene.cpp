@@ -18,7 +18,7 @@ void Scene::registerFont(std::string_view name, const std::filesystem::path& fna
 
 void Scene::registerTexture(std::string_view name, const std::filesystem::path& fname)
 {
-    m_assets.addTexture(name, fname);
+    m_assets.addTexture(name.data(), fname);
 }
 
 void Scene::registerAnimation(std::string_view name, const std::filesystem::path& fname, uint32_t frames, uint32_t interval)
