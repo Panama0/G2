@@ -39,6 +39,8 @@ public:
 private:
     void drawUI();
     
+    void placeSelectedTile(const sf::Vector2f& pos);
+    
     bool m_gridVisible {false};
     
     //* --- FOR UI ---
@@ -47,6 +49,7 @@ private:
     // not sure the type here yet
     sf::Angle m_rotation;
     GameMap m_gameMap;
+    bool m_placing {true};
     
     sf::Vector2u m_gridSize;
 };

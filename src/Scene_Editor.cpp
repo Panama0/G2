@@ -56,6 +56,7 @@ void Scene_Editor::sDoAction(const Action& action)
             if(action.status() == Action::start)
             {
                 std::cout << action.position().x << ',' << action.position().y << '\n';
+                placeSelectedTile(action.position());
             }
     }
 }
@@ -94,7 +95,7 @@ void Scene_Editor::drawUI()
             {
                 std::cerr << "Could not Resize!";
             }
-            m_currentTileRenderTex.clear(sf::Color::Red);
+            m_currentTileRenderTex.clear();
             m_currentTileRenderTex.draw(currentTile);
             m_currentTileRenderTex.display();
             ImGui::Image(m_currentTileRenderTex);
@@ -140,4 +141,11 @@ void Scene_Editor::drawUI()
     
     ImGui::End();
     m_game->getWindow().drawImGui();
+}
+
+void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
+{
+    GameMap::MapTile tile {pos, m_rotation, m_selectedTile, 0};
+    m_gameMap.place(tile);
+    // do other stuff 
 }
