@@ -5,7 +5,7 @@
 #include <filesystem>
 #include "SFML/Audio.hpp"
 #include "SFML/Graphics.hpp"
-#include "Animation.hpp"
+#include "scene base/Animation.hpp"
 
 class Assets
 {

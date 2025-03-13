@@ -1,4 +1,4 @@
-#include "Scene_Editor.hpp"
+#include "scenes/Scene_Editor.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 

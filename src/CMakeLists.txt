@@ -3,31 +3,31 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SRC_FILES 
     main.cpp
-    EntityManager.cpp
-    GameEngine.cpp
-    Scene.cpp
-    Assets.cpp
-    Scene_MainMenu.cpp
-    Animation.cpp
-    Window.cpp
-    Grid.cpp
-    Scene_Editor.cpp
-    GameMap.cpp
+    engine/EntityManager.cpp
+    engine/GameEngine.cpp
+    "scene base/Scene.cpp"
+    "scene base/Assets.cpp"
+    scenes/Scene_MainMenu.cpp
+    "scene base/Animation.cpp"
+    engine/Window.cpp
+    "scene base/Grid.cpp"
+    scenes/Scene_Editor.cpp
+    "scene base/GameMap.cpp"
 )
 
 set(H_FILES 
-    Action.hpp
-    Animation.hpp
-    Assets.hpp
-    Components.hpp
-    Entity.hpp
-    GameEngine.hpp
-    Scene.hpp
-    Scene_MainMenu.hpp
-    Window.hpp
-    Grid.hpp
-    Scene_Editor.hpp
-    GameMap.hpp
+    engine/Action.hpp
+    "scene base/Animation.hpp"
+    "scene base/Assets.hpp"
+    "scene base/Components.hpp"
+    engine/Entity.hpp
+    engine/GameEngine.hpp
+    "scene base/Scene.hpp"
+    scenes/Scene_MainMenu.hpp
+    engine/Window.hpp
+    "scene base/Grid.hpp"
+    scenes/Scene_Editor.hpp
+    "scene base/GameMap.hpp"
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

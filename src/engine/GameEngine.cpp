@@ -1,7 +1,7 @@
-#include "GameEngine.hpp"
-#include "Scene_MainMenu.hpp"
-#include "Scene_Editor.hpp"
-#include "Action.hpp"
+#include "engine/GameEngine.hpp"
+#include "scenes/Scene_MainMenu.hpp"
+#include "scenes/Scene_Editor.hpp"
+#include "engine/Action.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "imgui.h"

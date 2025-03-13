@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Scene.hpp"
-#include "Action.hpp"
-#include "Window.hpp"
+#include "scene base/Scene.hpp"
+#include "engine/Action.hpp"
+#include "engine/Window.hpp"
 
 #include "SFML/Graphics.hpp"
 #include <map>

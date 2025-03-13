@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Assets.hpp"
+#include "scene base/Assets.hpp"
 
 #include "SFML/Graphics.hpp"
 

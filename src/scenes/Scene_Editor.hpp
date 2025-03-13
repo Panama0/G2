@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Scene.hpp"
-#include "GameMap.hpp"
+#include "scene base/Scene.hpp"
+#include "scene base/GameMap.hpp"
 
 class Scene_Editor : public Scene
 {

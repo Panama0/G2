@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GameEngine.hpp"
-#include "EntityManager.hpp"
-#include "Action.hpp"
-#include "Assets.hpp"
-#include "Grid.hpp"
+#include "engine/GameEngine.hpp"
+#include "engine/EntityManager.hpp"
+#include "engine/Action.hpp"
+#include "scene base/Assets.hpp"
+#include "scene base/Grid.hpp"
 #include <map>
 #include <string>
 #include <filesystem>

@@ -1,4 +1,4 @@
-#include "GameMap.hpp"
+#include "scene base/GameMap.hpp"
 
 void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
 {

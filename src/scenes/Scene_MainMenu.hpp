@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "scene base/Scene.hpp"
 
 class Scene_MainMenu : public Scene
 {

@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "scene base/Scene.hpp"
 
 
 void Scene::registerAction(sf::Keyboard::Key key, int index)

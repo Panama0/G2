@@ -1,4 +1,4 @@
-#include "Scene_MainMenu.hpp"
+#include "scenes/Scene_MainMenu.hpp"
 
 #include <iostream>
 
