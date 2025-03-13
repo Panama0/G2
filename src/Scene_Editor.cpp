@@ -13,6 +13,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::Key::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(sf::Keyboard::Key::G, static_cast<int>(ActionTypes::toggleGrid));
     registerAction(sf::Mouse::Button::Left, static_cast<int>(ActionTypes::place));
+    registerAction(sf::Mouse::Button::Right, static_cast<int>(ActionTypes::remove));
     
     registerTexture("t", "start.png");
     m_assets.loadTextureDir("../../res/tiles/");
@@ -55,8 +56,22 @@ void Scene_Editor::sDoAction(const Action& action)
         case static_cast<int>(ActionTypes::place):
             if(action.status() == Action::start)
             {
-                std::cout << action.position().x << ',' << action.position().y << '\n';
                 placeSelectedTile(action.position());
+            }
+            break;
+        
+        case static_cast<int>(ActionTypes::remove):
+            if(action.status() == Action::end)
+            {
+                const auto& gridLocation = m_globalGrid.getGridAt(action.position());
+                const auto& tiles = m_gameMap.getTilesAt(gridLocation.midPos);
+                if(!tiles.empty())
+                {
+                    for(const auto& tile : tiles)
+                    {
+                        m_gameMap.remove(tile);
+                    }
+                }
             }
     }
 }
@@ -70,6 +85,17 @@ void Scene_Editor::sRender()
     {
         sf::Sprite grid {m_globalGrid.getTexture()};
         window.draw(grid);
+    }
+    
+    auto tiles = m_gameMap.getTiles();
+    for(auto& tile : tiles)
+    {
+        sf::Texture tex { m_assets.getTexture(tile.textureName)};
+        sf::Sprite spr {tex};
+        spr.setPosition(tile.pos);
+        spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
+        
+        window.draw(spr);
     }
 
     drawUI();
@@ -145,7 +171,7 @@ void Scene_Editor::drawUI()
 
 void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
 {
-    GameMap::MapTile tile {pos, m_rotation, m_selectedTile, 0};
+    GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_rotation, m_selectedTile, 0};
     m_gameMap.place(tile);
     // do other stuff 
 }

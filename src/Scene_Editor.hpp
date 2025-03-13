@@ -41,7 +41,7 @@ private:
     
     void placeSelectedTile(const sf::Vector2f& pos);
     
-    bool m_gridVisible {false};
+    bool m_gridVisible {true};
     
     //* --- FOR UI ---
     std::string m_selectedTile;
