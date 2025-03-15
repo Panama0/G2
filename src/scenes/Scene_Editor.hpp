@@ -15,6 +15,7 @@ public:
         remove,
         rotate,
         save,
+        load,
     };
     
     enum class TileTypes

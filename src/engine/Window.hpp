@@ -22,6 +22,8 @@ public:
     const sf::RenderWindow& getWindow() { return m_window; }
     
     sf::Vector2f pixelToCoords(const sf::Vector2i& pixel);
+    
+    bool isInsideView(const sf::Vector2f& pos);
 
     void toggleFullscreen(bool mode);
     void toggleFullscreen();

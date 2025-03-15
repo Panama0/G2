@@ -43,6 +43,9 @@ public:
     
     void setDir(const std::filesystem::path& path) { m_dir = path; }
 private:
+    // takes in a string like "30,42"
+    template <typename T>
+    sf::Vector2<T> stovec(std::string_view string);
     
     std::filesystem::path m_dir;
     std::vector<MapTile> m_tiles;

@@ -32,8 +32,9 @@ void Grid::init(sf::Vector2u renderSpace, sf::Vector2u squareSize)
 
 const Grid::GridSquare& Grid::getGridAt(sf::Vector2f worldPos) const
 {
+    assert(worldPos.x > 0 && worldPos.y > 0 && "worldPos must be positive!");
     assert(worldPos.x < m_worldSize.x && worldPos.y < m_worldSize.y && 
-            "worldPos cant be larger than world!\n");
+            "worldPos cant be larger than world!");
     sf::Vector2u gp {static_cast<uint32_t>(worldPos.x) / m_squareSize.x,
                      static_cast<uint32_t>(worldPos.y) / m_squareSize.y};
     return getGridAt(gp);

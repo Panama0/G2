@@ -9,11 +9,14 @@ void Scene_Editor::init()
     
     m_assets.setResourceDir("../../res/");
     m_globalGrid.init(m_game->getWindow().getSize(), m_gridSize);
+    m_gameMap.setDir("../../res/saves/");
     
     registerAction(sf::Keyboard::Key::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(sf::Keyboard::Key::G, static_cast<int>(ActionTypes::toggleGrid));
     registerAction(sf::Mouse::Button::Left, static_cast<int>(ActionTypes::place));
     registerAction(sf::Mouse::Button::Right, static_cast<int>(ActionTypes::remove));
+    registerAction(sf::Keyboard::Key::S, static_cast<int>(ActionTypes::save));
+    registerAction(sf::Keyboard::Key::L, static_cast<int>(ActionTypes::load));
     
     registerTexture("t", "start.png");
     m_assets.loadTextureDir("../../res/tiles/");
@@ -72,6 +75,19 @@ void Scene_Editor::sDoAction(const Action& action)
                         m_gameMap.remove(tile);
                     }
                 }
+            }
+            
+        case static_cast<int>(ActionTypes::save):
+            if(action.status() == Action::end)
+            {
+                m_gameMap.save("test");
+            }
+            break;
+            
+        case static_cast<int>(ActionTypes::load):
+            if(action.status() == Action::end)
+            {
+                m_gameMap.load("test");
             }
     }
 }
@@ -171,6 +187,11 @@ void Scene_Editor::drawUI()
 
 void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
 {
+    if(!m_game->getWindow().isInsideView(pos))
+    {
+        return;
+    }
+    
     GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_rotation, m_selectedTile, 0};
     m_gameMap.place(tile);
     // do other stuff 

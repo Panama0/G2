@@ -51,6 +51,21 @@ sf::Vector2f Window::pixelToCoords(const sf::Vector2i& pixel)
     return m_window.mapPixelToCoords(pixel, m_view);
 }
 
+bool Window::isInsideView(const sf::Vector2f& pos)
+{
+    auto viewSize = m_view.getSize();
+    auto viewCenter = m_view.getCenter();
+    
+    sf::FloatRect viewRect {viewCenter - viewSize / 2.f, viewSize};
+    
+    if(!viewRect.contains(pos))
+    {
+        // we have clicked outside the view area
+        return false;
+    }
+    return true;
+}
+
 void Window::toggleFullscreen(bool mode)
 {
     if(m_isFullscreen == mode)
