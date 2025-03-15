@@ -45,10 +45,9 @@ std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
 }
 
 [[nodiscard]]
-bool GameMap::save(std::string_view fname)
+bool GameMap::save(const std::filesystem::path& path)
 {
-    std::filesystem::path filePath {m_dir / fname};
-    std::ofstream out {filePath};
+    std::ofstream out {path};
 
     if(!out)
     {
@@ -78,10 +77,9 @@ bool GameMap::save(std::string_view fname)
 }
 
 [[nodiscard]]
-bool GameMap::load(std::string_view fname)
+bool GameMap::load(const std::filesystem::path& path)
 {
-    std::filesystem::path filePath {m_dir / fname};
-    std::ifstream in {filePath};
+    std::ifstream in {path};
     
     if(!in)
     {

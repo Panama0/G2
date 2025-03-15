@@ -39,18 +39,25 @@ public:
     void sRender();
 private:
     void drawUI();
+    void drawTilesUI();
+    void drawMainMenuBarUI();
+    void drawSaveLoadUI();
     
     void placeSelectedTile(const sf::Vector2f& pos);
     
     bool m_gridVisible {true};
-    
-    //* --- FOR UI ---
     std::string m_selectedTile;
-    sf::RenderTexture m_currentTileRenderTex {{200,200}};
-    // not sure the type here yet
     sf::Angle m_rotation;
     GameMap m_gameMap;
     bool m_placing {true};
+    
+    //* --- FOR UI ---
+    sf::RenderTexture m_currentTileRenderTex {{200,200}};
+    bool m_showSaveLoad {false};
+    bool m_showTilesUI {true};
+    bool m_showToolsUI {false};
+    std::string m_fileName {"Unnamed Level"};
+    std::filesystem::path m_dir {"../../res/saves/"};
     
     sf::Vector2u m_gridSize;
 };
