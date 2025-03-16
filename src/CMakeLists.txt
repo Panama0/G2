@@ -13,6 +13,7 @@ set(SRC_FILES
     "scene base/Grid.cpp"
     scenes/Scene_Editor.cpp
     "scene base/GameMap.cpp"
+    "scene base/EditorUI.cpp"
 )
 
 set(H_FILES 
@@ -28,6 +29,8 @@ set(H_FILES
     "scene base/Grid.hpp"
     scenes/Scene_Editor.hpp
     "scene base/GameMap.hpp"
+    "scene base/EditorUI.hpp"
+    "engine/Gui.hpp"
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

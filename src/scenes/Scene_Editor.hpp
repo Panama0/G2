@@ -2,6 +2,7 @@
 
 #include "scene base/Scene.hpp"
 #include "scene base/GameMap.hpp"
+#include "scene base/EditorUI.hpp"
 
 class Scene_Editor : public Scene
 {
@@ -39,9 +40,6 @@ public:
     void sRender();
 private:
     void drawUI();
-    void drawTilesUI();
-    void drawMainMenuBarUI();
-    void drawSaveLoadUI();
     
     void placeSelectedTile(const sf::Vector2f& pos);
     
@@ -51,13 +49,7 @@ private:
     GameMap m_gameMap;
     bool m_placing {true};
     
-    //* --- FOR UI ---
-    sf::RenderTexture m_currentTileRenderTex {{200,200}};
-    bool m_showSaveLoad {false};
-    bool m_showTilesUI {true};
-    bool m_showToolsUI {false};
-    std::string m_fileName {"Unnamed Level"};
-    std::filesystem::path m_dir {"../../res/saves/"};
+    EditorUI m_editorUI;
     
     sf::Vector2u m_gridSize;
 };

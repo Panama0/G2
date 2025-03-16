@@ -1,18 +1,16 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "imgui-SFML.h"
-#include "imgui.h"
 
 class Window
 {
 public:
+    friend class Gui;
+    
     void init();
 
     void beginDraw() { m_window.clear(); }
     void draw(sf::Drawable& drawable) { m_window.draw(drawable); }
-    void updateImGui(const sf::Time& dt) { ImGui::SFML::Update(m_window, dt); }
-    void drawImGui() { ImGui::SFML::Render(m_window); }
     void render() { m_window.display(); }
 
     void updateView(sf::Vector2f size);
