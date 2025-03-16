@@ -1,8 +1,9 @@
 #pragma once
 
 #include "scene base/Scene.hpp"
-#include "scene base/GameMap.hpp"
 #include "scene base/EditorUI.hpp"
+#include "scene base/EditorState.hpp"
+
 
 class Scene_Editor : public Scene
 {
@@ -29,6 +30,7 @@ public:
         spawner
     };
     
+    
     Scene_Editor() = default;
     Scene_Editor(GameEngine* game)
         :Scene(game)
@@ -38,18 +40,16 @@ public:
     void update();
     void sDoAction(const Action& action);
     void sRender();
+    
+    //! need to remove this in favour of the assetList in the editorState struct
+    Assets& getAssets() { return m_assets; }
 private:
     void drawUI();
     
     void placeSelectedTile(const sf::Vector2f& pos);
     
-    bool m_gridVisible {true};
-    std::string m_selectedTile;
-    sf::Angle m_rotation;
-    GameMap m_gameMap;
-    bool m_placing {true};
-    
-    EditorUI m_editorUI;
+    EditorState m_state;   
+    EditorUI m_editorUI {this};
     
     sf::Vector2u m_gridSize;
 };

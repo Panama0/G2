@@ -1,19 +1,20 @@
 #pragma once
 
 #include "engine/Gui.hpp"
-#include "scene base/Assets.hpp"
+#include "scene base/EditorState.hpp"
 
-class Scene;
+class Scene_Editor;
 
 class EditorUI : public Gui
 {
 public:
-    EditorUI() = default;
-    EditorUI(Scene* scene)
+    EditorUI() = delete;
+    EditorUI(Scene_Editor* scene)
         :m_scene {scene}
     {}
     
     void draw() override;
+    void updateState(EditorState* state);
 private:
     void drawTilesUI();
     void drawMainMenuBarUI();
@@ -23,8 +24,7 @@ private:
     bool m_showSaveLoad {false};
     bool m_showTilesUI {true};
     bool m_showToolsUI {false};
-    std::string m_fileName {"Unnamed Level"};
-    std::filesystem::path m_dir {"../../res/saves/"};
     
-    Scene* m_scene;
+    Scene_Editor* m_scene;
+    EditorState* m_state;
 };

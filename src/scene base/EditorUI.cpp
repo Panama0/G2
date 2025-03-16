@@ -1,5 +1,7 @@
 #include "EditorUI.hpp"
 
+#include "scenes/Scene_Editor.hpp"
+
 void EditorUI::draw()
 {
     drawMainMenuBarUI();
@@ -8,15 +10,20 @@ void EditorUI::draw()
     if(m_showSaveLoad) { drawSaveLoadUI(); }
 }
 
+void EditorUI::updateState(EditorState* state)
+{
+    m_state = state;
+}
+
 void EditorUI::drawMainMenuBarUI()
 {
     ImGui::BeginMainMenuBar();
     
     if(ImGui::BeginMenu("File"))
     {
-        if(ImGui::MenuItem("Save", m_fileName.c_str()))
+        if(ImGui::MenuItem("Save", m_state->fileName.c_str()))
         {
-            m_gameMap.save(m_dir / m_fileName);
+            m_scene->sDoAction(Action {static_cast<int>(Scene_Editor::ActionTypes::save), Action::end});
         }
         if(ImGui::MenuItem("Save As/Load"))
         {
@@ -63,13 +70,13 @@ void EditorUI::drawTilesUI()
         {
             ImGui::SeparatorText("Current Tile");
             
-            sf::Sprite currentTile {m_assets.getTexture(m_selectedTile)};
+            sf::Sprite currentTile {m_scene->getAssets().getTexture(m_state->selectedTile)};
             currentTile.setScale({5.f, 5.f});
-            currentTile.setRotation(m_rotation);
+            currentTile.setRotation(m_state->angle);
             currentTile.setOrigin(currentTile.getLocalBounds().getCenter());
             currentTile.setPosition(m_currentTileRenderTex.getView().getCenter());
             
-            if(!m_currentTileRenderTex.resize(m_assets.getTexture(m_selectedTile).getSize() * 5u))
+            if(!m_currentTileRenderTex.resize(m_scene->getAssets().getTexture(m_state->selectedTile).getSize() * 5u))
             {
                 std::cerr << "Could not Resize!";
             }
@@ -80,7 +87,7 @@ void EditorUI::drawTilesUI()
             
             ImGui::SeparatorText("All Tiles");
             
-            size_t tileCount {m_assets.getTextureList().size()};
+            size_t tileCount {m_scene->getAssets().getTextureList().size()};
             int columnCount{5};
             
             if(ImGui::BeginTable("Tile Table", columnCount, ImGuiTableFlags_Borders))
@@ -88,18 +95,18 @@ void EditorUI::drawTilesUI()
                 for(size_t i {}; i < tileCount; i++)
                 {
                     ImGui::TableNextColumn();
-                    std::string name {m_assets.getTextureList().at(i).c_str()};
+                    std::string name {m_scene->getAssets().getTextureList().at(i).c_str()};
                     ImGui::Text("%s", name.c_str());
                     
                     ImGui::SameLine();
                     ImGui::PushID(i);
                     if(ImGui::Button("Select"))
                     {
-                        m_selectedTile = name;
+                        m_state->selectedTile = name;
                     }
                     ImGui::PopID();
                     
-                    ImGui::Image(m_assetsPtr->getTexture(name));
+                    ImGui::Image(m_scene->getAssets().getTexture(name));
                 }
                 
                 ImGui::EndTable();
@@ -132,10 +139,13 @@ void EditorUI::drawSaveLoadUI()
             static char fnameBuf[32];
             static bool copied {false};
             
+            const auto& path = m_state->filePath;
+            const auto& name = m_state->fileName;
+            
             if(!copied)
             {
-                std::copy(m_dir.c_str(), m_dir.c_str() + m_dir.string().length() + 1, folderBuf);
-                std::copy(m_fileName.c_str(), m_fileName.c_str() + m_fileName.length() + 1, fnameBuf);
+                std::copy(path.c_str(), path.c_str() + path.string().length() + 1, folderBuf);
+                std::copy(name.c_str(), name.c_str() + name.length() + 1, fnameBuf);
                 copied = true;
             }
             
@@ -144,9 +154,9 @@ void EditorUI::drawSaveLoadUI()
             
             if(ImGui::Button("Save", ImVec2 {150, 50}))
             {
-                m_dir = folderBuf;
-                m_fileName = fnameBuf;
-                // sDoAction(Action {static_cast<int>(ActionTypes::save), Action::end});
+                m_state->filePath = folderBuf;
+                m_state->fileName = fnameBuf;
+                m_scene->sDoAction(Action {static_cast<int>(Scene_Editor::ActionTypes::save), Action::end});
                 copied = false;
                 m_showSaveLoad = false;
             }

@@ -31,6 +31,7 @@ set(H_FILES
     "scene base/GameMap.hpp"
     "scene base/EditorUI.hpp"
     "engine/Gui.hpp"
+    "scene base/EditorState.hpp"
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})
