@@ -129,7 +129,10 @@ void EditorUI::drawTilesUI()
 
 void EditorUI::drawSaveLoadUI()
 {
-    ImGui::Begin("Save/Load");
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | 
+    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+    
+    ImGui::Begin("Save/Load", &m_showSaveLoad, flags);
     
     if(ImGui::BeginTabBar("Save/Load Tabs"))
     {
@@ -166,6 +169,58 @@ void EditorUI::drawSaveLoadUI()
         
         if(ImGui::BeginTabItem("Load"))
         {
+            static char buf[128];
+            static bool copied {false};
+            
+            const auto& startingDir = m_state->filePath;
+
+            if(!copied)
+            {
+                std::copy(startingDir.c_str(), startingDir.c_str() + startingDir.string().length() + 1, buf);
+                copied = true;
+            }
+            
+            if(ImGui::InputText("Path to Saves Folder", buf, 128))
+            {
+                std::filesystem::path path {buf};
+                if(std::filesystem::exists(path))
+                {
+                    m_state->filePath = buf;
+                }
+                else
+                {
+                    std::cerr << "Path does not exist!\n";
+                }
+            }
+            
+            // construct a list of the files in the directory
+            std::vector<std::string> files;
+            for(auto file : std::filesystem::directory_iterator {startingDir})
+            {
+                files.emplace_back(file.path().filename());
+            }
+            
+            static std::string selectedItem;
+            
+            if(ImGui::BeginListBox("Files"))
+            {    
+                for(auto& file : files)
+                {
+                    if(ImGui::Selectable(file.c_str(), file == selectedItem))
+                    {
+                        selectedItem = file;
+                    }
+                }
+                ImGui::EndListBox();
+            }
+            
+            if(ImGui::Button("Load", ImVec2 {150, 50}))
+            {
+                m_state->fileName = selectedItem;
+                m_scene->sDoAction(Action {static_cast<int>(Scene_Editor::ActionTypes::load), Action::end});
+                copied = false;
+                m_showSaveLoad = false;
+            }
             
             ImGui::EndTabItem();
         }

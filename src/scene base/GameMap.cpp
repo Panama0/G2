@@ -44,8 +44,7 @@ std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
     return tiles;
 }
 
-[[nodiscard]]
-bool GameMap::save(const std::filesystem::path& path)
+[[nodiscard]] bool GameMap::save(const std::filesystem::path& path)
 {
     std::ofstream out {path};
 
@@ -64,20 +63,24 @@ bool GameMap::save(const std::filesystem::path& path)
     out << dateString << '\n';
     out << "GridSize: " << m_gridSize.x << "," << m_gridSize.y << '\n';
     out << "WorldSize: " << m_worldSize.x << "," << m_worldSize.y << '\n';
-    out << "TileData:\n";
     
-    for(const auto& tile : m_tiles)
+    if(m_tiles.size() > 0)
     {
-        out << tile.textureName << ' ' << tile.pos.x << "," << tile.pos.y
-            << ' ' << tile.rotation.asRadians() << ' ' << tile.id <<  ' ' << tile.type;
-            
-        out << '\n';
+        out << "TileData:\n";
+
+        for(const auto& tile : m_tiles)
+        {
+            out << tile.textureName << ' ' << tile.pos.x << "," << tile.pos.y
+                << ' ' << tile.rotation.asRadians() << ' ' << tile.id <<  ' ' << tile.type;
+                
+            out << '\n';
+        }
     }
+    
     return true;
 }
 
-[[nodiscard]]
-bool GameMap::load(const std::filesystem::path& path)
+[[nodiscard]] bool GameMap::load(const std::filesystem::path& path)
 {
     std::ifstream in {path};
     
@@ -115,6 +118,7 @@ bool GameMap::load(const std::filesystem::path& path)
             std::string idStr;
             std::string typeStr;
             
+            
             while(in)
             {
                 in >> texName >> posStr >> rotationStr >> idStr >> typeStr;
@@ -142,6 +146,7 @@ sf::Vector2<T> GameMap::stovec(std::string_view string)
     if(midPos == std::string::npos)
     {
         std::cerr << "String to vector failed!, Invalid string passed to func.\n";
+        return sf::Vector2<T> {};
     }
     
     std::string_view x {string.substr(0, midPos)};
