@@ -2,8 +2,6 @@
 #include "imgui-SFML.h"
 #include "imgui.h"
 
-#include <algorithm>
-
 void Scene_Editor::init()
 {
     //* temp
@@ -50,7 +48,7 @@ void Scene_Editor::sDoAction(const Action& action)
             }
             break;
         
-            case static_cast<int>(ActionTypes::toggleGrid):
+        case static_cast<int>(ActionTypes::toggleGrid):
             if(action.status() == Action::end)
             {
                 if(m_state.gridVisible)
@@ -97,6 +95,20 @@ void Scene_Editor::sDoAction(const Action& action)
             if(action.status() == Action::end)
             {
                 m_state.map.load(m_state.filePath / m_state.fileName);
+            }
+            break;
+        
+        case static_cast<int>(ActionTypes::exit):
+            if(action.status() == Action::end)
+            {
+                m_game->quit();
+            }
+            break;
+
+        case static_cast<int>(ActionTypes::endScene):
+            if(action.status() == Action::end)
+            {
+                m_hasEnded = true;
             }
             break;
     }

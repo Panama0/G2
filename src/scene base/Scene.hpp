@@ -15,8 +15,9 @@ class Scene
 {
 public:
     Scene() = default;
-    Scene(GameEngine* game)
+    Scene(GameEngine* game, uint32_t id)
         :m_game {game}
+        ,m_id(id)
     {}
     enum SceneTypes
     {
@@ -29,6 +30,10 @@ public:
     virtual void sDoAction(const Action& action) = 0;
     virtual void sRender() = 0;
     virtual void init() = 0;
+    
+    virtual void end() = 0;
+    bool hasEnded() { return m_hasEnded; }
+    uint32_t id() { return m_id; }
     
     void simulate(int iterations);
     void doAction(const Action& a);
@@ -45,6 +50,7 @@ public:
     const std::map<sf::Mouse::Button, int>& getMouseActions() const { return m_mouseActions; }
 protected:
     GameEngine* m_game;
+    uint32_t m_id {};
     EntityManager m_entities;
     int m_currentFrame {};
     Assets m_assets;

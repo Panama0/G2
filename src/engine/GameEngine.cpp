@@ -18,9 +18,8 @@ GameEngine::GameEngine()
 void GameEngine::init()
 {
     m_window.init();
-    //* temp
-    m_scenes[0] = std::make_shared<Scene_Editor>(this);
-    changeScene(0);
+
+    changeScene<Scene_Editor>(m_idCounter++);
 }
 
 void GameEngine::run()
@@ -33,18 +32,14 @@ void GameEngine::run()
         
         sUserInput();
         currentScene()->update();
-    }
-}
-
-void GameEngine::changeScene(int s)
-{
-    if(m_scenes[s] == nullptr)
-    {
-        std::cerr << "Scene does not exist!\n";
-    }
-    else
-    {
-        m_currentScene = s;
+        
+        if(currentScene()->hasEnded())
+        {
+            uint32_t endedSceneID {currentScene()->id()};
+            currentScene()->end();
+            // destroy the scene
+            m_scenes2.erase(endedSceneID);
+        }
     }
 }
 
@@ -53,7 +48,8 @@ void GameEngine::sUserInput()
     while (auto event = m_window.getEvent())
     {
         ImGui::SFML::ProcessEvent(m_window.getWindow(), event.value());
-        if(ImGui::GetIO().WantCaptureMouse) { continue; }
+        if(ImGui::GetIO().WantCaptureMouse) 
+        { continue; }
         
         if(event->is<sf::Event::Closed>())
         {

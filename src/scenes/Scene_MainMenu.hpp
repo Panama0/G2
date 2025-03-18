@@ -1,3 +1,5 @@
+#pragma once
+
 #include "scene base/Scene.hpp"
 
 class Scene_MainMenu : public Scene
@@ -10,14 +12,16 @@ public:
     };
     
     Scene_MainMenu() = default;
-    Scene_MainMenu(GameEngine* game)
-        :Scene(game)
+    Scene_MainMenu(GameEngine* game, uint32_t id)
+        :Scene(game, id)
     { init(); }
     
     void update();
     void sDoAction(const Action& action);
     void sRender();
     void sAnimation();
+    void end() override { m_game->quit(); }
+    
     void init();
 private:
     void spawnMainMenu();

@@ -31,11 +31,11 @@ void EditorUI::drawMainMenuBarUI()
         }
         if(ImGui::MenuItem("Exit to Main Menu"))
         {
-            
+            m_scene->sDoAction(Action {static_cast<int>(Scene_Editor::ActionTypes::endScene), Action::end});
         }
         if(ImGui::MenuItem("Exit"))
         {
-            
+            m_scene->sDoAction(Action {static_cast<int>(Scene_Editor::ActionTypes::exit), Action::end});
         }
         
         ImGui::EndMenu();

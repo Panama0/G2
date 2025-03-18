@@ -80,6 +80,10 @@ void Scene_MainMenu::init()
     registerAction(sf::Keyboard::Key::V, ActionTypes::FS);
     
     m_view = m_game->getWindow().getView();
+    
+    //* temp
+    m_globalGrid.init(m_game->getWindow().getSize(), {32, 32});
+    
     spawnMainMenu();
 }
 

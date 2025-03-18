@@ -4,6 +4,8 @@
 #include "scene base/EditorUI.hpp"
 #include "scene base/EditorState.hpp"
 
+#include "scenes/Scene_MainMenu.hpp"
+
 
 class Scene_Editor : public Scene
 {
@@ -18,6 +20,8 @@ public:
         rotate,
         save,
         load,
+        exit,
+        endScene,
     };
     
     enum class TileTypes
@@ -32,14 +36,15 @@ public:
     
     
     Scene_Editor() = default;
-    Scene_Editor(GameEngine* game)
-        :Scene(game)
+    Scene_Editor(GameEngine* game, uint32_t id)
+        :Scene(game, id)
     { init(); }
     
-    void init();
-    void update();
-    void sDoAction(const Action& action);
-    void sRender();
+    void init() override;
+    void update() override;
+    void sDoAction(const Action& action) override;
+    void sRender() override;
+    void end() override { m_game->changeScene<Scene_MainMenu>(1); }
     
     //! need to remove this in favour of the assetList in the editorState struct
     Assets& getAssets() { return m_assets; }
