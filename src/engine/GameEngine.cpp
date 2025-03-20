@@ -19,7 +19,7 @@ void GameEngine::init()
 {
     m_window.init();
 
-    changeScene<Scene_Editor>(m_idCounter++);
+    changeScene<Scene_Editor>();
 }
 
 void GameEngine::run()
@@ -38,7 +38,8 @@ void GameEngine::run()
             uint32_t endedSceneID {currentScene()->id()};
             currentScene()->end();
             // destroy the scene
-            m_scenes2.erase(endedSceneID);
+            sUserInput();
+            m_scenes.erase(endedSceneID);
         }
     }
 }
@@ -47,9 +48,12 @@ void GameEngine::sUserInput()
 {
     while (auto event = m_window.getEvent())
     {
-        ImGui::SFML::ProcessEvent(m_window.getWindow(), event.value());
-        if(ImGui::GetIO().WantCaptureMouse) 
-        { continue; }
+        if(currentScene()->hasGUI())
+        {
+            ImGui::SFML::ProcessEvent(m_window.getWindow(), event.value());
+            if(ImGui::GetIO().WantCaptureMouse) 
+            { continue; }
+        }
         
         if(event->is<sf::Event::Closed>())
         {

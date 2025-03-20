@@ -31,12 +31,13 @@ public:
     virtual void sRender() = 0;
     virtual void init() = 0;
     
+    bool hasGUI() { return m_hasGui; }
+    
     virtual void end() = 0;
     bool hasEnded() { return m_hasEnded; }
     uint32_t id() { return m_id; }
     
     void simulate(int iterations);
-    void doAction(const Action& a);
     
     void registerAction(sf::Keyboard::Key key, int index);
     void registerAction(sf::Mouse::Button button, int index);
@@ -48,6 +49,8 @@ public:
     
     const std::map<sf::Keyboard::Key, int>& getKeyboardActions() const { return m_keyboardActions; }
     const std::map<sf::Mouse::Button, int>& getMouseActions() const { return m_mouseActions; }
+    
+    virtual ~Scene() {};
 protected:
     GameEngine* m_game;
     uint32_t m_id {};
@@ -58,6 +61,7 @@ protected:
     std::map<sf::Mouse::Button, int> m_mouseActions;
     bool m_paused {false};
     bool m_hasEnded {false};
+    bool m_hasGui {false};
     
     Grid m_globalGrid;
 };

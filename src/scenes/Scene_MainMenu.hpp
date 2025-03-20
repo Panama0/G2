@@ -9,6 +9,7 @@ public:
     {
         null,
         FS,
+        launchEditor,
     };
     
     Scene_MainMenu() = default;
@@ -16,13 +17,13 @@ public:
         :Scene(game, id)
     { init(); }
     
-    void update();
-    void sDoAction(const Action& action);
-    void sRender();
+    void update() override;
+    void sDoAction(const Action& action) override;
+    void sRender() override;
     void sAnimation();
     void end() override { m_game->quit(); }
     
-    void init();
+    void init() override;
 private:
     void spawnMainMenu();
     void spawnButton(const std::string& name, std::string_view tex, sf::Vector2f worldPos);

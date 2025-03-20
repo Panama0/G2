@@ -6,6 +6,7 @@ void Scene_Editor::init()
 {
     //* temp
     m_gridSize = {32, 32};
+    m_hasGui = true;
     
     m_assets.setResourceDir("../../res/");
     m_globalGrid.init(m_game->getWindow().getSize(), m_gridSize);

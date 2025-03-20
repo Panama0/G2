@@ -1,5 +1,7 @@
 #include "scenes/Scene_MainMenu.hpp"
 
+#include "scenes/Scene_Editor.hpp"
+
 #include <iostream>
 
 void Scene_MainMenu::update()
@@ -26,7 +28,17 @@ void Scene_MainMenu::sDoAction(const Action& action)
     switch(action.type())
     {
         case ActionTypes::FS:
-            if(action.status() == Action::end) { m_game->getWindow().toggleFullscreen(); };
+            if(action.status() == Action::end)
+            {
+                m_game->getWindow().toggleFullscreen();
+            }
+            break;
+            
+        case ActionTypes::launchEditor:
+            if(action.status() == Action::end)
+            {
+                m_game->changeScene<Scene_Editor>();
+            }
             break;
     }
 }
@@ -34,8 +46,6 @@ void Scene_MainMenu::sDoAction(const Action& action)
 void Scene_MainMenu::sRender()
 {
     m_game->getWindow().beginDraw();
-    
-    
     for(auto& entity : m_entities.getEntities())
     {
         if(entity->has<cSprite>() && entity->isActive())
@@ -78,6 +88,7 @@ void Scene_MainMenu::init()
     registerTexture("Editor", "editor.png");
 
     registerAction(sf::Keyboard::Key::V, ActionTypes::FS);
+    registerAction(sf::Keyboard::Key::E, ActionTypes::launchEditor);
     
     m_view = m_game->getWindow().getView();
     

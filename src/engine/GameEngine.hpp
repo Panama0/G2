@@ -5,7 +5,11 @@
 #include "engine/Window.hpp"
 
 #include "SFML/Graphics.hpp"
-#include <map>
+#include <unordered_map>
+#include <iostream>
+
+#include "imgui.h"
+#include "imgui-SFML.h"
 
 class Scene;
 
@@ -19,11 +23,25 @@ public:
     template <typename T>
     void changeScene(uint32_t sceneID)
     {
-        if(m_scenes2.find(sceneID) == nullptr)
+        if(m_scenes.find(sceneID) == nullptr)
         {
-            m_scenes2.emplace(sceneID, std::make_unique<T>(this, sceneID));
+            std::cerr << "Could not find the specified scene!\n";
         }
-        m_currentSceneID = sceneID;
+        else
+        {
+            m_currentSceneID = sceneID;
+        }
+    }
+    template <typename T>
+    void changeScene()
+    {
+        if(m_scenes.find(m_idCounter) == nullptr)
+        {
+            m_window.init();
+            m_scenes.emplace(m_idCounter, std::make_unique<T>(this, m_idCounter));
+        }
+        m_currentSceneID = m_idCounter;
+        m_idCounter++;
     }
     
     Window& getWindow() { return m_window; }
@@ -36,8 +54,8 @@ private:
     void processKey(sf::Keyboard::Key key, Action::ActionStatus status);
     void processMousePress(sf::Mouse::Button button, Action::ActionStatus status, const sf::Vector2f& pos);
     
-    Scene* currentScene() { return m_scenes2.find(m_currentSceneID)->second.get(); }
-    std::unordered_map<uint32_t, std::unique_ptr<Scene>> m_scenes2;
+    Scene* currentScene() { return m_scenes.find(m_currentSceneID)->second.get(); }
+    std::unordered_map<uint32_t, std::unique_ptr<Scene>> m_scenes;
     
     Window m_window;
     

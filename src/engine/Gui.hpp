@@ -23,9 +23,7 @@ public:
     }
     
     void display() { ImGui::SFML::Render(*m_windowPtr); }
-    
     void update(const sf::Time& dt) { ImGui::SFML::Update(*m_windowPtr, dt); }
-    
     virtual void draw() = 0;
 private:
     sf::RenderWindow* m_windowPtr;
