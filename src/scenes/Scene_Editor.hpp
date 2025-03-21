@@ -24,17 +24,6 @@ public:
         endScene,
     };
     
-    enum class TileTypes
-    {
-        null,
-        ground,
-        water,
-        rock,
-        path,
-        spawner
-    };
-    
-    
     Scene_Editor() = default;
     Scene_Editor(GameEngine* game, uint32_t id)
         :Scene(game, id)

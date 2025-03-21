@@ -154,7 +154,7 @@ void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
         return;
     }
     
-    GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_state.angle, m_state.selectedTile, 0};
+    GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_state.angle, m_state.selectedTile};
     m_state.map.place(tile);
     // do other stuff 
 }

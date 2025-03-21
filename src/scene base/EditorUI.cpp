@@ -117,6 +117,11 @@ void EditorUI::drawTilesUI()
         
         if(ImGui::BeginTabItem("Brushes"))
         {
+            if(ImGui::BeginListBox("Brushes"))
+            {
+                
+                ImGui::EndListBox();
+            }
             
             ImGui::EndTabItem();
         }

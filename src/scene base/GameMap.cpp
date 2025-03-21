@@ -34,14 +34,29 @@ void GameMap::remove(const MapTile& tile)
 std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
 {
     std::vector<GameMap::MapTile> tiles;
-    tiles.reserve(5);
     
     for(const auto& tile : m_tiles)
     {
         if(tile.pos == pos)
+        {
             tiles.push_back(tile);
+        }
     }
     return tiles;
+}
+
+std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
+{
+    std::vector<GameMap::Brush> brushes;
+    
+    for(const auto& brush : m_brushes)
+    {
+        if(brush.pos == pos)
+        {
+            brushes.push_back(brush);
+        }
+    }
+    return brushes;
 }
 
 [[nodiscard]] bool GameMap::save(const std::filesystem::path& path)
@@ -57,10 +72,11 @@ std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
     auto now = std::chrono::system_clock::now();
     auto timeNow = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %X");
-    std::string dateString = ss.str();
+    ss << m_identifier << std::endl;
+    ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %X") << std::endl;
+    std::string identString = ss.str();
     
-    out << dateString << '\n';
+    out << identString << '\n';
     out << "GridSize: " << m_gridSize.x << "," << m_gridSize.y << '\n';
     out << "WorldSize: " << m_worldSize.x << "," << m_worldSize.y << '\n';
     
@@ -70,10 +86,19 @@ std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
 
         for(const auto& tile : m_tiles)
         {
-            out << tile.textureName << ' ' << tile.pos.x << "," << tile.pos.y
-                << ' ' << tile.rotation.asRadians() << ' ' << tile.id <<  ' ' << tile.type;
-                
-            out << '\n';
+            out << tile.textureName << ' ' << tile.pos.x << ',' << tile.pos.y
+                << ' ' << tile.rotation.asRadians() << ' ' << tile.id << std::endl;
+        }
+    }
+    
+    if(m_brushes.size() > 0)
+    {
+        out << "BrushData:\n";
+        
+        for(const auto& brush : m_brushes)
+        {
+            out << brush.textureName << ' ' << brush.pos.x << ',' << brush.pos.y
+                << ' ' << brush.rotation.asRadians() << ' ' << brush.id << std::endl;
         }
     }
     
@@ -93,6 +118,14 @@ std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
     m_tiles.clear();
     
     std::string token;
+    
+    in >> token;
+    
+    if(token != m_identifier)
+    {
+        std::cerr << "Not a valid save file\n";
+        return false;
+    }
     
     while(in >> token)
     {
@@ -116,21 +149,18 @@ std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
             std::string posStr;
             std::string rotationStr;
             std::string idStr;
-            std::string typeStr;
             
             
             while(in)
             {
-                in >> texName >> posStr >> rotationStr >> idStr >> typeStr;
+                in >> texName >> posStr >> rotationStr >> idStr;
                 
                 sf::Vector2f pos {stovec<float>(posStr)};
                 sf::Angle angle {sf::radians(std::stof(rotationStr))};
-                //! not used for now
-                uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
-                int type {std::stoi(typeStr)};
+                //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
                 
                 m_tiles.reserve(m_gridSize.x * m_gridSize.y);
-                m_tiles.emplace_back(MapTile {pos, angle, texName, type});
+                m_tiles.emplace_back(MapTile {pos, angle, texName});
             }
         }
     }
