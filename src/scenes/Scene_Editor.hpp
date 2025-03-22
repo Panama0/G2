@@ -17,6 +17,7 @@ public:
         toggleGrid,
         place,
         remove,
+        select,
         rotate,
         save,
         load,
@@ -41,6 +42,10 @@ private:
     void drawUI();
     
     void placeSelectedTile(const sf::Vector2f& pos);
+    void placeSelectedBrush(const sf::Vector2f& pos);
+    void select(const sf::Vector2f& pos);
+    void remove(const GameMap::MapTile& tile);
+    void remove(std::shared_ptr<Entity> entity);
     
     EditorState m_state;   
     EditorUI m_editorUI {this};

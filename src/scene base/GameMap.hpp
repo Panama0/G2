@@ -42,7 +42,7 @@ public:
     
     void init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize);
     
-    void place(const MapTile& tile);
+    void placeTile(const MapTile& tile);
     void remove(const MapTile& tile);
     
     std::vector<MapTile> getTilesAt(const sf::Vector2f& pos);

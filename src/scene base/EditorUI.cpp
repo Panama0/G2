@@ -6,7 +6,7 @@ void EditorUI::draw()
 {
     drawMainMenuBarUI();
     if(m_showTilesUI) { drawTilesUI(); }
-    
+    if(m_showToolsUI) { drawToolsUI(); }
     if(m_showSaveLoad) { drawSaveLoadUI(); }
 }
 
@@ -54,7 +54,6 @@ void EditorUI::drawMainMenuBarUI()
             if(m_showToolsUI) { m_showToolsUI = false; }
             else { m_showToolsUI = true; }
         }
-        
         ImGui::EndMenu();
     }
     
@@ -88,7 +87,7 @@ void EditorUI::drawTilesUI()
             ImGui::SeparatorText("All Tiles");
             
             size_t tileCount {m_scene->getAssets().getTextureList().size()};
-            int columnCount{5};
+            const int columnCount{5};
             
             if(ImGui::BeginTable("Tile Table", columnCount, ImGuiTableFlags_Borders))
             {
@@ -119,7 +118,15 @@ void EditorUI::drawTilesUI()
         {
             if(ImGui::BeginListBox("Brushes"))
             {
-                
+                for(int i {}; i < static_cast<int>(enums::Brushes::count); i++)
+                {
+                    auto brush = static_cast<enums::Brushes>(i);
+                    auto name = enums::toString(brush);
+                    if(ImGui::Selectable(name.data(), brush == m_state->selectedBrush))
+                    {
+                        m_state->selectedBrush = brush;
+                    }
+                }
                 ImGui::EndListBox();
             }
             
@@ -130,6 +137,52 @@ void EditorUI::drawTilesUI()
     }
     
     ImGui::End();
+}
+
+void EditorUI::drawToolsUI()
+{
+    if(ImGui::Begin("Tools"))
+    {
+        ImGui::Text("Current Tool: %s", getToolName(m_state->currentMode));
+
+        if(ImGui::Button(getToolName(EditorState::Modes::none)))
+        {
+            m_state->currentMode = EditorState::Modes::none;
+        }
+        ImGui::SameLine();
+        if(ImGui::Button(getToolName(EditorState::Modes::tilePlaceTileRemove)))
+        {
+            m_state->currentMode = EditorState::Modes::tilePlaceTileRemove;
+        }
+        ImGui::SameLine();
+        if(ImGui::Button(getToolName(EditorState::Modes::brushPlaceBrushRemove)))
+        {
+            m_state->currentMode = EditorState::Modes::brushPlaceBrushRemove;
+        }
+        ImGui::SameLine();
+        if(ImGui::Button(getToolName(EditorState::Modes::selectNone)))
+        {
+            m_state->currentMode = EditorState::Modes::selectNone;
+        }
+        
+        ImGui::End();
+    }
+}
+
+const char* EditorUI::getToolName(EditorState::Modes mode)
+{
+    switch(mode)
+    {
+        case EditorState::Modes::none:
+            return "View";
+        case EditorState::Modes::tilePlaceTileRemove:
+            return "Place and Remove Tiles";
+        case EditorState::Modes::brushPlaceBrushRemove:
+            return "Place and Remove Brushes";
+        case EditorState::Modes::selectNone:
+            return "Select";
+    }
+    return "Invalid\n";
 }
 
 void EditorUI::drawSaveLoadUI()

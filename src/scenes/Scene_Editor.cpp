@@ -18,7 +18,6 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::Key::S, static_cast<int>(ActionTypes::save));
     registerAction(sf::Keyboard::Key::L, static_cast<int>(ActionTypes::load));
     
-    registerTexture("t", "start.png");
     m_assets.loadTextureDir("../../res/tiles/");
     
     m_state.selectedTile = m_assets.getTextureList().at(0);
@@ -28,9 +27,22 @@ void Scene_Editor::init()
 
 void Scene_Editor::update()
 {
+    m_entities.update();
+    
+    for(auto& entity : m_entities.getEntities())
+    {
+        if(entity->has<cTransform>() && entity->has<cSprite>())
+        {
+            auto& spr = entity->get<cSprite>().sprite;
+            const auto& transform = entity->get<cTransform>();
+            spr.setPosition(transform.pos);
+            spr.setScale(transform.scale);
+        }
+    }
+    
     // update state and pass to the scene;
     m_state.textureList = m_assets.getTextureList();
-    
+    m_state.entities = m_entities.getEntities();
     m_editorUI.updateState(&m_state);
     
     m_editorUI.update(m_game->getDT());
@@ -66,21 +78,48 @@ void Scene_Editor::sDoAction(const Action& action)
         case static_cast<int>(ActionTypes::place):
             if(action.status() == Action::start)
             {
-                placeSelectedTile(action.position());
+                switch(m_state.currentMode)
+                {
+                    case EditorState::Modes::none:
+                        break;
+                    case EditorState::Modes::tilePlaceTileRemove:
+                        placeSelectedTile(action.position());
+                        break;
+                    case EditorState::Modes::brushPlaceBrushRemove:
+                        placeSelectedBrush(action.position());
+                        break;
+                    case EditorState::Modes::selectNone:
+                        select(action.position());
+                        break;
+                }
             }
             break;
         
         case static_cast<int>(ActionTypes::remove):
             if(action.status() == Action::end)
             {
-                const auto& gridLocation = m_globalGrid.getGridAt(action.position());
-                const auto& tiles = m_state.map.getTilesAt(gridLocation.midPos);
-                if(!tiles.empty())
+                if(m_state.currentMode == EditorState::Modes::tilePlaceTileRemove)
                 {
-                    for(const auto& tile : tiles)
+                    auto pos = m_globalGrid.getGridAt(action.position());
+                    auto tiles = m_state.map.getTilesAt(pos.midPos);
+                    for(auto& tile : tiles)
                     {
-                        m_state.map.remove(tile);
+                        remove(tile);
                     }
+                }
+                else if (m_state.currentMode == EditorState::Modes::brushPlaceBrushRemove)
+                {
+                    auto pos = m_globalGrid.getGridAt(action.position());
+                    auto brushes = m_entities.getEntities("Brush");
+                    
+                    for(auto brush : brushes)
+                    {
+                        if(brush->get<cTransform>().pos == pos.midPos)
+                        {
+                            remove(brush);
+                        }
+                    }
+                    
                 }
             }
             break;
@@ -136,6 +175,15 @@ void Scene_Editor::sRender()
         
         window.draw(spr);
     }
+    
+    for(const auto& entity : m_entities.getEntities())
+    {
+        if(entity->has<cSprite>())
+        {
+            auto& spr = entity->get<cSprite>();
+            m_game->getWindow().draw(spr.sprite);
+        }
+    }
 
     drawUI();
     window.render();
@@ -155,6 +203,38 @@ void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
     }
     
     GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_state.angle, m_state.selectedTile};
-    m_state.map.place(tile);
+    m_state.map.placeTile(tile);
     // do other stuff 
+}
+
+void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
+{
+    if(!m_game->getWindow().isInsideView(pos))
+    {
+        return;
+    }
+    
+    auto entitiy = m_entities.addEntity("Brush");
+    
+    auto& spr = entitiy->add<cSprite>().sprite;
+    auto& tex = spr.getTexture();
+    spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
+    
+    entitiy->add<cTransform>(m_globalGrid.getGridAt(pos).midPos);
+    entitiy->add<cBrush>(m_state.selectedBrush, "a");
+}
+
+void Scene_Editor::select(const sf::Vector2f& pos)
+{
+    
+}
+
+void Scene_Editor::remove(const GameMap::MapTile& tile)
+{
+    m_state.map.remove(tile);
+}
+
+void Scene_Editor::remove(std::shared_ptr<Entity> entity)
+{
+    entity->destroy();
 }

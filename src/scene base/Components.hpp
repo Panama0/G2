@@ -2,6 +2,7 @@
 
 #include "scene base/Animation.hpp"
 #include "SFML/Graphics.hpp"
+#include "scene base/GameEnums.hpp"
 
 
 class Component
@@ -91,4 +92,17 @@ public:
 
     Animation animation;
     bool repeat {false};
+};
+
+class cBrush : public Component
+{
+public:
+    cBrush() = default;
+    cBrush(enums::Brushes b, const std::string& n)
+        :brush {b}
+        ,name {n}
+    {}
+
+    enums::Brushes brush;
+    std::string name;
 };

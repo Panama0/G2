@@ -19,11 +19,13 @@ private:
     void drawTilesUI();
     void drawMainMenuBarUI();
     void drawSaveLoadUI();
-
+    void drawToolsUI();
+    const char* getToolName(EditorState::Modes mode);
+    
     sf::RenderTexture m_currentTileRenderTex {{200,200}};
     bool m_showSaveLoad {false};
     bool m_showTilesUI {true};
-    bool m_showToolsUI {false};
+    bool m_showToolsUI {true};
     
     Scene_Editor* m_scene;
     EditorState* m_state;

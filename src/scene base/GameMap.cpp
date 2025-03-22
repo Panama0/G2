@@ -12,7 +12,7 @@ void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
     m_tiles.reserve(gridSize.x * gridSize.y);
 }
 
-void GameMap::place(const MapTile& tile)
+void GameMap::placeTile(const MapTile& tile)
 {
     m_tiles.push_back(tile);
 }
