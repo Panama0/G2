@@ -5,16 +5,14 @@
 #include "scene base/GameEnums.hpp"
 
 
-class Component
+struct Component
 {
-public:
     bool exists {false};
 };
 
 //* surely we can merge animated sprite with this at some point
-class cSprite : public Component
+struct cSprite : public Component
 {
-public:
     cSprite()
         :sprite {m_defaultTexture}
     {}
@@ -29,9 +27,8 @@ private:
     static inline sf::Texture m_defaultTexture {m_defaultImg};
 };
 
-class cTransform : public Component
+struct cTransform : public Component
 {
-public:
     cTransform() = default;
     cTransform(sf::Vector2f p, sf::Vector2f v = {0.f, 0.f})
         :pos{p}
@@ -44,9 +41,8 @@ public:
     float angle;
 };
 
-class cInput : public Component
+struct cInput : public Component
 {
-public:
     cInput() = default;
     
     bool up {false};
@@ -56,9 +52,8 @@ public:
     //* can add more here if needed
 };
 
-class cBoundingBox : public Component
+struct cBoundingBox : public Component
 {
-public:
     cBoundingBox() = default;
     cBoundingBox(sf::Vector2f d)
         :dimensions {d}
@@ -68,9 +63,8 @@ public:
     sf::Vector2f halfDimensions;
 };
 
-class cAnimatedSprite : public Component
+struct cAnimatedSprite : public Component
 {
-public:
     cAnimatedSprite() = default;
     cAnimatedSprite(const Animation& an, bool rep = false)
         :animation {an}
@@ -81,11 +75,10 @@ public:
     bool repeat {false};
 };
 
-class cAnimation : public Component
+struct cAnimation : public Component
 {
-public:
-        cAnimation() = default;
-        cAnimation(const Animation& an, bool rep = false)
+    cAnimation() = default;
+    cAnimation(const Animation& an, bool rep = false)
         :animation {an}
         ,repeat {rep}
     {}
@@ -94,9 +87,8 @@ public:
     bool repeat {false};
 };
 
-class cBrush : public Component
+struct cBrush : public Component
 {
-public:
     cBrush() = default;
     cBrush(enums::Brushes b, const std::string& n)
         :brush {b}
@@ -105,4 +97,14 @@ public:
 
     enums::Brushes brush;
     std::string name;
+};
+
+struct cId : public Component
+{
+    cId() = default;
+    cId(uint32_t _id)
+        :id {_id}
+    {}
+
+    uint32_t id {};
 };

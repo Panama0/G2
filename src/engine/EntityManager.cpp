@@ -30,7 +30,9 @@ const EntityVec& EntityManager::getEntities(const std::string& tag)
 
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
-    auto entity = std::shared_ptr<Entity>(new Entity(m_totalEntities++, tag));
+    m_totalEntities++;
+    
+    auto entity = std::shared_ptr<Entity>(new Entity(tag));
     
     m_entitiesToAdd.push_back(entity);
     

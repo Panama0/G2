@@ -69,13 +69,13 @@ void EditorUI::drawTilesUI()
         {
             ImGui::SeparatorText("Current Tile");
             
-            sf::Sprite currentTile {m_scene->getAssets().getTexture(m_state->selectedTile)};
+            sf::Sprite currentTile {m_scene->getAssets().getTexture(m_state->tileTexture)};
             currentTile.setScale({5.f, 5.f});
             currentTile.setRotation(m_state->angle);
             currentTile.setOrigin(currentTile.getLocalBounds().getCenter());
             currentTile.setPosition(m_currentTileRenderTex.getView().getCenter());
             
-            if(!m_currentTileRenderTex.resize(m_scene->getAssets().getTexture(m_state->selectedTile).getSize() * 5u))
+            if(!m_currentTileRenderTex.resize(m_scene->getAssets().getTexture(m_state->tileTexture).getSize() * 5u))
             {
                 std::cerr << "Could not Resize!";
             }
@@ -101,7 +101,7 @@ void EditorUI::drawTilesUI()
                     ImGui::PushID(i);
                     if(ImGui::Button("Select"))
                     {
-                        m_state->selectedTile = name;
+                        m_state->tileTexture = name;
                     }
                     ImGui::PopID();
                     
@@ -122,9 +122,9 @@ void EditorUI::drawTilesUI()
                 {
                     auto brush = static_cast<enums::Brushes>(i);
                     auto name = enums::toString(brush);
-                    if(ImGui::Selectable(name.data(), brush == m_state->selectedBrush))
+                    if(ImGui::Selectable(name.data(), brush == m_state->brushType))
                     {
-                        m_state->selectedBrush = brush;
+                        m_state->brushType = brush;
                     }
                 }
                 ImGui::EndListBox();

@@ -32,7 +32,7 @@ public:
     struct Brush : public MapTile
     {
         Brush() = default;
-        Brush(const sf::Vector2f& p, const sf::Angle& r, std::string_view texName, int ty)
+        Brush(const sf::Vector2f& p, const sf::Angle& r, std::string_view texName, enums::Brushes ty)
             :MapTile(p, r, texName)
             ,type {ty}
             {}
@@ -43,7 +43,9 @@ public:
     void init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize);
     
     void placeTile(const MapTile& tile);
-    void remove(const MapTile& tile);
+    void removeTile(uint32_t id);
+    void placeBrush(const Brush& brush);
+    void removeBrush(uint32_t id);
     
     std::vector<MapTile> getTilesAt(const sf::Vector2f& pos);
     const std::vector<MapTile>& getTiles() { return m_tiles; }

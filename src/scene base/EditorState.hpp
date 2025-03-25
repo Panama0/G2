@@ -22,8 +22,11 @@ struct EditorState
     
     bool gridVisible {true};
     
-    std::string selectedTile;
-    enums::Brushes selectedBrush;
+    std::string tileTexture;
+    enums::Brushes brushType;
+    
+    std::vector<GameMap::MapTile> selectedTiles;
+    std::vector<GameMap::Brush> selectedBrushes;
     
     sf::Angle angle;
     GameMap map;

@@ -20,7 +20,7 @@ void Scene_Editor::init()
     
     m_assets.loadTextureDir("../../res/tiles/");
     
-    m_state.selectedTile = m_assets.getTextureList().at(0);
+    m_state.tileTexture = m_assets.getTextureList().at(0);
     
     m_editorUI.init(m_game->getWindow());
 }
@@ -104,7 +104,7 @@ void Scene_Editor::sDoAction(const Action& action)
                     auto tiles = m_state.map.getTilesAt(pos.midPos);
                     for(auto& tile : tiles)
                     {
-                        remove(tile);
+                        m_state.map.removeTile(tile);
                     }
                 }
                 else if (m_state.currentMode == EditorState::Modes::brushPlaceBrushRemove)
@@ -116,7 +116,9 @@ void Scene_Editor::sDoAction(const Action& action)
                     {
                         if(brush->get<cTransform>().pos == pos.midPos)
                         {
-                            remove(brush);
+                            brush->destroy();
+                            //! we still have to remove it from the map
+                            m_state.map.removeBrush(brush->get<cId>().id);
                         }
                     }
                     
@@ -202,7 +204,7 @@ void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
         return;
     }
     
-    GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_state.angle, m_state.selectedTile};
+    GameMap::MapTile tile {m_globalGrid.getGridAt(pos).midPos, m_state.angle, m_state.tileTexture};
     m_state.map.placeTile(tile);
     // do other stuff 
 }
@@ -221,20 +223,12 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
     spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
     
     entitiy->add<cTransform>(m_globalGrid.getGridAt(pos).midPos);
-    entitiy->add<cBrush>(m_state.selectedBrush, "a");
+    entitiy->add<cBrush>(m_state.brushType, "a");
 }
 
 void Scene_Editor::select(const sf::Vector2f& pos)
 {
-    
-}
-
-void Scene_Editor::remove(const GameMap::MapTile& tile)
-{
-    m_state.map.remove(tile);
-}
-
-void Scene_Editor::remove(std::shared_ptr<Entity> entity)
-{
-    entity->destroy();
+    const auto& gridPos = m_globalGrid.getGridAt(pos);
+    m_state.selectedTiles = m_state.map.getTilesAt(gridPos.midPos);
+    m_state.selectedBrushes = m_state.map.getBrushesAt(gridPos.midPos);
 }

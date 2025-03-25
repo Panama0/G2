@@ -17,7 +17,7 @@ void GameMap::placeTile(const MapTile& tile)
     m_tiles.push_back(tile);
 }
 
-void GameMap::remove(const MapTile& tile)
+void GameMap::removeTile(const MapTile& tile)
 {
     const auto& tileId = tile.id;
     

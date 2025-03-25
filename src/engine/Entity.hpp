@@ -23,7 +23,6 @@ public:
     
     bool isActive() const { return m_active; }
     void destroy() { m_active = false; }
-    size_t id() const { return m_id; }
     std::string tag() { return m_tag; }
     
     template<typename T>
@@ -54,10 +53,8 @@ private:
     ComponentTuple m_components;
     bool m_active{true};
     std::string m_tag;
-    size_t m_id{};
     
-    Entity(size_t id, std::string tag)
+    Entity(std::string tag)
         :m_tag{tag}
-        ,m_id{id}
     {}
 };
