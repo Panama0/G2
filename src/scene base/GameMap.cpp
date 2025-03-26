@@ -17,15 +17,30 @@ void GameMap::placeTile(const MapTile& tile)
     m_tiles.push_back(tile);
 }
 
-void GameMap::removeTile(const MapTile& tile)
+void GameMap::removeTile(uint32_t id)
 {
-    const auto& tileId = tile.id;
-    
     for(auto it = m_tiles.begin(); it != m_tiles.end(); it++)
     {
-        if(it->id == tileId)
+        if(it->id == id)
         {
             m_tiles.erase(it);
+            break;
+        }
+    }
+}
+
+void GameMap::placeBrush(const GameMap::Brush& brush)
+{
+    m_brushes.push_back(brush);
+}
+
+void GameMap::removeBrush(uint32_t id)
+{
+    for(auto it = m_brushes.begin(); it != m_brushes.end(); it++)
+    {
+        if(it->id == id)
+        {
+            m_brushes.erase(it);
             break;
         }
     }
@@ -98,7 +113,7 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
         for(const auto& brush : m_brushes)
         {
             out << brush.textureName << ' ' << brush.pos.x << ',' << brush.pos.y
-                << ' ' << brush.rotation.asRadians() << ' ' << brush.id << std::endl;
+                << ' ' << brush.rotation.asRadians() << ' ' << brush.id << brush.type << std::endl;
         }
     }
     
@@ -116,6 +131,7 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
     }
     
     m_tiles.clear();
+    m_brushes.clear();
     
     std::string token;
     
@@ -151,7 +167,7 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
             std::string idStr;
             
             
-            while(in)
+            while(token != "BrushData:")
             {
                 in >> texName >> posStr >> rotationStr >> idStr;
                 
@@ -162,6 +178,10 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
                 m_tiles.reserve(m_gridSize.x * m_gridSize.y);
                 m_tiles.emplace_back(MapTile {pos, angle, texName});
             }
+        }
+        if(token == "BrushData:")
+        {
+            std::cout << "a\n";
         }
     }
     

@@ -104,7 +104,7 @@ void Scene_Editor::sDoAction(const Action& action)
                     auto tiles = m_state.map.getTilesAt(pos.midPos);
                     for(auto& tile : tiles)
                     {
-                        m_state.map.removeTile(tile);
+                        m_state.map.removeTile(tile.id);
                     }
                 }
                 else if (m_state.currentMode == EditorState::Modes::brushPlaceBrushRemove)
@@ -117,7 +117,6 @@ void Scene_Editor::sDoAction(const Action& action)
                         if(brush->get<cTransform>().pos == pos.midPos)
                         {
                             brush->destroy();
-                            //! we still have to remove it from the map
                             m_state.map.removeBrush(brush->get<cId>().id);
                         }
                     }
@@ -137,6 +136,8 @@ void Scene_Editor::sDoAction(const Action& action)
             if(action.status() == Action::end)
             {
                 m_state.map.load(m_state.filePath / m_state.fileName);
+                
+                //! have to then create the entities for the brushes.
             }
             break;
         
@@ -216,6 +217,9 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
         return;
     }
     
+    GameMap::Brush brush {pos, sf::radians(0), "", m_state.brushType};
+    m_state.map.placeBrush(brush);
+    
     auto entitiy = m_entities.addEntity("Brush");
     
     auto& spr = entitiy->add<cSprite>().sprite;
@@ -224,6 +228,7 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
     
     entitiy->add<cTransform>(m_globalGrid.getGridAt(pos).midPos);
     entitiy->add<cBrush>(m_state.brushType, "a");
+    entitiy->add<cId>(brush.id);
 }
 
 void Scene_Editor::select(const sf::Vector2f& pos)

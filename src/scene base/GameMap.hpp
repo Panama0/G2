@@ -2,8 +2,6 @@
 
 #include "SFML/Graphics.hpp"
 
-#include "scene base/GameEnums.hpp"
-
 #include <filesystem>
 #include <vector>
 
@@ -31,13 +29,43 @@ public:
     
     struct Brush : public MapTile
     {
+        enum BrushTypes
+        {
+            water,
+            obstructed,
+            path,
+            spawner,
+            
+            
+            
+            count,
+        };
+        
+        static constexpr std::string_view toString(BrushTypes brush)
+        {
+            switch(brush)
+            {
+                case BrushTypes::water:
+                    return "Water";
+                case BrushTypes::obstructed:
+                    return "Obstructed";
+                case BrushTypes::path:
+                    return "Path";
+                case BrushTypes::spawner:
+                    return "Spawner";
+                default:
+                    return "Invalid\n";
+            }
+        }
+        
         Brush() = default;
-        Brush(const sf::Vector2f& p, const sf::Angle& r, std::string_view texName, enums::Brushes ty)
+        Brush(const sf::Vector2f& p, const sf::Angle& r, std::string_view texName, BrushTypes ty)
             :MapTile(p, r, texName)
             ,type {ty}
             {}
         
-        enums::Brushes type;
+        BrushTypes type;
+        
     };
     
     void init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize);

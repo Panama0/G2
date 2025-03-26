@@ -118,10 +118,10 @@ void EditorUI::drawTilesUI()
         {
             if(ImGui::BeginListBox("Brushes"))
             {
-                for(int i {}; i < static_cast<int>(enums::Brushes::count); i++)
+                for(int i {}; i < GameMap::Brush::count; i++)
                 {
-                    auto brush = static_cast<enums::Brushes>(i);
-                    auto name = enums::toString(brush);
+                    auto brush = static_cast<GameMap::Brush::BrushTypes>(i);
+                    auto name = GameMap::Brush::toString(brush);
                     if(ImGui::Selectable(name.data(), brush == m_state->brushType))
                     {
                         m_state->brushType = brush;

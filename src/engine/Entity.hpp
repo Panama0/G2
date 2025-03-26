@@ -13,7 +13,8 @@ using ComponentTuple = std::tuple<
     cBoundingBox,
     cAnimatedSprite,
     cAnimation,
-    cBrush
+    cBrush,
+    cId
 >;
 
 class Entity

@@ -2,7 +2,7 @@
 
 #include "scene base/Animation.hpp"
 #include "SFML/Graphics.hpp"
-#include "scene base/GameEnums.hpp"
+#include "scene base/GameMap.hpp"
 
 
 struct Component
@@ -90,12 +90,12 @@ struct cAnimation : public Component
 struct cBrush : public Component
 {
     cBrush() = default;
-    cBrush(enums::Brushes b, const std::string& n)
+    cBrush(GameMap::Brush::BrushTypes b, const std::string& n)
         :brush {b}
         ,name {n}
     {}
 
-    enums::Brushes brush;
+    GameMap::Brush::BrushTypes brush;
     std::string name;
 };
 
