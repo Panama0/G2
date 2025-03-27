@@ -37,6 +37,4 @@ struct EditorState
 
     std::string fileName {"Unnamed Level"};
     std::filesystem::path filePath {"../../res/saves/"};
-    
-    EntityVec entities;
 };

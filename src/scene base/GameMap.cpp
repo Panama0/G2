@@ -113,7 +113,8 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
         for(const auto& brush : m_brushes)
         {
             out << brush.textureName << ' ' << brush.pos.x << ',' << brush.pos.y
-                << ' ' << brush.rotation.asRadians() << ' ' << brush.id << brush.type << std::endl;
+                << ' ' << brush.rotation.asRadians() << ' ' << brush.id 
+                << ' ' << brush.type << std::endl;
         }
     }
     
@@ -130,8 +131,7 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
         return false;
     }
     
-    m_tiles.clear();
-    m_brushes.clear();
+    clear();
     
     std::string token;
     
@@ -167,7 +167,7 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
             std::string idStr;
             
             
-            while(token != "BrushData:")
+            while(token != "BrushData:" && in)
             {
                 in >> texName >> posStr >> rotationStr >> idStr;
                 
@@ -175,13 +175,28 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
                 sf::Angle angle {sf::radians(std::stof(rotationStr))};
                 //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
                 
-                m_tiles.reserve(m_gridSize.x * m_gridSize.y);
                 m_tiles.emplace_back(MapTile {pos, angle, texName});
             }
         }
         if(token == "BrushData:")
         {
-            std::cout << "a\n";
+            std::string texName;
+            std::string posStr;
+            std::string rotationStr;
+            std::string idStr;
+            std::string typeStr;
+            
+            while(in)
+            {
+                in >> texName >> posStr >> rotationStr >> idStr >> typeStr;
+                
+                sf::Vector2f pos {stovec<float>(posStr)};
+                sf::Angle angle {sf::radians(std::stof(rotationStr))};
+                //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
+                Brush::BrushTypes type {static_cast<Brush::BrushTypes>(std::stoi(typeStr))};
+                
+                m_brushes.emplace_back(Brush {pos, angle, texName, type});
+            }
         }
     }
     
@@ -204,4 +219,10 @@ sf::Vector2<T> GameMap::stovec(std::string_view string)
     
     return sf::Vector2<T> {static_cast<T>(std::stof(x.data())),
                            static_cast<T>(std::stof(y.data()))};
+}
+
+void GameMap::clear()
+{
+    m_brushes.clear();
+    m_tiles.clear();
 }

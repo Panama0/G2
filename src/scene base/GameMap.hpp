@@ -87,6 +87,7 @@ private:
     // takes in a string like "30,42"
     template <typename T>
     sf::Vector2<T> stovec(std::string_view string);
+    void clear();
     
     std::vector<MapTile> m_tiles;
     std::vector<Brush> m_brushes;

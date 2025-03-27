@@ -42,7 +42,6 @@ void Scene_Editor::update()
     
     // update state and pass to the scene;
     m_state.textureList = m_assets.getTextureList();
-    m_state.entities = m_entities.getEntities();
     m_editorUI.updateState(&m_state);
     
     m_editorUI.update(m_game->getDT());
@@ -137,7 +136,16 @@ void Scene_Editor::sDoAction(const Action& action)
             {
                 m_state.map.load(m_state.filePath / m_state.fileName);
                 
-                //! have to then create the entities for the brushes.
+                //! must be a better way
+                // remove old brushes and add the new ones
+                for(const auto& brush : m_entities.getEntities("Brush"))
+                {
+                    brush->destroy();
+                }
+                for(const auto& brush : m_state.map.getBrushes())
+                {
+                    addBrush(brush);
+                }
             }
             break;
         
@@ -217,16 +225,21 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
         return;
     }
     
-    GameMap::Brush brush {pos, sf::radians(0), "", m_state.brushType};
+    GameMap::Brush brush {pos, sf::radians(0), "tttt", m_state.brushType};
     m_state.map.placeBrush(brush);
     
+    addBrush(brush);
+}
+
+void Scene_Editor::addBrush(const GameMap::Brush& brush)
+{
     auto entitiy = m_entities.addEntity("Brush");
     
     auto& spr = entitiy->add<cSprite>().sprite;
     auto& tex = spr.getTexture();
     spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
     
-    entitiy->add<cTransform>(m_globalGrid.getGridAt(pos).midPos);
+    entitiy->add<cTransform>(m_globalGrid.getGridAt(brush.pos).midPos);
     entitiy->add<cBrush>(m_state.brushType, "a");
     entitiy->add<cId>(brush.id);
 }
