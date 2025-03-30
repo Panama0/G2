@@ -87,15 +87,15 @@ struct cAnimation : public Component
     bool repeat {false};
 };
 
-struct cBrush : public Component
+struct cEffect : public Component
 {
-    cBrush() = default;
-    cBrush(GameMap::Brush::BrushTypes b, const std::string& n)
-        :brush {b}
+    cEffect() = default;
+    cEffect(TileEffect::Effects b, const std::string& n)
+        :effect {b}
         ,name {n}
     {}
 
-    GameMap::Brush::BrushTypes brush;
+    TileEffect::Effects effect;
     std::string name;
 };
 

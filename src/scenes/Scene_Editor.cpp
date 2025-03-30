@@ -82,10 +82,10 @@ void Scene_Editor::sDoAction(const Action& action)
                     case EditorState::Modes::none:
                         break;
                     case EditorState::Modes::tilePlaceTileRemove:
-                        placeSelectedTile(action.position());
+                        placeSelectedTile(m_globalGrid.getGridAt(action.position()).midPos);
                         break;
                     case EditorState::Modes::brushPlaceBrushRemove:
-                        placeSelectedBrush(action.position());
+                        placeSelectedBrush(m_globalGrid.getGridAt(action.position()).midPos);
                         break;
                     case EditorState::Modes::selectNone:
                         select(action.position());
@@ -100,26 +100,29 @@ void Scene_Editor::sDoAction(const Action& action)
                 if(m_state.currentMode == EditorState::Modes::tilePlaceTileRemove)
                 {
                     auto pos = m_globalGrid.getGridAt(action.position());
-                    auto tiles = m_state.map.getTilesAt(pos.midPos);
-                    for(auto& tile : tiles)
+                    auto tile = m_state.map.getTileAt(pos.midPos);
+                    if(tile)
                     {
-                        m_state.map.removeTile(tile.id);
+                        m_state.map.removeTile(tile.value().id);
                     }
                 }
                 else if (m_state.currentMode == EditorState::Modes::brushPlaceBrushRemove)
                 {
                     auto pos = m_globalGrid.getGridAt(action.position());
                     auto brushes = m_entities.getEntities("Brush");
+                    auto tile = m_state.map.getTileAt(pos.midPos);
                     
-                    for(auto brush : brushes)
+                    if(tile)
                     {
-                        if(brush->get<cTransform>().pos == pos.midPos)
+                        for(const auto& brush : brushes)
                         {
-                            brush->destroy();
-                            m_state.map.removeBrush(brush->get<cId>().id);
+                            if(brush->get<cTransform>().pos == pos.midPos)
+                            {
+                                brush->destroy();
+                                m_state.map.removeEffect(tile.value(), brush->get<cId>().id);
+                            }
                         }
                     }
-                    
                 }
             }
             break;
@@ -136,15 +139,23 @@ void Scene_Editor::sDoAction(const Action& action)
             {
                 m_state.map.load(m_state.filePath / m_state.fileName);
                 
-                //! must be a better way
+                //* must be a better way
                 // remove old brushes and add the new ones
                 for(const auto& brush : m_entities.getEntities("Brush"))
                 {
                     brush->destroy();
                 }
-                for(const auto& brush : m_state.map.getBrushes())
+                
+                for(const auto& tile : m_state.map.getTiles())
                 {
-                    addBrush(brush);
+                    if(!tile.effects.empty())
+                    {
+                        // there may be multiple effects, so we loop
+                        for(const auto& brush : tile.effects)
+                        {
+                            spawnBrush(tile, brush);
+                        }
+                    }
                 }
             }
             break;
@@ -225,28 +236,42 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
         return;
     }
     
-    GameMap::Brush brush {pos, sf::radians(0), "tttt", m_state.brushType};
-    m_state.map.placeBrush(brush);
+    if(!m_state.map.getTileAt(pos))
+    {
+        std::cerr << "No tile at this location!\n";
+        return;
+    }
+    // we know that there is a tile at this location now
     
-    addBrush(brush);
+    GameMap::MapTile tile = m_state.map.getTileAt(pos).value();
+    
+    //* maybe combine these calls
+    m_state.map.placeEffect(tile.id, m_state.brushType);
+    //* this creates 2 effect ids for the one effect
+    spawnBrush(tile, m_state.brushType);
 }
 
-void Scene_Editor::addBrush(const GameMap::Brush& brush)
+void Scene_Editor::spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect)
 {
     auto entitiy = m_entities.addEntity("Brush");
     
-    auto& spr = entitiy->add<cSprite>().sprite;
+    //! need to do some kind of lookup for the texture
+    auto& spr = entitiy->add<cSprite>(m_assets.getTexture("fart")).sprite;
     auto& tex = spr.getTexture();
     spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
     
-    entitiy->add<cTransform>(m_globalGrid.getGridAt(brush.pos).midPos);
-    entitiy->add<cBrush>(m_state.brushType, "a");
-    entitiy->add<cId>(brush.id);
+    entitiy->add<cTransform>(m_globalGrid.getGridAt(tile.pos).midPos);
+    entitiy->add<cEffect>(effect.effect, "noname");
+    entitiy->add<cId>(tile.id);
 }
 
 void Scene_Editor::select(const sf::Vector2f& pos)
 {
     const auto& gridPos = m_globalGrid.getGridAt(pos);
-    m_state.selectedTiles = m_state.map.getTilesAt(gridPos.midPos);
-    m_state.selectedBrushes = m_state.map.getBrushesAt(gridPos.midPos);
+    auto tile = m_state.map.getTileAt(gridPos.midPos);
+    
+    if(tile)
+    {
+        m_state.selectedTile = tile.value();
+    }
 }

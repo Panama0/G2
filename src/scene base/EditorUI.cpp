@@ -118,15 +118,15 @@ void EditorUI::drawTilesUI()
         {
             if(ImGui::BeginListBox("Brushes"))
             {
-                for(int i {}; i < GameMap::Brush::count; i++)
-                {
-                    auto brush = static_cast<GameMap::Brush::BrushTypes>(i);
-                    auto name = GameMap::Brush::toString(brush);
-                    if(ImGui::Selectable(name.data(), brush == m_state->brushType))
-                    {
-                        m_state->brushType = brush;
-                    }
-                }
+                // for(int i {}; i < GameMap::BrushTile::count; i++)
+                // {
+                //     auto brush = static_cast<GameMap::BrushTile::BrushTypes>(i);
+                //     auto name = GameMap::BrushTile::toString(brush);
+                //     if(ImGui::Selectable(name.data(), brush == m_state->brushType))
+                //     {
+                //         m_state->brushType = brush;
+                //     }
+                // }
                 ImGui::EndListBox();
             }
             

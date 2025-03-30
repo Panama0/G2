@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <sstream>
+#include <optional>
 
 void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
 {
@@ -29,50 +30,55 @@ void GameMap::removeTile(uint32_t id)
     }
 }
 
-void GameMap::placeBrush(const GameMap::Brush& brush)
+void GameMap::placeEffect(uint32_t tileId, const TileEffect& effect)
 {
-    m_brushes.push_back(brush);
+    for(auto& tile : m_tiles)
+    {
+        if(tile.id == tileId)
+        {
+            tile.effects.emplace_back(effect);
+        }
+    }
 }
 
-void GameMap::removeBrush(uint32_t id)
+void GameMap::removeEffect(MapTile& tile, uint32_t effectId)
 {
-    for(auto it = m_brushes.begin(); it != m_brushes.end(); it++)
+    for(auto it = tile.effects.begin(); it != tile.effects.end(); it++)
     {
-        if(it->id == id)
+        if(it->id == effectId)
         {
-            m_brushes.erase(it);
+            tile.effects.erase(it);
             break;
         }
     }
 }
 
-std::vector<GameMap::MapTile> GameMap::getTilesAt(const sf::Vector2f& pos)
+std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 {
-    std::vector<GameMap::MapTile> tiles;
-    
     for(const auto& tile : m_tiles)
     {
         if(tile.pos == pos)
         {
-            tiles.push_back(tile);
+            return tile;
         }
     }
-    return tiles;
+    // there was no tile with the same position
+    return std::nullopt;
 }
 
-std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
-{
-    std::vector<GameMap::Brush> brushes;
+// std::vector<GameMap::BrushTile> GameMap::getBrushesAt(const sf::Vector2f& pos)
+// {
+//     std::vector<GameMap::BrushTile> brushes;
     
-    for(const auto& brush : m_brushes)
-    {
-        if(brush.pos == pos)
-        {
-            brushes.push_back(brush);
-        }
-    }
-    return brushes;
-}
+//     for(const auto& brush : m_brushes)
+//     {
+//         if(brush.pos == pos)
+//         {
+//             brushes.push_back(brush);
+//         }
+//     }
+//     return brushes;
+// }
 
 [[nodiscard]] bool GameMap::save(const std::filesystem::path& path)
 {
@@ -103,20 +109,26 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
         {
             out << tile.textureName << ' ' << tile.pos.x << ',' << tile.pos.y
                 << ' ' << tile.rotation.asRadians() << ' ' << tile.id << std::endl;
+            
+            out << "Effects:";
+            for(const auto& effect : tile.effects)
+            {
+                out << effect.textureName << effect.toString(effect.effect) << std::endl;
+            }
         }
     }
     
-    if(m_brushes.size() > 0)
-    {
-        out << "BrushData:\n";
+    // if(m_brushes.size() > 0)
+    // {
+    //     out << "BrushData:\n";
         
-        for(const auto& brush : m_brushes)
-        {
-            out << brush.textureName << ' ' << brush.pos.x << ',' << brush.pos.y
-                << ' ' << brush.rotation.asRadians() << ' ' << brush.id 
-                << ' ' << brush.type << std::endl;
-        }
-    }
+    //     for(const auto& brush : m_brushes)
+    //     {
+    //         out << brush.textureName << ' ' << brush.pos.x << ',' << brush.pos.y
+    //             << ' ' << brush.rotation.asRadians() << ' ' << brush.id 
+    //             << ' ' << brush.effect.effect << std::endl;
+    //     }
+    // }
     
     return true;
 }
@@ -167,7 +179,7 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
             std::string idStr;
             
             
-            while(token != "BrushData:" && in)
+            while(in)
             {
                 in >> texName >> posStr >> rotationStr >> idStr;
                 
@@ -178,26 +190,26 @@ std::vector<GameMap::Brush> GameMap::getBrushesAt(const sf::Vector2f& pos)
                 m_tiles.emplace_back(MapTile {pos, angle, texName});
             }
         }
-        if(token == "BrushData:")
-        {
-            std::string texName;
-            std::string posStr;
-            std::string rotationStr;
-            std::string idStr;
-            std::string typeStr;
+        // if(token == "BrushData:")
+        // {
+        //     std::string texName;
+        //     std::string posStr;
+        //     std::string rotationStr;
+        //     std::string idStr;
+        //     std::string typeStr;
             
-            while(in)
-            {
-                in >> texName >> posStr >> rotationStr >> idStr >> typeStr;
+        //     while(in)
+        //     {
+        //         in >> texName >> posStr >> rotationStr >> idStr >> typeStr;
                 
-                sf::Vector2f pos {stovec<float>(posStr)};
-                sf::Angle angle {sf::radians(std::stof(rotationStr))};
-                //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
-                Brush::BrushTypes type {static_cast<Brush::BrushTypes>(std::stoi(typeStr))};
+        //         sf::Vector2f pos {stovec<float>(posStr)};
+        //         sf::Angle angle {sf::radians(std::stof(rotationStr))};
+        //         //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
+        //         BrushTile::BrushTypes type {static_cast<BrushTile::BrushTypes>(std::stoi(typeStr))};
                 
-                m_brushes.emplace_back(Brush {pos, angle, texName, type});
-            }
-        }
+        //         m_brushes.emplace_back(BrushTile {pos, angle, texName, type});
+        //     }
+        // }
     }
     
     return true;
@@ -223,6 +235,5 @@ sf::Vector2<T> GameMap::stovec(std::string_view string)
 
 void GameMap::clear()
 {
-    m_brushes.clear();
     m_tiles.clear();
 }

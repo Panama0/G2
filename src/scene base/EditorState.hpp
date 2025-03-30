@@ -23,10 +23,10 @@ struct EditorState
     bool gridVisible {true};
     
     std::string tileTexture;
-    GameMap::Brush::BrushTypes brushType;
+    TileEffect::Effects brushType {TileEffect::none};
     
-    std::vector<GameMap::MapTile> selectedTiles;
-    std::vector<GameMap::Brush> selectedBrushes;
+    //* should be a reference or ptr?
+    GameMap::MapTile selectedTile;
     
     sf::Angle angle;
     GameMap map;

@@ -43,7 +43,7 @@ private:
     
     void placeSelectedTile(const sf::Vector2f& pos);
     void placeSelectedBrush(const sf::Vector2f& pos);
-    void addBrush(const GameMap::Brush& brush);
+    void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
     void select(const sf::Vector2f& pos);
     
     EditorState m_state;   

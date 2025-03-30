@@ -13,7 +13,7 @@ using ComponentTuple = std::tuple<
     cBoundingBox,
     cAnimatedSprite,
     cAnimation,
-    cBrush,
+    cEffect,
     cId
 >;
 
