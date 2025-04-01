@@ -9,7 +9,7 @@ public:
     
     void init();
 
-    void beginDraw() { m_window.clear(); }
+    void beginDraw() { m_window.clear({}); }
     void draw(sf::Drawable& drawable) { m_window.draw(drawable); }
     void render() { m_window.display(); }
 

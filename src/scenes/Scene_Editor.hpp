@@ -15,6 +15,7 @@ public:
         null,
         toggleFS,
         toggleGrid,
+        toggleBrushes,
         place,
         remove,
         select,
@@ -46,6 +47,9 @@ private:
     void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
     void select(const sf::Vector2f& pos);
     
+    //* maybe temporary
+    std::unordered_map<TileEffect::Effects, std::string_view> m_effectTextures;
+
     EditorState m_state;   
     EditorUI m_editorUI {this};
     

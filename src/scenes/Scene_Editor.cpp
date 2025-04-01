@@ -13,12 +13,20 @@ void Scene_Editor::init()
     
     registerAction(sf::Keyboard::Key::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(sf::Keyboard::Key::G, static_cast<int>(ActionTypes::toggleGrid));
+    registerAction(sf::Keyboard::Key::B, static_cast<int>(ActionTypes::toggleBrushes));
     registerAction(sf::Mouse::Button::Left, static_cast<int>(ActionTypes::place));
     registerAction(sf::Mouse::Button::Right, static_cast<int>(ActionTypes::remove));
     registerAction(sf::Keyboard::Key::S, static_cast<int>(ActionTypes::save));
     registerAction(sf::Keyboard::Key::L, static_cast<int>(ActionTypes::load));
     
     m_assets.loadTextureDir("../../res/tiles/");
+    
+    m_effectTextures = {{TileEffect::none, "tile9"},
+                        {TileEffect::water, "tile9.png"},
+                        {TileEffect::obstructed, "tile9.png"},
+                        {TileEffect::path, "tile9.png"},
+                        {TileEffect::spawner, "tile9.png"},
+                        };
     
     m_state.tileTexture = m_assets.getTextureList().at(0);
     
@@ -71,6 +79,14 @@ void Scene_Editor::sDoAction(const Action& action)
                 {
                     m_state.gridVisible = true;
                 }
+            }
+            break;
+        
+        case static_cast<int>(ActionTypes::toggleBrushes):
+            if(action.status() == Action::end)
+            {
+                if(m_state.brushesVisible) { m_state.brushesVisible = false; }
+                else { m_state.brushesVisible = true; }
             }
             break;
         
@@ -202,6 +218,11 @@ void Scene_Editor::sRender()
     {
         if(entity->has<cSprite>())
         {
+            if(entity->has<cEffect>() && !m_state.brushesVisible)
+            {
+                // do not draw the brushes if the flag is off
+                continue;
+            }
             auto& spr = entity->get<cSprite>();
             m_game->getWindow().draw(spr.sprite);
         }
@@ -255,13 +276,24 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile, const TileEffect& ef
 {
     auto entitiy = m_entities.addEntity("Brush");
     
-    //! need to do some kind of lookup for the texture
-    auto& spr = entitiy->add<cSprite>(m_assets.getTexture("fart")).sprite;
+    if(m_effectTextures.find(effect.effect) == m_effectTextures.end())
+    {
+        std::cerr << "Could not find effect texture!\n";
+        return;
+    }
+    
+    std::string_view texName = m_effectTextures.at(effect.effect);
+    
+    auto& spr = entitiy->add<cSprite>(m_assets.getTexture(texName)).sprite;
     auto& tex = spr.getTexture();
     spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
+    // lower the opacity so that we can see the original tile
+    spr.setColor(sf::Color {255, 255, 255, 150});
     
-    entitiy->add<cTransform>(m_globalGrid.getGridAt(tile.pos).midPos);
-    entitiy->add<cEffect>(effect.effect, "noname");
+    auto& transform = entitiy->add<cTransform>(m_globalGrid.getGridAt(tile.pos).midPos);
+    transform.scale = {0.8f, 0.8f};
+    
+    entitiy->add<cEffect>(effect.effect);
     entitiy->add<cId>(tile.id);
 }
 

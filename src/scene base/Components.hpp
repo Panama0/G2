@@ -90,13 +90,11 @@ struct cAnimation : public Component
 struct cEffect : public Component
 {
     cEffect() = default;
-    cEffect(TileEffect::Effects b, const std::string& n)
+    cEffect(TileEffect::Effects b)
         :effect {b}
-        ,name {n}
     {}
 
     TileEffect::Effects effect;
-    std::string name;
 };
 
 struct cId : public Component

@@ -21,6 +21,7 @@ struct EditorState
     Modes currentMode {Modes::none};
     
     bool gridVisible {true};
+    bool brushesVisible {true};
     
     std::string tileTexture;
     TileEffect::Effects brushType {TileEffect::none};
