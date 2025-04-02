@@ -18,15 +18,15 @@ void Scene_Editor::init()
     registerAction(sf::Mouse::Button::Right, static_cast<int>(ActionTypes::remove));
     registerAction(sf::Keyboard::Key::S, static_cast<int>(ActionTypes::save));
     registerAction(sf::Keyboard::Key::L, static_cast<int>(ActionTypes::load));
+    registerAction(sf::Keyboard::Key::Escape, static_cast<int>(ActionTypes::deselect));
     
     m_assets.loadTextureDir("../../res/tiles/");
     
     m_effectTextures = {{TileEffect::none, "tile9"},
-                        {TileEffect::water, "tile9.png"},
-                        {TileEffect::obstructed, "tile9.png"},
-                        {TileEffect::path, "tile9.png"},
-                        {TileEffect::spawner, "tile9.png"},
-                        };
+                        {TileEffect::water, "tile9"},
+                        {TileEffect::obstructed, "tile9"},
+                        {TileEffect::path, "tile9"},
+                        {TileEffect::spawner, "tile9"}};
     
     m_state.tileTexture = m_assets.getTextureList().at(0);
     
@@ -140,6 +140,13 @@ void Scene_Editor::sDoAction(const Action& action)
                         }
                     }
                 }
+            }
+            break;
+            
+        case static_cast<int>(ActionTypes::deselect):
+            if(action.status() == Action::end)
+            {
+                deSelect();
             }
             break;
             
@@ -306,4 +313,9 @@ void Scene_Editor::select(const sf::Vector2f& pos)
     {
         m_state.selectedTile = tile.value();
     }
+}
+
+void Scene_Editor::deSelect()
+{
+    m_state.selectedTile = {};
 }

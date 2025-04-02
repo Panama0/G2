@@ -66,20 +66,6 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
     return std::nullopt;
 }
 
-// std::vector<GameMap::BrushTile> GameMap::getBrushesAt(const sf::Vector2f& pos)
-// {
-//     std::vector<GameMap::BrushTile> brushes;
-    
-//     for(const auto& brush : m_brushes)
-//     {
-//         if(brush.pos == pos)
-//         {
-//             brushes.push_back(brush);
-//         }
-//     }
-//     return brushes;
-// }
-
 [[nodiscard]] bool GameMap::save(const std::filesystem::path& path)
 {
     std::ofstream out {path};
@@ -107,28 +93,21 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 
         for(const auto& tile : m_tiles)
         {
-            out << tile.textureName << ' ' << tile.pos.x << ',' << tile.pos.y
-                << ' ' << tile.rotation.asRadians() << ' ' << tile.id << std::endl;
+            out << "Tile " << tile.textureName << ' ' << tile.pos.x << ',' << tile.pos.y
+                << ' ' << tile.rotation.asRadians() << ' ' << tile.id << ' ';
             
-            out << "Effects:";
-            for(const auto& effect : tile.effects)
+            out << "Effects: ";
+            if (!tile.effects.empty())
             {
-                out << effect.textureName << effect.toString(effect.effect) << std::endl;
+                for(const auto& effect : tile.effects)
+                {
+                    out << effect.textureName << effect.toString(effect.effect) << ' ';
+                }
+                out << "EndTile" << std::endl;
             }
         }
+        out << "EndTileData";
     }
-    
-    // if(m_brushes.size() > 0)
-    // {
-    //     out << "BrushData:\n";
-        
-    //     for(const auto& brush : m_brushes)
-    //     {
-    //         out << brush.textureName << ' ' << brush.pos.x << ',' << brush.pos.y
-    //             << ' ' << brush.rotation.asRadians() << ' ' << brush.id 
-    //             << ' ' << brush.effect.effect << std::endl;
-    //     }
-    // }
     
     return true;
 }
@@ -179,37 +158,44 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
             std::string idStr;
             
             
-            while(in)
+            while(token != "EndTileData" && in)
             {
+                in >> token;
+                
+                if(token != "Tile")
+                {
+                    std::cerr << "Expected tile!\n";
+                }
+                
                 in >> texName >> posStr >> rotationStr >> idStr;
                 
                 sf::Vector2f pos {stovec<float>(posStr)};
                 sf::Angle angle {sf::radians(std::stof(rotationStr))};
                 //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
                 
-                m_tiles.emplace_back(MapTile {pos, angle, texName});
+                MapTile  tile {pos, angle, texName};
+                auto tileId = tile.id;
+                
+                m_tiles.emplace_back(tile);
+                
+                in >> token;
+                if(token == "Effects:")
+                {
+                    std::string effectStr;
+                    while(effectStr != "EndTile" && in)
+                    {
+                        in >> effectStr;
+                        
+                        placeEffect(tileId, TileEffect::fromString(effectStr));
+                    }
+                }
+                else
+                {
+                    std::cerr << "Effects block expected!\n";
+                }
+                //in >> token;
             }
         }
-        // if(token == "BrushData:")
-        // {
-        //     std::string texName;
-        //     std::string posStr;
-        //     std::string rotationStr;
-        //     std::string idStr;
-        //     std::string typeStr;
-            
-        //     while(in)
-        //     {
-        //         in >> texName >> posStr >> rotationStr >> idStr >> typeStr;
-                
-        //         sf::Vector2f pos {stovec<float>(posStr)};
-        //         sf::Angle angle {sf::radians(std::stof(rotationStr))};
-        //         //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
-        //         BrushTile::BrushTypes type {static_cast<BrushTile::BrushTypes>(std::stoi(typeStr))};
-                
-        //         m_brushes.emplace_back(BrushTile {pos, angle, texName, type});
-        //     }
-        // }
     }
     
     return true;

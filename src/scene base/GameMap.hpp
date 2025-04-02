@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene base/Effect.hpp"
+#include "scene base/TileEffect.hpp"
 
 #include "SFML/Graphics.hpp"
 
@@ -41,9 +41,6 @@ public:
     std::optional<MapTile> getTileAt(const sf::Vector2f& pos);
     const std::vector<MapTile>& getTiles() { return m_tiles; }
     
-    // std::vector<> getBrushesAt(const sf::Vector2f& pos);
-    // const std::vector<BrushTile>& getBrushes() { return m_brushes; }
-    
     bool save(const std::filesystem::path& path);
     bool load(const std::filesystem::path& path);
 private:
@@ -53,7 +50,6 @@ private:
     void clear();
     
     std::vector<MapTile> m_tiles;
-    //std::vector<BrushTile> m_brushes;
     
     sf::Vector2u m_gridSize;
     sf::Vector2f m_worldSize;

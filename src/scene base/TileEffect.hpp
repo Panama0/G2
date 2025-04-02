@@ -18,6 +18,8 @@ struct TileEffect
     {
         switch(brush)
         {
+            case Effects::none:
+                return "None";
             case Effects::water:
                 return "Water";
             case Effects::obstructed:
@@ -29,6 +31,16 @@ struct TileEffect
             default:
                 return "Invalid\n";
         }
+    }
+    
+    static constexpr Effects fromString(std::string_view string)
+    {
+        if(string == "None") { return Effects::none; }
+        else if(string == "Water") { return Effects::water; }
+        else if(string == "Obstructed") { return Effects::obstructed; }
+        else if(string == "Path") { return Effects::path; }
+        else if(string == "Spawner") { return Effects::spawner; }
+        else { return Effects::none; }
     }
     
     TileEffect(TileEffect::Effects _effect)

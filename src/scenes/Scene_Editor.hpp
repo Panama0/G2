@@ -18,7 +18,7 @@ public:
         toggleBrushes,
         place,
         remove,
-        select,
+        deselect,
         rotate,
         save,
         load,
@@ -46,6 +46,7 @@ private:
     void placeSelectedBrush(const sf::Vector2f& pos);
     void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
     void select(const sf::Vector2f& pos);
+    void deSelect();
     
     //* maybe temporary
     std::unordered_map<TileEffect::Effects, std::string_view> m_effectTextures;
