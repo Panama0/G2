@@ -1,5 +1,7 @@
 #include "scene base/GameMap.hpp"
 
+#include "engine/Serialisation.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <chrono>
@@ -68,45 +70,69 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 
 [[nodiscard]] bool GameMap::save(const std::filesystem::path& path)
 {
-    std::ofstream out {path};
+    Serialisation outS;
 
-    if(!out)
+    if(!outS.begin(path, std::ios::out))
     {
         std::cerr << "Failed to save game!\n";
         return false;
     }
     
+
+    outS.beginSection("MetaData");
+    
     auto now = std::chrono::system_clock::now();
     auto timeNow = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << m_identifier << std::endl;
-    ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %X") << std::endl;
+    ss << m_identifier << ' ';
+    ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %X");
     std::string identString = ss.str();
     
-    out << identString << '\n';
-    out << "GridSize: " << m_gridSize.x << "," << m_gridSize.y << '\n';
-    out << "WorldSize: " << m_worldSize.x << "," << m_worldSize.y << '\n';
+    outS.writeLine(identString);
+    
+    outS.writeLineBuffer("GridSize:");
+    outS.writeLineBuffer(std::to_string(m_gridSize.x), ",");
+    outS.writeLineBuffer(std::to_string(m_gridSize.y));
+    outS.endLine();
+    
+    outS.writeLineBuffer("WorldSize:");
+    outS.writeLineBuffer(std::to_string(m_worldSize.x));
+    outS.writeLineBuffer(std::to_string(m_worldSize.y));
+    outS.endLine();
+    
+    outS.endSection();
     
     if(m_tiles.size() > 0)
     {
-        out << "TileData:\n";
+        outS.beginSection("TileData");
 
         for(const auto& tile : m_tiles)
         {
-            out << "Tile " << tile.textureName << ' ' << tile.pos.x << ',' << tile.pos.y
-                << ' ' << tile.rotation.asRadians() << ' ' << tile.id << ' ';
+            outS.beginSection("Tile");
             
-            out << "Effects: ";
+            outS.writeLineBuffer(tile.textureName);
+            outS.writeLineBuffer(std::to_string(tile.pos.x), ",");
+            outS.writeLineBuffer(std::to_string(tile.pos.y));
+            outS.writeLineBuffer(std::to_string(tile.rotation.asRadians()));
+            outS.writeLineBuffer(std::to_string(tile.id));
+            outS.endLine();
+            
             if (!tile.effects.empty())
             {
+                outS.beginSection("Effects");
                 for(const auto& effect : tile.effects)
                 {
-                    out << effect.textureName << effect.toString(effect.effect) << ' ';
+                    outS.writeLineBuffer(effect.textureName);
+                    outS.writeLineBuffer(TileEffect::toString(effect.effect));
+                    outS.endLine();
                 }
-                out << "EndTile" << std::endl;
+                outS.endSection();
             }
+            
+            outS.endSection();
         }
-        out << "EndTileData";
+
+        outS.endSection();
     }
     
     return true;
@@ -125,78 +151,80 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
     clear();
     
     std::string token;
+    std::string buffer;
     
-    in >> token;
+
+    // in >> token;
     
-    if(token != m_identifier)
-    {
-        std::cerr << "Not a valid save file\n";
-        return false;
-    }
+    // if(token != m_identifier)
+    // {
+    //     std::cerr << "Not a valid save file\n";
+    //     return false;
+    // }
     
-    while(in >> token)
-    {
-        if(token == "GridSize:")
-        {
-            std::string gridSize;
-            in >> gridSize;
+    // while(in >> token)
+    // {
+    //     if(token == "GridSize:")
+    //     {
+    //         std::string gridSize;
+    //         in >> gridSize;
             
-            m_gridSize = stovec<uint32_t>(gridSize);
-        }
-        if(token == "WorldSize:")
-        {
-            std::string worldSize;
-            in >> worldSize;
+    //         m_gridSize = stovec<uint32_t>(gridSize);
+    //     }
+    //     if(token == "WorldSize:")
+    //     {
+    //         std::string worldSize;
+    //         in >> worldSize;
             
-            m_worldSize = stovec<float>(worldSize);
-        }
-        if(token == "TileData:")
-        {
-            std::string texName;
-            std::string posStr;
-            std::string rotationStr;
-            std::string idStr;
+    //         m_worldSize = stovec<float>(worldSize);
+    //     }
+    //     if(token == "TileData:")
+    //     {
+    //         std::string texName;
+    //         std::string posStr;
+    //         std::string rotationStr;
+    //         std::string idStr;
             
             
-            while(token != "EndTileData" && in)
-            {
-                in >> token;
+    //         while(token != "EndTileData" && in)
+    //         {
+    //             in >> token;
                 
-                if(token != "Tile")
-                {
-                    std::cerr << "Expected tile!\n";
-                }
+    //             if(token != "Tile")
+    //             {
+    //                 std::cerr << "Expected tile!\n";
+    //             }
                 
-                in >> texName >> posStr >> rotationStr >> idStr;
+    //             in >> texName >> posStr >> rotationStr >> idStr;
                 
-                sf::Vector2f pos {stovec<float>(posStr)};
-                sf::Angle angle {sf::radians(std::stof(rotationStr))};
-                //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
+    //             sf::Vector2f pos {stovec<float>(posStr)};
+    //             sf::Angle angle {sf::radians(std::stof(rotationStr))};
+    //             //uint32_t id {static_cast<uint32_t>(std::stoi(idStr))};
                 
-                MapTile  tile {pos, angle, texName};
-                auto tileId = tile.id;
+    //             MapTile  tile {pos, angle, texName};
+    //             auto tileId = tile.id;
                 
-                m_tiles.emplace_back(tile);
+    //             m_tiles.emplace_back(tile);
                 
-                in >> token;
-                if(token == "Effects:")
-                {
-                    std::string effectStr;
-                    while(effectStr != "EndTile" && in)
-                    {
-                        in >> effectStr;
+    //             in >> token;
+    //             if(token == "Effects:")
+    //             {
+    //                 std::string effectStr;
+    //                 while(effectStr != "EndTile" && in)
+    //                 {
+    //                     in >> effectStr;
                         
-                        placeEffect(tileId, TileEffect::fromString(effectStr));
-                    }
-                }
-                else
-                {
-                    std::cerr << "Effects block expected!\n";
-                }
-                //in >> token;
-            }
-        }
-    }
+    //                     placeEffect(tileId, TileEffect::fromString(effectStr));
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 std::cerr << "Effects block expected!\n";
+    //             }
+    //             //in >> token;
+    //         }
+    //     }
+    // }
     
     return true;
 }

@@ -14,6 +14,7 @@ set(SRC_FILES
     scenes/Scene_Editor.cpp
     "scene base/GameMap.cpp"
     "scene base/EditorUI.cpp"
+    engine/Serialisation.cpp
 )
 
 set(H_FILES 
@@ -32,6 +33,7 @@ set(H_FILES
     "scene base/EditorUI.hpp"
     "engine/Gui.hpp"
     "scene base/EditorState.hpp"
+    engine/Serialisation.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})
