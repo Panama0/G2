@@ -35,6 +35,8 @@ set(H_FILES
     "scene base/EditorState.hpp"
     engine/Serialisation.hpp
     engine/Parser.hpp
+    sff/sffNode.hpp
+    sff/sffParser.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})
