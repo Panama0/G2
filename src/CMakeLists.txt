@@ -15,6 +15,7 @@ set(SRC_FILES
     "scene base/GameMap.cpp"
     "scene base/EditorUI.cpp"
     engine/Serialisation.cpp
+    sff/sffParser.cpp
 )
 
 set(H_FILES 
