@@ -31,7 +31,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
     {
         // check for a new node - Name {
         // check for data - Name =
-        consumeToken(4);
+        consumeToken(2);
         
         std::string test;
         m_file >> test;
@@ -46,14 +46,16 @@ std::optional<std::string> Parser::peekToken(uint32_t ahead)
     const auto& posBefore = m_file.tellg();
     const auto& stateBefore = m_file.rdstate();
     
-    std::optional<std::string> token;
+    std::string token;
     for(uint32_t i {}; i < ahead; i++)
     {
-        m_file >> token->data();
+        m_file >> token;
     }
+
     if(!m_file)
     {
         m_file.clear();
+        return std::nullopt;
     }
     // put back everything
     m_file.seekg(posBefore);
@@ -86,7 +88,22 @@ std::optional<char> Parser::peek(uint32_t ahead)
 }
 void Parser::consumeToken(uint32_t ahead)
 {
-    
+    int token {};
+    for(uint32_t i {}; i < ahead; i++)
+    {
+        while(token != std::istream::traits_type::eof() &&
+            token != ' ' &&
+            token != '\n')
+        {
+            token = m_file.get();
+        }
+        // skip the whitespace
+        m_file.ignore();
+        while(m_file.peek() == ' ' || m_file.peek() == '\n')
+        {
+            token = m_file.get();
+        }
+    }
 }
 
 void Parser::consume(uint32_t ahead)

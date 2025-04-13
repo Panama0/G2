@@ -8,7 +8,7 @@ void Scene_Editor::init()
     m_gridSize = {32, 32};
     m_hasGui = true;
     
-    m_assets.setResourceDir("../../res/");
+    m_assets.setResourceDir("../../../res/");
     m_globalGrid.init(m_game->getWindow().getSize(), m_gridSize);
     
     registerAction(sf::Keyboard::Key::F, static_cast<int>(ActionTypes::toggleFS));
@@ -20,7 +20,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::Key::L, static_cast<int>(ActionTypes::load));
     registerAction(sf::Keyboard::Key::Escape, static_cast<int>(ActionTypes::deselect));
     
-    m_assets.loadTextureDir("../../res/tiles/");
+    m_assets.loadTextureDir("../../../res/tiles/");
     
     m_effectTextures = {{TileEffect::none, "tile9"},
                         {TileEffect::water, "tile9"},

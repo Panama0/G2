@@ -1,0 +1,20 @@
+BasedOnStyle: GNU
+IndentWidth: 4
+UseTab: Never
+
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
+
+# braces
+Cpp11BracedListStyle: true
+BreakBeforeBraces: Allman
+BraceWrapping:
+    IndentBraces: false
+
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 1000
+
