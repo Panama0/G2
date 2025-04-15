@@ -1,11 +1,13 @@
 #include "sff/sffParser.hpp"
 #include "sff/sffNode.hpp"
 
+#include <cstdint>
 #include <string>
 #include <memory>
 #include <filesystem>
 #include <iostream>
 #include <optional>
+#include <stack>
 
 namespace sff{
 
@@ -27,18 +29,96 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
     m_root = std::make_unique<Node>(rootTag);
     m_currentNode = m_root.get();
 
+
+    class State
+    {
+    public:
+        enum StateTypes
+        {
+            root,
+            node,
+            data,
+            dataList
+        };
+
+        StateTypes get() { return m_state.top(); }
+        void push(StateTypes state) { m_state.push(state); }
+        void pop() { m_state.pop(); }
+        
+        std::string currentKey;
+
+    private:
+        std::stack<StateTypes> m_state;
+    };
+
+    State state;
+    state.push(State::root);
+
     while(alive())
     {
-        // check for a new node - Name {
-        // check for data - Name =
-        consumeToken(2);
-        
-        std::string test;
-        m_file >> test;
-        
+        if(state.get() == State::root) // look for a node
+        {
+            if(peekToken(2) == "{")
+            {
+                auto tag = peekToken();
+                state.push(State::node);
+                consumeToken(2);
+
+                if(tag)
+                {
+                    addNode(*tag);
+                }
+            }
+        }
+        else if(state.get() == State::node) // look for data
+        {
+            if(peekToken(2) == "=" && peekToken(3) == "{")
+            {
+                consumeToken(3);
+                state.push(State::dataList);
+            }
+            else if(peekToken(2) == "=")
+            {
+                auto key = peekToken();
+                state.push(State::data);
+                consumeToken(2);
+
+                if(key)
+                {
+                    state.currentKey = *key;
+                }
+            }
+            else if(peekToken() == "}") // if we hit a } we exit the node
+            {
+                state.pop();
+            }
+        }
+        else if(state.get() == State::data)
+        {
+            auto value = peekToken();
+            consumeToken();
+            //TODO: process the value
+            if(value)
+            {
+                m_currentNode->addData(state.currentKey,*value);
+                state.pop();
+            }
+            // if we hit a , we exit the data
+        }
+        else if(state.get() == State::dataList)
+        {
+
+            // if we hit a } we exit the list
+        }
     }
     
     return std::move(m_root);
+}
+
+void Parser::addNode(const std::string& tag)
+{
+    auto child = m_currentNode->addChild(std::make_unique<Node>(tag));
+    m_currentNode = child;
 }
 
 std::optional<std::string> Parser::peekToken(uint32_t ahead)
@@ -88,21 +168,30 @@ std::optional<char> Parser::peek(uint32_t ahead)
 }
 void Parser::consumeToken(uint32_t ahead)
 {
-    int token {};
+    /*int token {};*/
+    /*char tokenTest {};*/
+    /*for(uint32_t i {}; i < ahead; i++)*/
+    /*{*/
+    /*    while(token != std::istream::traits_type::eof() &&*/
+    /*        token != ' ' &&*/
+    /*        token != '\n')*/
+    /*    {*/
+    /*        token = m_file.get();*/
+    /*        tokenTest = token;*/
+    /*    }*/
+    /*    // skip the whitespace*/
+    /*    m_file.ignore();*/
+    /*    while(m_file.peek() == ' ' || m_file.peek() == '\n')*/
+    /*    {*/
+    /*        token = m_file.get();*/
+    /*        tokenTest = token;*/
+    /*    }*/
+    /*}*/
+
+    std::string token;
     for(uint32_t i {}; i < ahead; i++)
     {
-        while(token != std::istream::traits_type::eof() &&
-            token != ' ' &&
-            token != '\n')
-        {
-            token = m_file.get();
-        }
-        // skip the whitespace
-        m_file.ignore();
-        while(m_file.peek() == ' ' || m_file.peek() == '\n')
-        {
-            token = m_file.get();
-        }
+        m_file >> token;
     }
 }
 

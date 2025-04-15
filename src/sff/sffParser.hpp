@@ -21,6 +21,7 @@ public:
     void close();
 
 private:
+    void addNode(const std::string& tag);
     std::optional<std::string> peekToken(uint32_t ahead = 1);
     std::optional<char> peek(uint32_t ahead = 1);
     void consumeToken(uint32_t ahead = 1);
