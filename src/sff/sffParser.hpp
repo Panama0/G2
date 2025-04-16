@@ -2,8 +2,8 @@
 
 #include "sff/sffNode.hpp"
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <optional>
 
@@ -13,11 +13,11 @@ class Parser
 {
 public:
     bool open(const std::filesystem::path& path);
-    
+
     std::unique_ptr<Node> parse(const std::string& rootTag);
-    
+
     bool alive() { return m_file.good(); }
-    
+
     void close();
 
 private:

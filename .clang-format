@@ -8,6 +8,10 @@ PointerAlignment: Left
 
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
+BinPackArguments: false
+BinPackParameters: false
+BreakConstructorInitializers: BeforeColon
+SpaceBeforeParens: Never
 
 # braces
 Cpp11BracedListStyle: true
@@ -17,4 +21,3 @@ BraceWrapping:
 
 BreakAfterReturnType: Automatic
 PenaltyReturnTypeOnItsOwnLine: 1000
-

@@ -5,7 +5,6 @@ namespace sff
 class Serialiser
 {
 public:
-
 private:
 };
 }

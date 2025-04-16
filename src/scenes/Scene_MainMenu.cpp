@@ -8,7 +8,7 @@ void Scene_MainMenu::update()
 {
     m_view = m_game->getWindow().getView();
     m_entities.update();
-    
+
     for(auto& entity : m_entities.getEntities())
     {
         if(entity->has<cTransform>() && entity->has<cSprite>())
@@ -27,19 +27,19 @@ void Scene_MainMenu::sDoAction(const Action& action)
 {
     switch(action.type())
     {
-        case ActionTypes::FS:
-            if(action.status() == Action::end)
-            {
-                m_game->getWindow().toggleFullscreen();
-            }
-            break;
-            
-        case ActionTypes::launchEditor:
-            if(action.status() == Action::end)
-            {
-                m_game->changeScene<Scene_Editor>();
-            }
-            break;
+    case ActionTypes::FS:
+        if(action.status() == Action::end)
+        {
+            m_game->getWindow().toggleFullscreen();
+        }
+        break;
+
+    case ActionTypes::launchEditor:
+        if(action.status() == Action::end)
+        {
+            m_game->changeScene<Scene_Editor>();
+        }
+        break;
     }
 }
 
@@ -53,7 +53,7 @@ void Scene_MainMenu::sRender()
             m_game->getWindow().draw(entity->get<cSprite>().sprite);
         }
     }
-    sf::Sprite grid {m_globalGrid.getTexture()};
+    sf::Sprite grid{m_globalGrid.getTexture()};
     m_game->getWindow().draw(grid);
     m_game->getWindow().render();
 }
@@ -80,7 +80,7 @@ void Scene_MainMenu::sAnimation()
 void Scene_MainMenu::init()
 {
     m_assets.setResourceDir("../../res");
-    
+
     // buttons
     registerTexture("Start", "start.png");
     registerTexture("Load", "load.png");
@@ -89,40 +89,54 @@ void Scene_MainMenu::init()
 
     registerAction(sf::Keyboard::Key::V, ActionTypes::FS);
     registerAction(sf::Keyboard::Key::E, ActionTypes::launchEditor);
-    
+
     m_view = m_game->getWindow().getView();
-    
+
     //* temp
     m_globalGrid.init(m_game->getWindow().getSize(), {32, 32});
-    
+
     spawnMainMenu();
 }
 
 void Scene_MainMenu::spawnMainMenu()
 {
-    float offsetY {m_view.getSize().y / 10.f};
-    sf::Vector2f startPos {m_globalGrid.getGridAt(m_view.getCenter()).worldPos};
+    float offsetY{m_view.getSize().y / 10.f};
+    sf::Vector2f startPos{m_globalGrid.getGridAt(m_view.getCenter()).worldPos};
     spawnButton("Start", "Start", startPos);
-    
-    spawnButton("Map", "Start", m_view.getCenter() + sf::Vector2f {0.f, offsetY * 2.f});
-    
-    const auto& sizeSave = static_cast<sf::Vector2f>(m_assets.getTexture("Save").getSize());
-    const auto& sizeLoad = static_cast<sf::Vector2f>(m_assets.getTexture("Load").getSize());
-    spawnButton("Save", "Save", m_view.getCenter() + sf::Vector2f {-sizeSave.x * 3.f, offsetY * 4.f});
-    spawnButton("Load", "Load", m_view.getCenter() + sf::Vector2f {sizeLoad.x * 3.f, offsetY * 4.f});
-    
-    const auto& sizeEditor = static_cast<sf::Vector2f> (m_assets.getTexture("Editor").getSize());
-    spawnButton("Editor", "Editor", sf::Vector2f {sizeEditor.x * 2.f, offsetY * 9.f});
+
+    spawnButton(
+        "Map", "Start", m_view.getCenter() + sf::Vector2f{0.f, offsetY * 2.f});
+
+    const auto& sizeSave
+        = static_cast<sf::Vector2f>(m_assets.getTexture("Save").getSize());
+    const auto& sizeLoad
+        = static_cast<sf::Vector2f>(m_assets.getTexture("Load").getSize());
+    spawnButton("Save",
+                "Save",
+                m_view.getCenter()
+                    + sf::Vector2f{-sizeSave.x * 3.f, offsetY * 4.f});
+    spawnButton("Load",
+                "Load",
+                m_view.getCenter()
+                    + sf::Vector2f{sizeLoad.x * 3.f, offsetY * 4.f});
+
+    const auto& sizeEditor
+        = static_cast<sf::Vector2f>(m_assets.getTexture("Editor").getSize());
+    spawnButton(
+        "Editor", "Editor", sf::Vector2f{sizeEditor.x * 2.f, offsetY * 9.f});
 }
 
-
-void Scene_MainMenu::spawnButton(const std::string& name, std::string_view tex, sf::Vector2f worldPos)
+void Scene_MainMenu::spawnButton(const std::string& name,
+                                 std::string_view tex,
+                                 sf::Vector2f worldPos)
 {
     auto button = m_entities.addEntity(name);
     button->add<cSprite>(m_assets.getTexture(tex));
     button->add<cTransform>(worldPos);
     button->get<cTransform>().scale = {3.f, 3.f};
-    
-    const auto& dimensions = button->get<cSprite>().sprite.getGlobalBounds().size;
-    button->get<cSprite>().sprite.setOrigin({dimensions.x / 2.f, dimensions.y / 2.f});
+
+    const auto& dimensions
+        = button->get<cSprite>().sprite.getGlobalBounds().size;
+    button->get<cSprite>().sprite.setOrigin(
+        {dimensions.x / 2.f, dimensions.y / 2.f});
 }

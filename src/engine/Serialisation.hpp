@@ -1,14 +1,14 @@
 #pragma once
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 #include <stack>
 
 class Serialisation
 {
 public:
     bool begin(const std::filesystem::path& path, std::ios::openmode mode);
-    
+
     void beginSection(std::string_view name);
     void indent();
     // write to the line buffer. Not written to disk until endLine()
@@ -16,19 +16,19 @@ public:
     void writeLine(std::string_view data);
     void endLine();
     void endSection();
-    
-    void readSection(std::string_view name, std::string_view nameEnd, std::string& buf);
-    
+
+    void readSection(std::string_view name,
+                     std::string_view nameEnd,
+                     std::string& buf);
+
     bool alive() { return m_file.good(); }
     bool end();
-    
-    ~Serialisation()
-    {
-        end();
-    }
+
+    ~Serialisation() { end(); }
+
 private:
     std::fstream m_file;
     std::string m_buffer;
     std::stack<std::string> m_currentSections;
-    int m_depth {};
+    int m_depth{};
 };

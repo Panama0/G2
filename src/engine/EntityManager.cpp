@@ -21,7 +21,7 @@ void EntityManager::update()
 
 const EntityVec& EntityManager::getEntities(const std::string& tag)
 {
-    if(m_entityMap.find(tag) == m_entityMap.end())  // if it is empty
+    if(m_entityMap.find(tag) == m_entityMap.end()) // if it is empty
     {
         m_entityMap[tag] = EntityVec();
     }
@@ -31,24 +31,25 @@ const EntityVec& EntityManager::getEntities(const std::string& tag)
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
     m_totalEntities++;
-    
+
     auto entity = std::shared_ptr<Entity>(new Entity(tag));
-    
+
     m_entitiesToAdd.push_back(entity);
-    
-    if(m_entityMap.find(tag) == m_entityMap.end())  // if it is empty
+
+    if(m_entityMap.find(tag) == m_entityMap.end()) // if it is empty
     {
         m_entityMap[tag] = EntityVec();
     }
-    
+
     m_entityMap[tag].push_back(entity);
-    
+
     return entity;
 }
-    
+
 void EntityManager::removeDeadEntities(EntityVec& vec)
 {
-    vec.erase(std::remove_if(vec.begin(), vec.end(), 
-    [](auto& ent)
-    {return !ent->isActive();}), vec.end());
+    vec.erase(std::remove_if(vec.begin(),
+                             vec.end(),
+                             [](auto& ent) { return !ent->isActive(); }),
+              vec.end());
 }

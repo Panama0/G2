@@ -6,7 +6,7 @@ class Window
 {
 public:
     friend class Gui;
-    
+
     void init();
 
     void beginDraw() { m_window.clear({}); }
@@ -18,18 +18,19 @@ public:
     const sf::Vector2u& getSize() { return m_renderSpace; }
     std::optional<sf::Event> getEvent() { return m_window.pollEvent(); }
     const sf::RenderWindow& getWindow() { return m_window; }
-    
+
     sf::Vector2f pixelToCoords(const sf::Vector2i& pixel);
-    
+
     bool isInsideView(const sf::Vector2f& pos);
 
     void toggleFullscreen(bool mode);
     void toggleFullscreen();
+
 private:
     sf::RenderWindow m_window;
     sf::View m_view;
-    
-    sf::Vector2u m_renderSpace {1280, 720};
-    
-    bool m_isFullscreen {false};
+
+    sf::Vector2u m_renderSpace{1280, 720};
+
+    bool m_isFullscreen{false};
 };

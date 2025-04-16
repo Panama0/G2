@@ -2,25 +2,27 @@
 #include "sff/sffNode.hpp"
 
 #include <cstdint>
-#include <string>
-#include <memory>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <stack>
+#include <string>
 
-namespace sff{
+namespace sff
+{
 
 bool Parser::open(const std::filesystem::path& path)
 {
     m_file.open(path);
-    
+
     if(path.extension() != ".sff")
     {
-        std::cerr << "Could not open file: invalid file extension. Expect .sff";
+        std::cerr
+            << "Could not open file: invalid file extension. Expect .sff";
         return false;
     }
-    
+
     return alive();
 }
 
@@ -28,7 +30,6 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
 {
     m_root = std::make_unique<Node>(rootTag);
     m_currentNode = m_root.get();
-
 
     class State
     {
@@ -44,7 +45,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
         StateTypes get() { return m_state.top(); }
         void push(StateTypes state) { m_state.push(state); }
         void pop() { m_state.pop(); }
-        
+
         std::string currentKey;
 
     private:
@@ -97,10 +98,10 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
         {
             auto value = peekToken();
             consumeToken();
-            //TODO: process the value
+            // TODO: process the value
             if(value)
             {
-                m_currentNode->addData(state.currentKey,*value);
+                m_currentNode->addData(state.currentKey, *value);
                 state.pop();
             }
             // if we hit a , we exit the data
@@ -111,7 +112,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
             // if we hit a } we exit the list
         }
     }
-    
+
     return std::move(m_root);
 }
 
@@ -125,9 +126,9 @@ std::optional<std::string> Parser::peekToken(uint32_t ahead)
 {
     const auto& posBefore = m_file.tellg();
     const auto& stateBefore = m_file.rdstate();
-    
+
     std::string token;
-    for(uint32_t i {}; i < ahead; i++)
+    for(uint32_t i{}; i < ahead; i++)
     {
         m_file >> token;
     }
@@ -148,9 +149,9 @@ std::optional<char> Parser::peek(uint32_t ahead)
 {
     const auto& posBefore = m_file.tellg();
     const auto& stateBefore = m_file.rdstate();
-    
-    int result {};
-    for(uint32_t i {}; i < ahead; i++)
+
+    int result{};
+    for(uint32_t i{}; i < ahead; i++)
     {
         result = m_file.get();
     }
@@ -189,15 +190,12 @@ void Parser::consumeToken(uint32_t ahead)
     /*}*/
 
     std::string token;
-    for(uint32_t i {}; i < ahead; i++)
+    for(uint32_t i{}; i < ahead; i++)
     {
         m_file >> token;
     }
 }
 
-void Parser::consume(uint32_t ahead)
-{
-    m_file.ignore(ahead);
-}
+void Parser::consume(uint32_t ahead) { m_file.ignore(ahead); }
 
 }

@@ -1,13 +1,13 @@
 #include "scene base/GameMap.hpp"
 
-#include "engine/Serialisation.hpp"
 #include "engine/Parser.hpp"
+#include "engine/Serialisation.hpp"
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <chrono>
-#include <sstream>
 #include <optional>
+#include <sstream>
 
 void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
 {
@@ -16,10 +16,7 @@ void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
     m_tiles.reserve(gridSize.x * gridSize.y);
 }
 
-void GameMap::placeTile(const MapTile& tile)
-{
-    m_tiles.push_back(tile);
-}
+void GameMap::placeTile(const MapTile& tile) { m_tiles.push_back(tile); }
 
 void GameMap::removeTile(uint32_t id)
 {
@@ -78,28 +75,27 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
         std::cerr << "Failed to save game!\n";
         return false;
     }
-    
 
     save.beginSection("MetaData");
-    
+
     auto now = std::chrono::system_clock::now();
     auto timeNow = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
     ss << m_identifier << ' ';
     ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %X");
     std::string identString = ss.str();
-    
+
     save.writeLineBuffer(identString);
-    
+
     save.writeLineBuffer(std::to_string(m_gridSize.x), ",");
     save.writeLineBuffer(std::to_string(m_gridSize.y));
-    
+
     save.writeLineBuffer(std::to_string(m_worldSize.x));
     save.writeLineBuffer(std::to_string(m_worldSize.y), ",");
     save.endLine();
-    
+
     save.endSection();
-    
+
     if(m_tiles.size() > 0)
     {
         save.beginSection("TileData");
@@ -107,15 +103,15 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
         for(const auto& tile : m_tiles)
         {
             save.beginSection("Tile");
-            
+
             save.writeLineBuffer(tile.textureName);
             save.writeLineBuffer(std::to_string(tile.pos.x), ",");
             save.writeLineBuffer(std::to_string(tile.pos.y));
             save.writeLineBuffer(std::to_string(tile.rotation.asRadians()));
             save.writeLineBuffer(std::to_string(tile.id));
             save.endLine();
-            
-            if (!tile.effects.empty())
+
+            if(!tile.effects.empty())
             {
                 save.beginSection("Effects");
                 for(const auto& effect : tile.effects)
@@ -126,19 +122,19 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
                 }
                 save.endSection();
             }
-            
+
             save.endSection();
         }
 
         save.endSection();
     }
-    
+
     return true;
 }
 
 [[nodiscard]] bool GameMap::load(const std::filesystem::path& path)
 {
-    
+
     Parser p;
     if(!p.begin(path))
     {
@@ -148,16 +144,12 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
     clear();
 
     auto data = p.parseSave();
-    
+
     m_worldSize = data.worldSize;
     m_gridSize = data.gridSize;
     m_tiles = data.tiles;
 
-    
     return true;
 }
 
-void GameMap::clear()
-{
-    m_tiles.clear();
-}
+void GameMap::clear() { m_tiles.clear(); }

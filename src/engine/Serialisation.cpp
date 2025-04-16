@@ -1,10 +1,11 @@
 #include "engine/Serialisation.hpp"
 
-#include <fstream>
-#include <filesystem>
 #include <cassert>
+#include <filesystem>
+#include <fstream>
 
-bool Serialisation::begin(const std::filesystem::path& path, std::ios::openmode mode)
+bool Serialisation::begin(const std::filesystem::path& path,
+                          std::ios::openmode mode)
 {
     m_file.open(path, mode);
 
@@ -14,24 +15,25 @@ bool Serialisation::begin(const std::filesystem::path& path, std::ios::openmode 
 void Serialisation::beginSection(std::string_view name)
 {
     writeLine(name);
-    
-    m_currentSections.push(name.data()) ;
+
+    m_currentSections.push(name.data());
     m_depth++;
 }
 
 void Serialisation::indent()
 {
     std::string output;
-    uint32_t indentSpaces {4};
+    uint32_t indentSpaces{4};
 
-    for(uint32_t i {}; i < m_depth * indentSpaces; i++)
+    for(uint32_t i{}; i < m_depth * indentSpaces; i++)
     {
         output.append(" ");
     }
     m_file << output;
 }
 
-void Serialisation::writeLineBuffer(std::string_view data, std::string_view sep)
+void Serialisation::writeLineBuffer(std::string_view data,
+                                    std::string_view sep)
 {
     m_buffer.append(data);
     m_buffer.append(sep);
@@ -53,10 +55,10 @@ void Serialisation::endLine()
 void Serialisation::endSection()
 {
     m_depth--;
-    
+
     indent();
     m_file << "End" << m_currentSections.top() << std::endl;
-    
+
     m_currentSections.pop();
     assert(m_depth >= 0 && "Depth is negative!\n");
 }
