@@ -1,21 +1,17 @@
 #pragma once
 
+#include "sff/sffNodeData.hpp"
+
 #include <cassert>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 namespace sff
 {
-using NodeData = std::variant<std::vector<int>,
-                              std::vector<bool>,
-                              std::vector<std::string>,
-                              std::vector<std::pair<int, int> >,
-                              std::vector<std::pair<float, float> > >;
 
 class Node
 {
@@ -23,25 +19,15 @@ public:
     Node() = default;
     Node(std::string_view tag) : m_tag{tag} {}
 
-    template <typename T> void addData(const std::string& key, const T& value)
+    void addData(const std::string& key, const NodeData& value)
     {
         if(m_data.find(key) == m_data.end())
         {
-            m_data.emplace(key, std::vector<T>{value});
+            m_data.emplace(key, std::vector<NodeData>({value}));
         }
-        else
+        else // the key exists, so add the data
         {
-            std::vector<T>* valueStorage
-                = std::get_if<std::vector<T> >(&m_data[key]);
-
-            if(valueStorage)
-            {
-                valueStorage->push_back(value);
-            }
-            else
-            {
-                assert(!"No storage for this value!\n");
-            }
+            m_data.at(key).push_back(value);
         }
     }
 
@@ -53,7 +39,7 @@ public:
 
     std::string_view getTag() { return m_tag; }
 
-    const std::vector<std::unique_ptr<Node> >& getChildren()
+    const std::vector<std::unique_ptr<Node>>& getChildren()
     {
         return m_children;
     }
@@ -70,16 +56,11 @@ public:
         return std::nullopt;
     }
 
-    template <typename T>
-    std::optional<std::vector<T> > getData(const std::string& key)
+    std::optional<std::vector<NodeData>> getData(const std::string& key)
     {
         if(m_data.find(key) != m_data.end())
         {
-            auto data = std::get_if<T>(&m_data[key]);
-            if(data)
-            {
-                return *data;
-            }
+            return m_data.at(key);
         }
         // we have not retrieved anything
         return std::nullopt;
@@ -87,9 +68,9 @@ public:
 
 private:
     std::string m_tag;
-    std::vector<std::unique_ptr<Node> > m_children;
+    std::vector<std::unique_ptr<Node>> m_children;
 
     // key value pairs
-    std::map<std::string, NodeData> m_data;
+    std::map<std::string, std::vector<NodeData>> m_data;
 };
 }

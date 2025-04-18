@@ -10,3 +10,4 @@ int main()
     p.open("../../../res/saves/test.sff");
     p.parse("b");
 }
+
