@@ -7,6 +7,7 @@
 namespace sff
 {
 using DataVariant = std::variant<int,
+                                 float,
                                  bool,
                                  std::string,
                                  std::pair<int, int>,

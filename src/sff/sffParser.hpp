@@ -6,6 +6,7 @@
 #include <fstream>
 #include <memory>
 #include <optional>
+#include <string_view>
 
 namespace sff
 {
@@ -27,6 +28,10 @@ private:
     void advance(uint32_t ahead = 1);
 
     std::optional<NodeData> parseDataValue(const std::string& value);
+    bool isInteger(std::string_view string);
+    bool isFloat(std::string_view string);
+    bool isVec2i(std::string_view string);
+    bool isVec2f(std::string_view string);
 
     std::unique_ptr<Node> m_root;
     Node* m_currentNode;
