@@ -6,6 +6,7 @@
 #include <fstream>
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>
 
 namespace sff
@@ -17,7 +18,7 @@ public:
 
     std::unique_ptr<Node> parse(const std::string& rootTag);
 
-    bool dead() { return m_eof;}
+    bool dead() { return m_eof; }
 
     void close();
 
@@ -30,15 +31,19 @@ private:
     std::optional<NodeData> parseDataValue(const std::string& value);
     bool isInteger(std::string_view string);
     bool isFloat(std::string_view string);
-    bool isVec2i(std::string_view string);
-    bool isVec2f(std::string_view string);
+    std::optional<std::pair<std::string_view, std::string_view>> getVector2(
+        std::string_view string);
+    bool isVector2f(std::string_view string);
+    bool isVector2i(std::string_view string);
+    std::pair<float, float> getVector2f(std::string_view string);
+    std::pair<int, int> getVector2i(std::string_view string);
 
     std::unique_ptr<Node> m_root;
     Node* m_currentNode;
     std::fstream m_file;
 
     std::vector<std::string> m_tokens;
-    size_t m_offset {};
-    bool m_eof {false};
+    size_t m_offset{};
+    bool m_eof{false};
 };
 }

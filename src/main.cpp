@@ -8,6 +8,6 @@ int main()
 
     sff::Parser p;
     p.open("../../../res/saves/test.sff");
-    p.parse("b");
+    auto test = p.parse("b");
 }
 

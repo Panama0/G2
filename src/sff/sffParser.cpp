@@ -3,6 +3,7 @@
 
 #include <cctype>
 #include <cfloat>
+#include <charconv>
 #include <climits>
 #include <cmath>
 #include <cstddef>
@@ -17,6 +18,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 
 namespace sff
 {
@@ -70,8 +72,6 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
         void pop() { m_state.pop(); }
 
         std::string currentKey;
-        std::vector<std::string> currentList;
-
     private:
         std::stack<StateTypes> m_state;
     };
@@ -144,7 +144,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
                 }
 
                 auto data = parseDataValue(*value);
-                m_currentNode->addData(state.currentKey, *value);
+                m_currentNode->addData(state.currentKey, data);
                 state.pop();
             }
         }
@@ -160,8 +160,8 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
             }
             else
             {
-                state.currentList.push_back(*token);
-                m_currentNode->addData(state.currentKey, *token);
+                auto data = parseDataValue(*token);
+                m_currentNode->addData(state.currentKey, *data);
             }
         }
     }
@@ -191,11 +191,13 @@ std::optional<NodeData> Parser::parseDataValue(const std::string& value)
     {
         return std::stof(value);
     }
-    else if(isVec2i(value))
+    else if(isVector2i(value))
     {
+        return getVector2i(value);
     }
-    else if(isVec2f(value))
+    else if(isVector2f(value))
     {
+        return getVector2f(value);
     }
     else
     {
@@ -283,25 +285,39 @@ bool Parser::isFloat(std::string_view string)
     return true;
 }
 
-bool Parser::isVec2i(std::string_view value)
+std::optional<std::pair<std::string_view, std::string_view>> Parser::
+    getVector2(std::string_view string)
 {
-    if(value.front() != '(' && value.back() != ')')
+    if(string.front() != '(' && string.back() != ')')
     {
-        return false;
+        return std::nullopt;
     }
     else
     {
-        value.remove_prefix(1);
-        value.remove_suffix(1);
+        string.remove_prefix(1);
+        string.remove_suffix(1);
     }
 
-    size_t mid = value.find(',');
-    if(mid == value.npos)
+    size_t mid = string.find(',');
+    if(mid == string.npos)
     {
+        return std::nullopt;
+    }
+
+    return std::pair{string.substr(0, mid),
+                     string.substr(mid + 1, string.size())};
+}
+
+bool Parser::isVector2f(std::string_view string)
+{
+    auto vector2 = getVector2(string);
+    if(!vector2)
+    {
+        // it is not a vector2
         return false;
     }
-    else if(!(isInteger(value.substr(0, mid))
-              && isInteger(value.substr(mid + 1, value.size()))))
+
+    if(!(isFloat(vector2->first) && isFloat(vector2->second)))
     {
         return false;
     }
@@ -309,8 +325,52 @@ bool Parser::isVec2i(std::string_view value)
     return true;
 }
 
-bool Parser::isVec2f(std::string_view string) { return false;}
+bool Parser::isVector2i(std::string_view string)
+{
+    auto vector2 = getVector2(string);
+    if(!vector2)
+    {
+        // it is not a vector2
+        return false;
+    }
 
+    if(!(isInteger(vector2->first) && isInteger(vector2->second)))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+std::pair<float, float> Parser::getVector2f(std::string_view string)
+{
+    auto vec2 = getVector2(string).value();
+    float first{};
+    float second{};
+    //TODO: change all to use std::from chars to avoid allocations/temp strings
+    auto resultFirst = std::from_chars(
+        vec2.first.data(), (vec2.first.data() + vec2.first.length()), first);
+
+    auto resultSecond = std::from_chars(
+        vec2.second.data(), (vec2.second.data() + vec2.second.length()), second);
+
+    return {first, second};
+}
+
+std::pair<int, int> Parser::getVector2i(std::string_view string)
+{
+    auto vec2 = getVector2(string).value();
+    int first{};
+    int second{};
+    //TODO: change all to use std::from chars to avoid allocations/temp strings
+    auto resultFirst = std::from_chars(
+        vec2.first.data(), (vec2.first.data() + vec2.first.length()), first);
+
+    auto resultSecond = std::from_chars(
+        vec2.second.data(), (vec2.second.data() + vec2.second.length()), second);
+
+    return {first, second};
+}
 void Parser::addNode(const std::string& tag)
 {
     auto child = m_currentNode->addChild(std::make_unique<Node>(tag));
