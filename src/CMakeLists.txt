@@ -16,6 +16,7 @@ set(SRC_FILES
     "scene base/EditorUI.cpp"
     engine/Serialisation.cpp
     sff/sffParser.cpp
+    sff/sffFileManipulator.cpp
 )
 
 set(H_FILES 
@@ -38,6 +39,9 @@ set(H_FILES
     engine/Parser.hpp
     sff/sffNode.hpp
     sff/sffParser.hpp
+    sff/sffFileManipulator.hpp
+    sff/sffSerialiser.hpp
+    sff/sffNodeData.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <variant>
+#include <iostream>
 
 namespace sff
 {
@@ -19,9 +20,20 @@ public:
 
     template <typename T> NodeData(const T& val) : m_data{val} {}
 
-    template <typename T> const T& get() { return m_data; }
+    // this is odd...
+    template <typename T>
+    operator T() const
+    {
+        const T* val = std::get_if<T>(&m_data);
 
-    template <typename T> bool set(const T& val) { m_data = val; }
+        if(!val)
+        {
+            std::cerr << "There is nothing of this type stored!\n";
+            return T{};
+        }
+
+        return *val;
+    }
 
 private:
     DataVariant m_data;

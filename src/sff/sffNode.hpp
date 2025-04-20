@@ -44,7 +44,7 @@ public:
         return m_children;
     }
 
-    std::optional<Node*> getChild(std::string_view tag)
+    Node* getChild(std::string_view tag)
     {
         for(auto& child : m_children)
         {
@@ -53,17 +53,17 @@ public:
                 return child.get();
             }
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    std::optional<std::vector<NodeData>> getData(const std::string& key)
+    std::vector<NodeData> getData(const std::string& key)
     {
         if(m_data.find(key) != m_data.end())
         {
             return m_data.at(key);
         }
         // we have not retrieved anything
-        return std::nullopt;
+        return {};
     }
 
 private:

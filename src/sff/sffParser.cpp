@@ -5,37 +5,19 @@
 #include <cfloat>
 #include <charconv>
 #include <climits>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
-#include <iterator>
 #include <memory>
 #include <optional>
 #include <stack>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 
 namespace sff
 {
-
-bool Parser::open(const std::filesystem::path& path)
-{
-    m_file.open(path);
-
-    if(path.extension() != ".sff")
-    {
-        std::cerr
-            << "Could not open file: invalid file extension. Expect .sff";
-        return false;
-    }
-
-    return dead();
-}
 
 void Parser::tokenise()
 {
@@ -72,6 +54,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
         void pop() { m_state.pop(); }
 
         std::string currentKey;
+
     private:
         std::stack<StateTypes> m_state;
     };
@@ -144,7 +127,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
                 }
 
                 auto data = parseDataValue(*value);
-                m_currentNode->addData(state.currentKey, data);
+                m_currentNode->addData(state.currentKey, *data);
                 state.pop();
             }
         }
@@ -347,12 +330,15 @@ std::pair<float, float> Parser::getVector2f(std::string_view string)
     auto vec2 = getVector2(string).value();
     float first{};
     float second{};
-    //TODO: change all to use std::from chars to avoid allocations/temp strings
+    // TODO: change all to use std::from chars to avoid allocations/temp
+    // strings
     auto resultFirst = std::from_chars(
         vec2.first.data(), (vec2.first.data() + vec2.first.length()), first);
 
-    auto resultSecond = std::from_chars(
-        vec2.second.data(), (vec2.second.data() + vec2.second.length()), second);
+    auto resultSecond
+        = std::from_chars(vec2.second.data(),
+                          (vec2.second.data() + vec2.second.length()),
+                          second);
 
     return {first, second};
 }
@@ -362,19 +348,17 @@ std::pair<int, int> Parser::getVector2i(std::string_view string)
     auto vec2 = getVector2(string).value();
     int first{};
     int second{};
-    //TODO: change all to use std::from chars to avoid allocations/temp strings
+    // TODO: change all to use std::from chars to avoid allocations/temp
+    // strings
     auto resultFirst = std::from_chars(
         vec2.first.data(), (vec2.first.data() + vec2.first.length()), first);
 
-    auto resultSecond = std::from_chars(
-        vec2.second.data(), (vec2.second.data() + vec2.second.length()), second);
+    auto resultSecond
+        = std::from_chars(vec2.second.data(),
+                          (vec2.second.data() + vec2.second.length()),
+                          second);
 
     return {first, second};
-}
-void Parser::addNode(const std::string& tag)
-{
-    auto child = m_currentNode->addChild(std::make_unique<Node>(tag));
-    m_currentNode = child;
 }
 
 std::optional<std::string> Parser::getToken(uint32_t ahead)

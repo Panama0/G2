@@ -1,4 +1,5 @@
 #include "engine/GameEngine.hpp"
+#include "sff/sffNodeData.hpp"
 #include "sff/sffParser.hpp"
 
 int main()
