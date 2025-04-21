@@ -3,6 +3,7 @@
 #include "sff/sffNode.hpp"
 #include <filesystem>
 #include <fstream>
+#include <ios>
 #include <string>
 
 namespace sff
@@ -15,10 +16,15 @@ public:
     FileManipulator() = default;
     FileManipulator(const std::filesystem::path& path) : m_file{path} {}
 
-    bool open(const std::filesystem::path& path);
+    bool open(const std::filesystem::path& path, std::ios_base::openmode mode);
+
+    // adds a child to the current child
+    void addChild(const std::string& name);
+    // adds a child on the same level as the current child
     void addNode(const std::string& name);
 
-    virtual bool dead() { return m_file.eof(); };
+    virtual bool eof() { return m_file.eof(); };
+    bool alive() { return m_file.good(); }
     void close() { m_file.close(); }
 
 protected:

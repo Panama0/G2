@@ -17,6 +17,7 @@ set(SRC_FILES
     engine/Serialisation.cpp
     sff/sffParser.cpp
     sff/sffFileManipulator.cpp
+    sff/sffSerialiser.cpp
 )
 
 set(H_FILES 

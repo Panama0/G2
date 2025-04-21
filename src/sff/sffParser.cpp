@@ -35,7 +35,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
 {
     tokenise();
 
-    m_root = std::make_unique<Node>(rootTag);
+    m_root = std::make_unique<Node>(rootTag, m_currentNode);
     m_currentNode = m_root.get();
 
     class State
@@ -62,7 +62,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
     State state;
     state.push(State::root);
 
-    while(!dead())
+    while(!eof())
     {
         if(state.get() == State::root) // look for a node
         {
@@ -74,7 +74,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
 
                 if(tag)
                 {
-                    addNode(*tag);
+                    addChild(*tag);
                 }
             }
         }

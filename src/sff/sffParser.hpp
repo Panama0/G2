@@ -15,7 +15,7 @@ class Parser : public FileManipulator
 public:
     std::unique_ptr<Node> parse(const std::string& rootTag);
 
-    bool dead() override { return m_eof; }
+    bool eof() override { return m_eof; }
 private:
     void tokenise();
     std::optional<std::string> getToken(uint32_t ahead = 0);

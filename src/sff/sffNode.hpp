@@ -17,7 +17,7 @@ class Node
 {
 public:
     Node() = default;
-    Node(std::string_view tag) : m_tag{tag} {}
+    Node(std::string_view tag, Node* parent) : m_tag{tag}, m_parent{parent} {}
 
     void addData(const std::string& key, const NodeData& value)
     {
@@ -56,6 +56,8 @@ public:
         return nullptr;
     }
 
+    Node* getParent() { return m_parent; }
+
     std::vector<NodeData> getData(const std::string& key)
     {
         if(m_data.find(key) != m_data.end())
@@ -66,9 +68,15 @@ public:
         return {};
     }
 
+    const std::map<std::string, std::vector<NodeData>>& getData()
+    {
+        return m_data;
+    }
+
 private:
     std::string m_tag;
     std::vector<std::unique_ptr<Node>> m_children;
+    Node* m_parent;
 
     // key value pairs
     std::map<std::string, std::vector<NodeData>> m_data;
