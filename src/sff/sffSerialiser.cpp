@@ -1,33 +1,41 @@
 #include "sff/sffSerialiser.hpp"
+#include <cassert>
 
 namespace sff
 {
 
-// void Serialiser::addData(std::string_view nodeName, const NodeData& data) {}
 void Serialiser::startFile(const std::string& rootTag)
 {
     m_root = std::make_unique<Node>(rootTag, nullptr);
-    m_currentNode = m_root.get();
+    m_nodeStack.emplace(m_root.get());
 }
 
-std::string_view Serialiser::getCurrentNode()
+void Serialiser::startNode(const std::string& tag)
 {
-    if(m_currentNode)
+    auto node = addNode(tag, currentNode());
+
+    //WARN: maybe in the future we want to have this happen in addNode()?
+    m_nodeStack.emplace(node);
+}
+
+void Serialiser::endNode()
+{
+    if(!m_nodeStack.empty())
     {
-        return m_currentNode->getTag();
+        m_nodeStack.pop();
     }
     else
     {
-        std::cerr << "No current node!\n";
-        return {};
+        std::cerr << "No node to pop!\n";
     }
 }
-void Serialiser::addDataCurrentNode(const std::string& key,
+
+void Serialiser::addData(const std::string& key,
                                     const NodeData& data)
 {
-    if(m_currentNode)
+    if(currentNode())
     {
-        m_currentNode->addData(key, data);
+        currentNode()->addData(key, data);
     }
     else
     {
@@ -37,6 +45,8 @@ void Serialiser::addDataCurrentNode(const std::string& key,
 
 bool Serialiser::write()
 {
+    assert(m_nodeStack.size() == 1 && "Node stack has too many or too little nodes!\n");
+
     if(!alive())
     {
         return false;

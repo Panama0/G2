@@ -1,9 +1,12 @@
 #pragma once
 
 #include "sff/sffNode.hpp"
+
+#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <ios>
+#include <stack>
 #include <string>
 
 namespace sff
@@ -18,18 +21,23 @@ public:
 
     bool open(const std::filesystem::path& path, std::ios_base::openmode mode);
 
-    // adds a child to the current child
-    void addChild(const std::string& name);
-    // adds a child on the same level as the current child
-    void addNode(const std::string& name);
+    Node* currentNode();
+    Node& getFile()
+    {
+        assert(m_root
+               && "No file started! Did you forget to call startFile()?\n");
+        return *m_root;
+    }
 
     virtual bool eof() { return m_file.eof(); };
     bool alive() { return m_file.good(); }
     void close() { m_file.close(); }
 
 protected:
-    Node* m_currentNode;
+    Node* addNode(const std::string& name, Node* parent);
+
     std::unique_ptr<Node> m_root;
+    std::stack<Node*> m_nodeStack;
 
     std::fstream m_file;
 };

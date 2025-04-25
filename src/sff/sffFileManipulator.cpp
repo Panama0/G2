@@ -20,34 +20,29 @@ bool FileManipulator::open(const std::filesystem::path& path,
     return m_file.is_open();
 }
 
-void FileManipulator::addChild(const std::string& tag)
+Node* FileManipulator::addNode(const std::string& tag, Node* parent)
 {
-    if(!m_currentNode)
+    if(!currentNode())
     {
         std::cerr << "No node to add to!\n";
-        return;
+        return nullptr;
     }
     auto child
-        = m_currentNode->addChild(std::make_unique<Node>(tag, m_currentNode));
-    m_currentNode = child;
+        = currentNode()->addChild(std::make_unique<Node>(tag, parent));
+
+    return child;
 }
 
-void FileManipulator::addNode(const std::string& tag)
+Node* FileManipulator::currentNode()
 {
-    if(!m_currentNode)
+    if(!m_nodeStack.empty())
     {
-        std::cerr << "No node to add to!\n";
-        return;
+        return m_nodeStack.top();
     }
-
-    auto parent = m_currentNode->getParent();
-    if(!parent)
+    else
     {
-        parent = m_root.get();
+        return nullptr;
     }
-
-    auto child = parent->addChild(std::make_unique<Node>(tag, parent));
-    m_currentNode = child;
 }
 
 }

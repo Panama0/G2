@@ -1,6 +1,7 @@
 #include "sff/sffNodeData.hpp"
 #include "sff/sffParser.hpp"
 #include "sff/sffSerialiser.hpp"
+#include <string_view>
 #include <utility>
 
 int main()
@@ -16,14 +17,17 @@ int main()
     sff::Serialiser s;
     bool open = s.open("../../../res/saves/testWrite.sff", std::ios_base::out);
     s.startFile("root");
-    s.addNode("depth1");
-    s.addDataCurrentNode("testStr", "string");
-    s.addDataCurrentNode("testBool", true); 
-    s.addDataCurrentNode("testFloat", 5.2f); 
-    s.addDataCurrentNode("testVec2i", std::pair<int, int>{1, 55}); 
-    s.addNode("depth1a");
-    s.addChild("depth2 - child of depth1a");
-    s.addNode("depth2a - child of depth1a");
+
+    s.startNode("depth1");
+    s.addData("test", true);
+    s.startNode("depth2");
+    s.addData("fa", false);
+
+    s.endNode();
+    s.endNode();
+
+    auto& test = s.getFile()["d"]["depth2"];
+
     bool write = s.write();
     s.close();
 

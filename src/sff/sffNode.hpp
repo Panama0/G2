@@ -5,7 +5,6 @@
 #include <cassert>
 #include <map>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -18,6 +17,28 @@ class Node
 public:
     Node() = default;
     Node(std::string_view tag, Node* parent) : m_tag{tag}, m_parent{parent} {}
+
+    Node& operator[](std::string_view tag)
+    {
+        auto child = findChild(tag);
+        assert(child && "No child found!\n");
+
+        return *child;
+    }
+
+    Node* findChild(std::string_view tag)
+    {
+
+        for(const auto& child : m_children)
+        {
+            if(child->getTag() == tag)
+            {
+                return child.get();
+            }
+        }
+        // did not find the child
+        return nullptr;
+    }
 
     void addData(const std::string& key, const NodeData& value)
     {
