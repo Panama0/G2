@@ -35,15 +35,21 @@ public:
         return *val;
     }
 
-    std::string getString() { return std::visit(Visitor(), m_data); }
+    std::string getString() const { return std::visit(Visitor(), m_data); }
+
 private:
     struct Visitor
     {
         std::string operator()(int i) { return std::to_string(i); }
         std::string operator()(float f) { return std::to_string(f); }
         std::string operator()(bool b) { return b ? "true" : "false"; }
-        std::string operator()(std::string s) { return s; }
-        std::string operator()(std::pair<int, int> vec2i)
+        std::string operator()(const std::string& s)
+        {
+            char buf[256];
+            std::snprintf(buf, 256, "\"%s\"", s.c_str());
+            return buf;
+        }
+        std::string operator()(const std::pair<int, int>& vec2i)
         {
             char b[256];
             std::snprintf(b, 256, "(%d, %d)", vec2i.first, vec2i.second);

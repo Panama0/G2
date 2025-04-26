@@ -28,7 +28,6 @@ public:
 
     Node* findChild(std::string_view tag)
     {
-
         for(const auto& child : m_children)
         {
             if(child->getTag() == tag)

@@ -27,8 +27,7 @@ Node* FileManipulator::addNode(const std::string& tag, Node* parent)
         std::cerr << "No node to add to!\n";
         return nullptr;
     }
-    auto child
-        = currentNode()->addChild(std::make_unique<Node>(tag, parent));
+    auto child = currentNode()->addChild(std::make_unique<Node>(tag, parent));
 
     return child;
 }
