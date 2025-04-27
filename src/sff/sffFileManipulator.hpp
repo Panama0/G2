@@ -21,7 +21,9 @@ public:
 
     bool open(const std::filesystem::path& path, std::ios_base::openmode mode);
 
+    Node* addNode(const std::string& name);
     Node* currentNode();
+    void endNode();
     Node& getFile()
     {
         assert(m_root
@@ -33,9 +35,9 @@ public:
     bool alive() { return m_file.good(); }
     void close() { m_file.close(); }
 
-protected:
-    Node* addNode(const std::string& name, Node* parent);
+    ~FileManipulator() { close(); }
 
+protected:
     std::unique_ptr<Node> m_root;
     std::stack<Node*> m_nodeStack;
 

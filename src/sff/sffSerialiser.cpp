@@ -3,36 +3,10 @@
 #include <cstdint>
 #include <ostream>
 #include <string_view>
-#include <sys/types.h>
 
 namespace sff
 {
 
-void Serialiser::startFile(const std::string& rootTag)
-{
-    m_root = std::make_unique<Node>(rootTag, nullptr);
-    m_nodeStack.emplace(m_root.get());
-}
-
-void Serialiser::startNode(const std::string& tag)
-{
-    auto node = addNode(tag, currentNode());
-
-    // WARN: maybe in the future we want to have this happen in addNode()?
-    m_nodeStack.emplace(node);
-}
-
-void Serialiser::endNode()
-{
-    if(!m_nodeStack.empty())
-    {
-        m_nodeStack.pop();
-    }
-    else
-    {
-        std::cerr << "No node to pop!\n";
-    }
-}
 
 void Serialiser::addData(const std::string& key, const NodeData& data)
 {
@@ -56,19 +30,14 @@ bool Serialiser::endFile()
     assert(m_nodeStack.size() == 1
            && "Node stack invalid! Missing an endNode()?\n");
 
-    writeNode(m_root.get());
+    writeNode(m_root.get(), 0);
 
     return true;
 }
 
-void Serialiser::writeNode(Node* node)
+void Serialiser::writeNode(Node* node, uint32_t depth)
 {
-    static uint32_t depth{};
-    depth++;
-    assert(depth < UINT32_MAX && "Max depth reached!\n");
-
-    // depth local to this function call
-    uint32_t localDepth = depth;
+    assert(depth < UINT32_MAX - 1 && "Max depth reached!\n");
 
     indent(depth);
 
@@ -103,17 +72,18 @@ void Serialiser::writeNode(Node* node)
 
     for(const auto& child : node->getChildren())
     {
-        writeNode(child.get());
+        writeNode(child.get(), depth + 1);
     }
 
-    indent(localDepth);
+    indent(depth);
 
     m_file << '}' << std::endl;
 }
 
 void Serialiser::indent(uint32_t depth)
 {
-    for(uint32_t i{}; i < (depth - 1) * 4; i++)
+    uint32_t indentSize {4};
+    for(uint32_t i{}; i < depth * indentSize; i++)
     {
         m_file << ' ';
     }

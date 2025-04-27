@@ -13,7 +13,8 @@ namespace sff
 class Parser : public FileManipulator
 {
 public:
-    std::unique_ptr<Node> parse(const std::string& rootTag);
+    // Parse and return the currently open file
+    std::unique_ptr<Node> parse();
 
     bool eof() override { return m_eof; }
 private:

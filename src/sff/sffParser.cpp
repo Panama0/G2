@@ -7,7 +7,6 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -31,11 +30,9 @@ void Parser::tokenise()
     }
 }
 
-std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
+std::unique_ptr<Node> Parser::parse()
 {
     tokenise();
-
-    m_root = std::make_unique<Node>(rootTag, currentNode());
 
     class State
     {
@@ -73,7 +70,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
 
                 if(tag)
                 {
-                    //FIX: addChild(*tag);
+                    addNode(*tag);
                 }
             }
         }
@@ -105,6 +102,7 @@ std::unique_ptr<Node> Parser::parse(const std::string& rootTag)
             else if(getToken() == "}") // if we hit a } we exit the node
             {
                 state.pop();
+                endNode();
                 advance();
             }
         }

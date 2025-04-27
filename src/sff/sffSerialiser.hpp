@@ -2,24 +2,20 @@
 
 #include "sff/sffFileManipulator.hpp"
 #include "sff/sffNodeData.hpp"
+#include <cstdint>
 
 namespace sff
 {
 class Serialiser : public FileManipulator
 {
 public:
-    void startFile(const std::string& rootTag);
-    void startNode(const std::string& tag);
-    void endNode();
-
-    void writeNode(Node* node);
-    void indent(uint32_t depth);
-
     // Add data to the current node
     void addData(const std::string& key, const NodeData& data);
 
+    // Writes the file to the disk
     bool endFile();
 private:
-
+    void writeNode(Node* node, uint32_t depth);
+    void indent(uint32_t depth);
 };
 }
