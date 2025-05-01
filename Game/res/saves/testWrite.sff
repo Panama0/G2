@@ -1,0 +1,11 @@
+testWrite {
+    depth1 {
+        string = {
+            "s1"
+            "s2"
+        }
+    }
+    depth1 node 2 {
+        int = 2
+    }
+}
