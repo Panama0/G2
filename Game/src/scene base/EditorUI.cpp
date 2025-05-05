@@ -1,6 +1,7 @@
 #include "EditorUI.hpp"
 
 #include "scenes/Scene_Editor.hpp"
+#include <filesystem>
 
 void EditorUI::draw()
 {
@@ -27,7 +28,7 @@ void EditorUI::drawMainMenuBarUI()
 
     if(ImGui::BeginMenu("File"))
     {
-        if(ImGui::MenuItem("Save", m_state->fileName.c_str()))
+        if(ImGui::MenuItem("Save", m_state->saveName.c_str()))
         {
             m_scene->sDoAction(
                 Action{static_cast<int>(Scene_Editor::ActionTypes::save),
@@ -236,8 +237,8 @@ void EditorUI::drawSaveLoadUI()
             static char fnameBuf[32];
             static bool copied{false};
 
-            const auto& path = m_state->filePath;
-            const auto& name = m_state->fileName;
+            const auto& path = m_state->savePath;
+            const auto& name = m_state->saveName;
 
             if(!copied)
             {
@@ -255,8 +256,8 @@ void EditorUI::drawSaveLoadUI()
 
             if(ImGui::Button("Save", ImVec2{150, 50}))
             {
-                m_state->filePath = folderBuf;
-                m_state->fileName = fnameBuf;
+                m_state->savePath = folderBuf;
+                m_state->saveName = fnameBuf;
                 m_scene->sDoAction(
                     Action{static_cast<int>(Scene_Editor::ActionTypes::save),
                            Action::end});
@@ -272,7 +273,7 @@ void EditorUI::drawSaveLoadUI()
             static char buf[128];
             static bool copied{false};
 
-            const auto& startingDir = m_state->filePath;
+            const auto& startingDir = m_state->savePath;
 
             if(!copied)
             {
@@ -288,7 +289,7 @@ void EditorUI::drawSaveLoadUI()
                 std::filesystem::path path{buf};
                 if(std::filesystem::exists(path))
                 {
-                    m_state->filePath = buf;
+                    m_state->savePath = buf;
                 }
                 else
                 {
@@ -298,9 +299,18 @@ void EditorUI::drawSaveLoadUI()
 
             // construct a list of the files in the directory
             std::vector<std::string> files;
-            for(auto file : std::filesystem::directory_iterator{startingDir})
+
+            if(std::filesystem::exists(startingDir))
             {
-                files.emplace_back(file.path().filename());
+                for(const auto& file :
+                    std::filesystem::directory_iterator{startingDir})
+                {
+                    files.emplace_back(file.path().filename());
+                }
+            }
+            else
+            {
+                std::cerr << "Path does not exist!\n";
             }
 
             static std::string selectedItem;
@@ -319,7 +329,7 @@ void EditorUI::drawSaveLoadUI()
 
             if(ImGui::Button("Load", ImVec2{150, 50}))
             {
-                m_state->fileName = selectedItem;
+                m_state->saveName = selectedItem;
                 m_scene->sDoAction(
                     Action{static_cast<int>(Scene_Editor::ActionTypes::load),
                            Action::end});

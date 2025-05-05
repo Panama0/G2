@@ -1,7 +1,5 @@
 #include "GameEngine.hpp"
 #include "Action.hpp"
-//#include "Scene_Editor.hpp"
-//#include "Scene_MainMenu.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "imgui-SFML.h"
@@ -15,8 +13,6 @@ GameEngine::GameEngine() { init(); }
 void GameEngine::init()
 {
     m_window.init();
-
-    // changeScene<Scene_Editor>();
 }
 
 void GameEngine::run()
@@ -25,6 +21,11 @@ void GameEngine::run()
 
     while(m_running)
     {
+        if(m_scenes.empty())
+        {
+            quit();
+        }
+
         m_dt = m_clock.restart();
 
         sUserInput();
@@ -39,6 +40,11 @@ void GameEngine::run()
             m_scenes.erase(endedSceneID);
         }
     }
+}
+void GameEngine::startScene(std::unique_ptr<Scene> scene)
+{
+    m_currentSceneID = scene->id();
+    m_scenes.emplace(scene->id(), std::move(scene));
 }
 
 void GameEngine::sUserInput()

@@ -1,8 +1,8 @@
 #include "scenes/Scene_MainMenu.hpp"
-
 #include "scenes/Scene_Editor.hpp"
 
 #include <iostream>
+#include <memory>
 
 void Scene_MainMenu::update()
 {
@@ -37,7 +37,7 @@ void Scene_MainMenu::sDoAction(const Action& action)
     case ActionTypes::launchEditor:
         if(action.status() == Action::end)
         {
-            m_game->changeScene<Scene_Editor>();
+            m_game->startScene(std::make_unique<Scene_Editor>(m_game, m_game->generateID()));
         }
         break;
     }

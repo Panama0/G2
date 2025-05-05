@@ -8,7 +8,7 @@ void Scene_Editor::init()
     m_gridSize = {32, 32};
     m_hasGui = true;
 
-    m_assets.setResourceDir("../../../res/");
+    m_assets.setResourceDir("../../../Game/res/");
     m_globalGrid.init(m_game->getWindow().getSize(), m_gridSize);
 
     registerAction(sf::Keyboard::Key::F,
@@ -26,7 +26,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::Key::Escape,
                    static_cast<int>(ActionTypes::deselect));
 
-    m_assets.loadTextureDir("../../../res/tiles/");
+    m_assets.loadTextureDir("../../../Game/res/tiles/");
 
     m_effectTextures = {{TileEffect::none, "tile9"},
                         {TileEffect::water, "tile9"},
@@ -34,7 +34,10 @@ void Scene_Editor::init()
                         {TileEffect::path, "tile9"},
                         {TileEffect::spawner, "tile9"}};
 
-    m_state.tileTexture = m_assets.getTextureList().at(0);
+    if(!m_assets.getTextureList().empty())
+    {
+        m_state.tileTexture = m_assets.getTextureList().front();
+    }
 
     m_editorUI.init(m_game->getWindow());
 }
@@ -169,14 +172,14 @@ void Scene_Editor::sDoAction(const Action& action)
     case static_cast<int>(ActionTypes::save):
         if(action.status() == Action::end)
         {
-            m_state.map.save(m_state.filePath / m_state.fileName);
+            m_state.map.save(m_state.savePath / m_state.saveName);
         }
         break;
 
     case static_cast<int>(ActionTypes::load):
         if(action.status() == Action::end)
         {
-            m_state.map.load(m_state.filePath / m_state.fileName);
+            m_state.map.load(m_state.savePath / m_state.saveName);
 
             //* must be a better way
             // remove old brushes and add the new ones
@@ -320,7 +323,6 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
         = entitiy->add<cTransform>(m_globalGrid.getGridAt(tile.pos).midPos);
     transform.scale = {0.8f, 0.8f};
 
-    //entitiy->add<cEffect>(effect.effect);
     entitiy->add<cId>(tile.id);
 }
 

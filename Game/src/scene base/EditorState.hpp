@@ -36,6 +36,6 @@ struct EditorState
 
     std::vector<std::string> textureList;
 
-    std::string fileName{"Unnamed Level"};
-    std::filesystem::path filePath{"../../res/saves/"};
+    std::string saveName{"Unnamed Level"};
+    std::filesystem::path savePath{"../../../Game/res/saves"};
 };

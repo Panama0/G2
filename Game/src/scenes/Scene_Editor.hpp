@@ -32,10 +32,9 @@ public:
     void update() override;
     void sDoAction(const Action& action) override;
     void sRender() override;
-    void end() override { m_game->changeScene<Scene_MainMenu>(); }
 
-    //! need to remove this in favour of the assetList in the editorState
-    //! struct
+    //TODO: need to remove this in favour of the assetList in the editorState
+    // struct
     Assets& getAssets() { return m_assets; }
 
 private:

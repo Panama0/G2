@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Action.hpp"
+#include "Assets.hpp"
 #include "EntityManager.hpp"
 #include "GameEngine.hpp"
-#include "Assets.hpp"
 #include "Grid.hpp"
 
 #include <filesystem>
@@ -16,13 +16,7 @@ class Scene
 {
 public:
     Scene() = default;
-    Scene(GameEngine* game, uint32_t id) : m_game{game}, m_id(id) {}
-    enum SceneTypes
-    {
-        mainmenu,
-        editor,
-        gameplay
-    };
+    Scene(GameEngine* game, uint32_t id) : m_game{game}, m_id{id} {}
 
     virtual void update() = 0;
     virtual void sDoAction(const Action& action) = 0;
@@ -31,7 +25,8 @@ public:
 
     bool hasGUI() { return m_hasGui; }
 
-    virtual void end() = 0;
+    virtual void end() { m_hasEnded = true; }
+
     bool hasEnded() { return m_hasEnded; }
     uint32_t id() { return m_id; }
 
@@ -63,6 +58,7 @@ public:
     virtual ~Scene() {};
 
 protected:
+    uint32_t m_parentSceneID{};
     GameEngine* m_game;
     uint32_t m_id{};
     EntityManager m_entities;
