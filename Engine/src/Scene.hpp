@@ -8,7 +8,6 @@
 
 #include <filesystem>
 #include <map>
-#include <string>
 
 class GameEngine;
 
@@ -61,7 +60,7 @@ protected:
     uint32_t m_parentSceneID{};
     GameEngine* m_game;
     uint32_t m_id{};
-    EntityManager m_entities;
+    SECS::EntityManager m_entities;
     int m_currentFrame{};
     Assets m_assets;
     std::map<sf::Keyboard::Key, int> m_keyboardActions;

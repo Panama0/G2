@@ -1,4 +1,5 @@
 #include "scenes/Scene_MainMenu.hpp"
+#include "scene base/Components.hpp"
 #include "scenes/Scene_Editor.hpp"
 
 #include <iostream>
@@ -7,17 +8,24 @@
 void Scene_MainMenu::update()
 {
     m_view = m_game->getWindow().getView();
-    m_entities.update();
 
-    for(auto& entity : m_entities.getEntities())
+    // for(auto& entity : m_entities.getEntities())
+    // {
+    //     if(entity->has<cTransform>() && entity->has<cSprite>())
+    //     {
+    //         auto& spr = entity->get<cSprite>().sprite;
+    //         const auto& transform = entity->get<cTransform>();
+    //         spr.setPosition(transform.pos);
+    //         spr.setScale(transform.scale);
+    //     }
+    // }
+
+    for(auto& entity : m_entities.getEntities<cTransform, cSprite>())
     {
-        if(entity->has<cTransform>() && entity->has<cSprite>())
-        {
-            auto& spr = entity->get<cSprite>().sprite;
-            const auto& transform = entity->get<cTransform>();
-            spr.setPosition(transform.pos);
-            spr.setScale(transform.scale);
-        }
+        auto& spr = m_entities.getComponent<cSprite>(entity).sprite;
+        auto& transform = m_entities.getComponent<cTransform>(entity);
+        spr.setPosition(transform.pos);
+        spr.setScale(transform.scale);
     }
     sAnimation();
     sRender();
@@ -37,7 +45,8 @@ void Scene_MainMenu::sDoAction(const Action& action)
     case ActionTypes::launchEditor:
         if(action.status() == Action::end)
         {
-            m_game->startScene(std::make_unique<Scene_Editor>(m_game, m_game->generateID()));
+            m_game->startScene(
+                std::make_unique<Scene_Editor>(m_game, m_game->generateID()));
         }
         break;
     }
@@ -46,12 +55,17 @@ void Scene_MainMenu::sDoAction(const Action& action)
 void Scene_MainMenu::sRender()
 {
     m_game->getWindow().beginDraw();
-    for(auto& entity : m_entities.getEntities())
+    // for(auto& entity : m_entities.getEntities())
+    // {
+    //     if(entity->has<cSprite>() && entity->isActive())
+    //     {
+    //         m_game->getWindow().draw(entity->get<cSprite>().sprite);
+    //     }
+    // }
+    for(auto& ent : m_entities.getEntities<cSprite>())
     {
-        if(entity->has<cSprite>() && entity->isActive())
-        {
-            m_game->getWindow().draw(entity->get<cSprite>().sprite);
-        }
+        auto& spr = m_entities.getComponent<cSprite>(ent);
+        m_game->getWindow().draw(spr.sprite);
     }
     sf::Sprite grid{m_globalGrid.getTexture()};
     m_game->getWindow().draw(grid);
@@ -60,20 +74,33 @@ void Scene_MainMenu::sRender()
 
 void Scene_MainMenu::sAnimation()
 {
-    for(auto& entity : m_entities.getEntities())
+    // for(auto& entity : m_entities.getEntities())
+    // {
+    //     if(entity->has<cAnimation>() && entity->has<cSprite>())
+    //     {
+    //         auto& animationC = entity->get<cAnimation>();
+    //         if(animationC.animation.hasEnded())
+    //         {
+    //             if(!animationC.repeat)
+    //             {
+    //                 entity->destroy();
+    //             }
+    //         }
+    //         animationC.animation.updateSprite();
+    //     }
+    // }
+
+    for(auto& ent : m_entities.getEntities<cAnimation, cSprite>())
     {
-        if(entity->has<cAnimation>() && entity->has<cSprite>())
+        auto& animationC = m_entities.getComponent<cAnimation>(ent);
+        if(animationC.animation.hasEnded())
         {
-            auto& animationC = entity->get<cAnimation>();
-            if(animationC.animation.hasEnded())
+            if(!animationC.repeat)
             {
-                if(!animationC.repeat)
-                {
-                    entity->destroy();
-                }
+                m_entities.killEntity(ent);
             }
-            animationC.animation.updateSprite();
         }
+        animationC.animation.updateSprite();
     }
 }
 
@@ -130,13 +157,15 @@ void Scene_MainMenu::spawnButton(const std::string& name,
                                  std::string_view tex,
                                  sf::Vector2f worldPos)
 {
-    auto button = m_entities.addEntity(name);
-    button->add<cSprite>(m_assets.getTexture(tex));
-    button->add<cTransform>(worldPos);
-    button->get<cTransform>().scale = {3.f, 3.f};
+    auto ent = m_entities.addEntity();
+    auto& spr = m_entities.addComponent<cSprite>(ent).sprite;
+    spr.setTexture(m_assets.getTexture(tex));
 
-    const auto& dimensions
-        = button->get<cSprite>().sprite.getGlobalBounds().size;
-    button->get<cSprite>().sprite.setOrigin(
-        {dimensions.x / 2.f, dimensions.y / 2.f});
+    auto& transform = m_entities.addComponent<cTransform>(ent);
+    transform.pos = worldPos;
+    transform.scale = {3.f, 3.f};
+
+    const auto& dimensions = spr.getGlobalBounds().size;
+
+    spr.setOrigin({dimensions.x / 2.f, dimensions.y / 2.f});
 }

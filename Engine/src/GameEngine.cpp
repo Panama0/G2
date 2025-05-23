@@ -41,6 +41,7 @@ void GameEngine::run()
         }
     }
 }
+
 void GameEngine::startScene(std::unique_ptr<Scene> scene)
 {
     m_currentSceneID = scene->id();

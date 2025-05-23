@@ -20,6 +20,11 @@ FetchContent_Declare(
     GIT_TAG 3.0.x
 )
 
+FetchContent_Declare(
+    ECS
+    GIT_REPOSITORY https://github.com/Panama0/S-ECS
+)
+
 # Build
 
 # SFML
@@ -37,8 +42,10 @@ option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
 
 FetchContent_MakeAvailable(imgui-sfml)
 
+# ECS
+FetchContent_MakeAvailable(ECS)
+
 set(SRC_FILES
-    src/EntityManager.cpp
     src/GameEngine.cpp
     src/Window.cpp
     src/Scene.cpp
@@ -53,18 +60,15 @@ set(SRC_FILES
 
 set(H_FILES
     src/Action.hpp
-    src/Entity.hpp
     src/GameEngine.hpp
     src/Window.hpp
     src/Gui.hpp
     src/Serialisation.hpp
     src/Parser.hpp
     src/Scene.hpp
-    src/EntityManager.hpp
     src/Action.hpp
     src/Grid.hpp
     src/Animation.hpp
-    src/Components.hpp
     src/sff/sffNode.hpp
     src/sff/sffParser.hpp
     src/sff/sffFileManipulator.hpp
@@ -79,6 +83,7 @@ option(SFML_BUILD_AUDIO "Build audio" ON)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC SFML::Graphics SFML::Audio)
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)
+target_link_libraries(${PROJECT_NAME} PUBLIC ECS)
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)

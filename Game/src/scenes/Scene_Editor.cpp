@@ -1,6 +1,7 @@
 #include "scenes/Scene_Editor.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "scene base/Components.hpp"
 
 void Scene_Editor::init()
 {
@@ -44,17 +45,12 @@ void Scene_Editor::init()
 
 void Scene_Editor::update()
 {
-    m_entities.update();
-
-    for(auto& entity : m_entities.getEntities())
+    for(auto& entity : m_entities.getEntities<cTransform, cSprite>())
     {
-        if(entity->has<cTransform>() && entity->has<cSprite>())
-        {
-            auto& spr = entity->get<cSprite>().sprite;
-            const auto& transform = entity->get<cTransform>();
-            spr.setPosition(transform.pos);
-            spr.setScale(transform.scale);
-        }
+        auto& spr = m_entities.getComponent<cSprite>(entity).sprite;
+        auto& transform = m_entities.getComponent<cTransform>(entity);
+        spr.setPosition(transform.pos);
+        spr.setScale(transform.scale);
     }
 
     // update state and pass to the scene;
@@ -143,19 +139,23 @@ void Scene_Editor::sDoAction(const Action& action)
                     == EditorState::Modes::brushPlaceBrushRemove)
             {
                 auto pos = m_globalGrid.getGridAt(action.position());
-                auto brushes = m_entities.getEntities("Brush");
+                // auto brushes = m_entities.getEntities("Brush");
                 auto tile = m_state.map.getTileAt(pos.midPos);
 
                 if(tile)
                 {
-                    for(const auto& brush : brushes)
+                    for(auto& ent :
+                        m_entities.getEntities<cEffect, cTransform, cId>())
                     {
-                        if(brush->get<cTransform>().pos == pos.midPos)
+                        auto& id = m_entities.getComponent<cId>(ent).id;
+                        auto& transform
+                            = m_entities.getComponent<cTransform>(ent);
+
+                        if(transform.pos == pos.midPos)
                         {
-                            brush->destroy();
-                            m_state.map.removeEffect(tile.value(),
-                                                     brush->get<cId>().id);
+                            m_state.map.removeEffect(tile.value(), id);
                         }
+                        m_entities.killEntity(ent);
                     }
                 }
             }
@@ -181,11 +181,11 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             m_state.map.load(m_state.savePath / m_state.saveName);
 
-            //* must be a better way
             // remove old brushes and add the new ones
-            for(const auto& brush : m_entities.getEntities("Brush"))
+
+            for(auto ent : m_entities.getEntities<cEffect>())
             {
-                brush->destroy();
+                m_entities.killEntity(ent);
             }
 
             for(const auto& tile : m_state.map.getTiles())
@@ -240,16 +240,11 @@ void Scene_Editor::sRender()
         window.draw(spr);
     }
 
-    for(const auto& entity : m_entities.getEntities())
+    if(m_state.brushesVisible)
     {
-        if(entity->has<cSprite>())
+        for(auto& ent : m_entities.getEntities<cSprite, cEffect>())
         {
-            if(entity->has<cEffect>() && !m_state.brushesVisible)
-            {
-                // do not draw the brushes if the flag is off
-                continue;
-            }
-            auto& spr = entity->get<cSprite>();
+            auto& spr = m_entities.getComponent<cSprite>(ent);
             m_game->getWindow().draw(spr.sprite);
         }
     }
@@ -303,7 +298,7 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
 void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
                               const TileEffect& effect)
 {
-    auto entitiy = m_entities.addEntity("Brush");
+    auto entitiy = m_entities.addEntity();
 
     if(m_effectTextures.find(effect.effect) == m_effectTextures.end())
     {
@@ -313,17 +308,24 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 
     std::string_view texName = m_effectTextures.at(effect.effect);
 
-    auto& spr = entitiy->add<cSprite>(m_assets.getTexture(texName)).sprite;
+    auto& spr = m_entities.addComponent<cSprite>(entitiy).sprite;
+    // set the texture and resize the shape
+    spr.setTexture(m_assets.getTexture(texName), true);
     auto& tex = spr.getTexture();
+
     spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
     // lower the opacity so that we can see the original tile
     spr.setColor(sf::Color{255, 255, 255, 150});
 
-    auto& transform
-        = entitiy->add<cTransform>(m_globalGrid.getGridAt(tile.pos).midPos);
+    auto& transform = m_entities.addComponent<cTransform>(entitiy);
     transform.scale = {0.8f, 0.8f};
+    transform.pos = tile.pos;
 
-    entitiy->add<cId>(tile.id);
+    m_entities.addComponent<cId>(entitiy);
+
+    auto& eff = m_entities.addComponent<cEffect>(entitiy);
+    // TODO: this is the worst line of code of all time
+    eff.effect = effect.effect;
 }
 
 void Scene_Editor::select(const sf::Vector2f& pos)

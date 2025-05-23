@@ -2,15 +2,10 @@
 
 #include "SFML/Graphics.hpp"
 #include "Animation.hpp"
-//#include "GameMap.hpp"
-
-struct Component
-{
-    bool exists{false};
-};
+#include "GameMap.hpp"
 
 //* surely we can merge animated sprite with this at some point
-struct cSprite : public Component
+struct cSprite
 {
     cSprite() : sprite{m_defaultTexture} {}
     cSprite(const sf::Texture& tex) : sprite{tex} {}
@@ -18,12 +13,12 @@ struct cSprite : public Component
     sf::Sprite sprite;
 
 private:
-    static inline sf::Image m_defaultImg{sf::Vector2u{100, 100},
+    static inline sf::Image m_defaultImg{sf::Vector2u{100, 400},
                                          sf::Color::Magenta};
     static inline sf::Texture m_defaultTexture{m_defaultImg};
 };
 
-struct cTransform : public Component
+struct cTransform
 {
     cTransform() = default;
     cTransform(sf::Vector2f p, sf::Vector2f v = {0.f, 0.f}) : pos{p}, vel{v} {}
@@ -34,7 +29,7 @@ struct cTransform : public Component
     float angle;
 };
 
-struct cInput : public Component
+struct cInput
 {
     cInput() = default;
 
@@ -42,10 +37,9 @@ struct cInput : public Component
     bool down{false};
     bool left{false};
     bool right{false};
-    //* can add more here if needed
 };
 
-struct cBoundingBox : public Component
+struct cBoundingBox
 {
     cBoundingBox() = default;
     cBoundingBox(sf::Vector2f d) : dimensions{d}, halfDimensions{d / 2.f} {}
@@ -53,7 +47,7 @@ struct cBoundingBox : public Component
     sf::Vector2f halfDimensions;
 };
 
-struct cAnimatedSprite : public Component
+struct cAnimatedSprite
 {
     cAnimatedSprite() = default;
     cAnimatedSprite(const Animation& an, bool rep = false)
@@ -65,7 +59,7 @@ struct cAnimatedSprite : public Component
     bool repeat{false};
 };
 
-struct cAnimation : public Component
+struct cAnimation
 {
     cAnimation() = default;
     cAnimation(const Animation& an, bool rep = false)
@@ -77,15 +71,12 @@ struct cAnimation : public Component
     bool repeat{false};
 };
 
-struct cEffect : public Component
+struct cEffect
 {
-    cEffect() = default;
-    //cEffect(TileEffect::Effects b) : effect{b} {}
-
-    //TileEffect::Effects effect;
+    TileEffect::Effects effect;
 };
 
-struct cId : public Component
+struct cId
 {
     cId() = default;
     cId(uint32_t _id) : id{_id} {}
