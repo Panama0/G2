@@ -7,7 +7,6 @@
 namespace sff
 {
 
-
 void Serialiser::addData(const std::string& key, const NodeData& data)
 {
     if(currentNode())

@@ -10,9 +10,15 @@
 
 namespace sff
 {
+// Class for reading from a file
 class Parser : public FileManipulator
 {
 public:
+    Parser() = default;
+    Parser(const std::filesystem::path& path)
+        : FileManipulator(path, std::ios::in)
+    {
+    }
     // Parse and return the currently open file
     std::unique_ptr<Node> parse();
 

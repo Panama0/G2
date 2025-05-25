@@ -71,9 +71,9 @@ struct cAnimation
     bool repeat{false};
 };
 
-struct cEffect
+struct cTileEffect
 {
-    TileEffect::Effects effect;
+    TileEffect effect;
 };
 
 struct cId

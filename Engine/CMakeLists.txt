@@ -52,7 +52,6 @@ set(SRC_FILES
     src/Animation.cpp
     src/Assets.cpp
     src/Grid.cpp
-    src/Serialisation.cpp
     src/sff/sffParser.cpp
     src/sff/sffFileManipulator.cpp
     src/sff/sffSerialiser.cpp
@@ -63,8 +62,6 @@ set(H_FILES
     src/GameEngine.hpp
     src/Window.hpp
     src/Gui.hpp
-    src/Serialisation.hpp
-    src/Parser.hpp
     src/Scene.hpp
     src/Action.hpp
     src/Grid.hpp

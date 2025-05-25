@@ -1,13 +1,17 @@
 #include "GameMap.hpp"
 
-#include "Parser.hpp"
-#include "Serialisation.hpp"
+#include "SFML/System/Angle.hpp"
+#include "scene base/TileEffect.hpp"
+#include "sff/sffParser.hpp"
+#include "sff/sffSerialiser.hpp"
 
+#include <algorithm>
 #include <chrono>
-#include <fstream>
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <vector>
+#include <string>
 
 void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
 {
@@ -41,16 +45,10 @@ void GameMap::placeEffect(uint32_t tileId, const TileEffect& effect)
     }
 }
 
+// Removes all effects from a tile
 void GameMap::removeEffect(MapTile& tile, uint32_t effectId)
 {
-    for(auto it = tile.effects.begin(); it != tile.effects.end(); it++)
-    {
-        if(it->id == effectId)
-        {
-            tile.effects.erase(it);
-            break;
-        }
-    }
+    tile.effects.clear();
 }
 
 std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
@@ -66,18 +64,8 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
     return std::nullopt;
 }
 
-[[nodiscard]] bool GameMap::save(const std::filesystem::path& path)
+bool GameMap::save(const std::filesystem::path& path)
 {
-    Serialisation save;
-
-    if(!save.begin(path, std::ios::out))
-    {
-        std::cerr << "Failed to save game!\n";
-        return false;
-    }
-
-    save.beginSection("MetaData");
-
     auto now = std::chrono::system_clock::now();
     auto timeNow = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
@@ -85,70 +73,117 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
     ss << std::put_time(std::localtime(&timeNow), "%Y-%m-%d %X");
     std::string identString = ss.str();
 
-    save.writeLineBuffer(identString);
+    auto withExtension = path;
+    withExtension.replace_extension(".sff");
+    sff::Serialiser file{withExtension};
 
-    save.writeLineBuffer(std::to_string(m_gridSize.x), ",");
-    save.writeLineBuffer(std::to_string(m_gridSize.y));
-
-    save.writeLineBuffer(std::to_string(m_worldSize.x));
-    save.writeLineBuffer(std::to_string(m_worldSize.y), ",");
-    save.endLine();
-
-    save.endSection();
-
-    if(m_tiles.size() > 0)
+    if(!file.alive())
     {
-        save.beginSection("TileData");
+        return false;
+    }
+
+    // MetaData
+    file.addNode("MetaData");
+    file.addData("Identifier", identString);
+    file.addData("GridSize", std::pair<int, int>{m_gridSize.x, m_gridSize.y});
+    file.addData("WorldSize",
+                 std::pair<int, int>{m_worldSize.x, m_worldSize.y});
+    file.endNode();
+
+    // Tile Data
+    if(!m_tiles.empty())
+    {
+        file.addNode("TileData");
 
         for(const auto& tile : m_tiles)
         {
-            save.beginSection("Tile");
+            file.addNode("Tile");
+            file.addData("TexName", tile.textureName);
+            file.addData("Position",
+                         std::pair<float, float>{tile.pos.x, tile.pos.y});
+            file.addData("Rotation", tile.rotation.asRadians());
+            file.addData("ID", static_cast<int>(tile.id));
 
-            save.writeLineBuffer(tile.textureName);
-            save.writeLineBuffer(std::to_string(tile.pos.x), ",");
-            save.writeLineBuffer(std::to_string(tile.pos.y));
-            save.writeLineBuffer(std::to_string(tile.rotation.asRadians()));
-            save.writeLineBuffer(std::to_string(tile.id));
-            save.endLine();
-
+            // Effects
             if(!tile.effects.empty())
             {
-                save.beginSection("Effects");
                 for(const auto& effect : tile.effects)
                 {
-                    save.writeLineBuffer(effect.textureName);
-                    save.writeLineBuffer(TileEffect::toString(effect.effect));
-                    save.endLine();
+                    file.addData(
+                        "Effect",
+                        std::string{TileEffect::toString(effect.effect)});
                 }
-                save.endSection();
             }
 
-            save.endSection();
+            file.endNode();
         }
 
-        save.endSection();
+        file.endNode();
     }
+
+    file.endFile();
 
     return true;
 }
 
-[[nodiscard]] bool GameMap::load(const std::filesystem::path& path)
+bool GameMap::load(const std::filesystem::path& path)
 {
+    std::vector<GameMap::MapTile> mapTiles;
+    // TODO: The file extension should be added elsewhere
+    auto withExtension = path;
+    withExtension.replace_extension(".sff");
+    sff::Parser file{withExtension};
 
-    Parser p;
-    if(!p.begin(path))
+    if(!file.alive())
     {
-        std::cerr << "Could not open save!\n";
+        return false;
     }
 
-    clear();
+    auto data = file.parse();
 
-    auto data = p.parseSave();
+    auto metaData = data->findChild("MetaData");
+    if(metaData)
+    {
+        // TODO: use metadata
+        std::string ident = metaData->getData("Identifier");
+    }
+    else
+    {
+        // the file is invalid
+        return false;
+    }
 
-    m_worldSize = data.worldSize;
-    m_gridSize = data.gridSize;
-    m_tiles = data.tiles;
+    auto tileData = data->findChild("TileData");
+    if(tileData)
+    {
+        auto& tiles = tileData->getChildren();
 
+        for(auto& tile : tiles)
+        {
+            std::string tex = tile->getData("TexName");
+            int id {tile->getData("ID")};
+            std::pair<float, float> pos {tile->getData("Position")};
+            float rotation{tile->getData("Rotation")};
+
+            GameMap::MapTile mapTile {{pos.first, pos.second},sf::radians(rotation),tex};
+
+            if(tile->hasData("Effect"))
+            {
+                auto& effects{tile->getDataVec("Effect")};
+
+                for(auto& effect : effects)
+                {
+                    std::string effectName = effect;
+                    TileEffect tileEffect {TileEffect::fromString(effectName)};
+                    mapTile.effects.push_back(tileEffect);
+                }
+            }
+            mapTiles.push_back(mapTile);
+        }
+    }
+
+    // we have loaded successfully, its safe to store the tiles
+    m_tiles = std::move(mapTiles);
     return true;
 }
 

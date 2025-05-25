@@ -39,6 +39,18 @@ public:
         return nullptr;
     }
 
+    bool hasData(const std::string& key)
+    {
+        if(m_data.find(key) != m_data.end())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     void addData(const std::string& key, const NodeData& value)
     {
         if(m_data.find(key) == m_data.end())
@@ -76,14 +88,16 @@ public:
         return nullptr;
     }
 
-    std::vector<NodeData> getData(const std::string& key)
+    // Get the whole vector of data
+    std::vector<NodeData>& getDataVec(const std::string& key)
     {
-        if(m_data.find(key) != m_data.end())
-        {
-            return m_data.at(key);
-        }
-        // we have not retrieved anything
-        return {};
+        return m_data.at(key);
+    }
+
+    // Get the first element of data
+    NodeData& getData(const std::string& key)
+    {
+        return getDataVec(key).front();
     }
 
     const std::map<std::string, std::vector<NodeData>>& getData()

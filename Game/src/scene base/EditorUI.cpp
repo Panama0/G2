@@ -1,5 +1,6 @@
 #include "EditorUI.hpp"
 
+#include "scene base/TileEffect.hpp"
 #include "scenes/Scene_Editor.hpp"
 #include <filesystem>
 
@@ -151,17 +152,18 @@ void EditorUI::drawTilesUI()
         {
             if(ImGui::BeginListBox("Brushes"))
             {
-                // for(int i {}; i < GameMap::BrushTile::count; i++)
-                // {
-                //     auto brush =
-                //     static_cast<GameMap::BrushTile::BrushTypes>(i); auto
-                //     name = GameMap::BrushTile::toString(brush);
-                //     if(ImGui::Selectable(name.data(), brush ==
-                //     m_state->brushType))
-                //     {
-                //         m_state->brushType = brush;
-                //     }
-                // }
+                for(int i{}; i < TileEffect::count; i++)
+                {
+                    TileEffect::Effects effect
+                        = static_cast<TileEffect::Effects>(i);
+                    auto name = TileEffect::toString(effect);
+
+                    if(ImGui::Selectable(name.data(),
+                                         effect == m_state->brushType.effect))
+                    {
+                        m_state->brushType = effect;
+                    }
+                }
                 ImGui::EndListBox();
             }
 

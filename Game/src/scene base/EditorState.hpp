@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
 #include "EntityManager.hpp"
 #include "GameMap.hpp"
+#include "SFML/Graphics.hpp"
 
 #include <string>
 #include <vector>
@@ -24,9 +24,9 @@ struct EditorState
     bool brushesVisible{true};
 
     std::string tileTexture;
-    TileEffect::Effects brushType{TileEffect::none};
+    TileEffect brushType{TileEffect::none};
 
-    //* should be a reference or ptr?
+    //TODO: should be a reference or ptr?
     GameMap::MapTile selectedTile;
 
     sf::Angle angle;
@@ -36,6 +36,6 @@ struct EditorState
 
     std::vector<std::string> textureList;
 
-    std::string saveName{"Unnamed Level"};
+    std::string saveName{"UnnamedLevel"};
     std::filesystem::path savePath{"../../../Game/res/saves"};
 };

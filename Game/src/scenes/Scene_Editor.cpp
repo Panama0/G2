@@ -110,14 +110,14 @@ void Scene_Editor::sDoAction(const Action& action)
                 break;
             case EditorState::Modes::tilePlaceTileRemove:
                 placeSelectedTile(
-                    m_globalGrid.getGridAt(action.position()).midPos);
+                    m_globalGrid.getGridAt(action.mousePosition()).midPos);
                 break;
             case EditorState::Modes::brushPlaceBrushRemove:
                 placeSelectedBrush(
-                    m_globalGrid.getGridAt(action.position()).midPos);
+                    m_globalGrid.getGridAt(action.mousePosition()).midPos);
                 break;
             case EditorState::Modes::selectNone:
-                select(action.position());
+                select(action.mousePosition());
                 break;
             }
         }
@@ -128,7 +128,7 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             if(m_state.currentMode == EditorState::Modes::tilePlaceTileRemove)
             {
-                auto pos = m_globalGrid.getGridAt(action.position());
+                auto pos = m_globalGrid.getGridAt(action.mousePosition());
                 auto tile = m_state.map.getTileAt(pos.midPos);
                 if(tile)
                 {
@@ -138,14 +138,14 @@ void Scene_Editor::sDoAction(const Action& action)
             else if(m_state.currentMode
                     == EditorState::Modes::brushPlaceBrushRemove)
             {
-                auto pos = m_globalGrid.getGridAt(action.position());
+                auto pos = m_globalGrid.getGridAt(action.mousePosition());
                 // auto brushes = m_entities.getEntities("Brush");
                 auto tile = m_state.map.getTileAt(pos.midPos);
 
                 if(tile)
                 {
                     for(auto& ent :
-                        m_entities.getEntities<cEffect, cTransform, cId>())
+                        m_entities.getEntities<cTileEffect, cTransform, cId>())
                     {
                         auto& id = m_entities.getComponent<cId>(ent).id;
                         auto& transform
@@ -154,8 +154,8 @@ void Scene_Editor::sDoAction(const Action& action)
                         if(transform.pos == pos.midPos)
                         {
                             m_state.map.removeEffect(tile.value(), id);
+                            m_entities.killEntity(ent);
                         }
-                        m_entities.killEntity(ent);
                     }
                 }
             }
@@ -183,7 +183,7 @@ void Scene_Editor::sDoAction(const Action& action)
 
             // remove old brushes and add the new ones
 
-            for(auto ent : m_entities.getEntities<cEffect>())
+            for(auto ent : m_entities.getEntities<cTileEffect>())
             {
                 m_entities.killEntity(ent);
             }
@@ -242,7 +242,7 @@ void Scene_Editor::sRender()
 
     if(m_state.brushesVisible)
     {
-        for(auto& ent : m_entities.getEntities<cSprite, cEffect>())
+        for(auto& ent : m_entities.getEntities<cSprite, cTileEffect>())
         {
             auto& spr = m_entities.getComponent<cSprite>(ent);
             m_game->getWindow().draw(spr.sprite);
@@ -286,12 +286,10 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
         return;
     }
     // we know that there is a tile at this location now
-
     GameMap::MapTile tile = m_state.map.getTileAt(pos).value();
 
     //* maybe combine these calls
     m_state.map.placeEffect(tile.id, m_state.brushType);
-    //* this creates 2 effect ids for the one effect
     spawnBrush(tile, m_state.brushType);
 }
 
@@ -323,9 +321,8 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 
     m_entities.addComponent<cId>(entitiy);
 
-    auto& eff = m_entities.addComponent<cEffect>(entitiy);
-    // TODO: this is the worst line of code of all time
-    eff.effect = effect.effect;
+    auto& eff = m_entities.addComponent<cTileEffect>(entitiy).effect;
+    eff = effect;
 }
 
 void Scene_Editor::select(const sf::Vector2f& pos)

@@ -17,7 +17,10 @@ class FileManipulator
 {
 public:
     FileManipulator() = default;
-    FileManipulator(const std::filesystem::path& path) : m_file{path} {}
+    FileManipulator(const std::filesystem::path& path, std::ios::openmode mode)
+    {
+        open(path, mode);
+    }
 
     bool open(const std::filesystem::path& path, std::ios_base::openmode mode);
 
@@ -32,7 +35,7 @@ public:
     }
 
     virtual bool eof() { return m_file.eof(); };
-    bool alive() { return m_file.good(); }
+    bool alive() { return m_file.good() && m_file.is_open(); }
     void close() { m_file.close(); }
 
     ~FileManipulator() { close(); }

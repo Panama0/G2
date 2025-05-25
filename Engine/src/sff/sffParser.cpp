@@ -10,9 +10,11 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <stack>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 namespace sff
@@ -21,11 +23,28 @@ namespace sff
 void Parser::tokenise()
 {
     std::string token;
+    std::stringstream fullString;
+
     while(m_file)
     {
         if(m_file >> token)
         {
-            m_tokens.push_back(token);
+            // detect and concatenate multi word strings
+            if(token.front() == '\"' && token.back() != '\"')
+            {
+                while(token.back() != '\"')
+                {
+                    fullString << token << ' ';
+                    m_file >> token;
+                }
+                // get the last one
+                fullString << token;
+                m_tokens.push_back(fullString.str());
+            }
+            else // Nothing out of the ordinary, so just push the token
+            {
+                m_tokens.push_back(token);
+            }
         }
     }
 }
@@ -60,7 +79,8 @@ std::unique_ptr<Node> Parser::parse()
 
     while(!eof())
     {
-        if(state.get() == State::root) // look for a node
+        if(state.get() == State::root
+           || state.get() == State::node) // look for a node
         {
             if(getToken(1) == "{")
             {
@@ -74,7 +94,8 @@ std::unique_ptr<Node> Parser::parse()
                 }
             }
         }
-        else if(state.get() == State::node) // look for data
+
+        if(state.get() == State::node) // look for data
         {
             auto token = getToken();
             if(getToken(1) == "=" && getToken(2) == "{")
@@ -256,9 +277,9 @@ bool Parser::isFloat(std::string_view string)
     }
 
     double total = totalInt + totalDecimal / 10.0;
-    if(total > FLT_MAX || total < FLT_MIN)
+    if(std::abs(total) > FLT_MAX)
     {
-        std::cerr << "Float value is too large\n";
+        std::cerr << "Float value does not fit\n";
         return false;
     }
 

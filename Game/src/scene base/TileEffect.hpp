@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
+#include <string_view>
 
+// Any effect that we may want to apply to a tile
 struct TileEffect
 {
     enum Effects
@@ -11,7 +11,9 @@ struct TileEffect
         water,
         obstructed,
         path,
-        spawner
+        spawner,
+
+        count // total number of effects
     };
 
     static constexpr std::string_view toString(Effects brush)
@@ -61,15 +63,8 @@ struct TileEffect
         }
     }
 
-    TileEffect(TileEffect::Effects _effect) : effect{_effect}
-    {
-        id = m_idCounter++;
-    }
+    TileEffect() = default;
+    TileEffect(Effects eff) : effect{eff} {}
 
-    std::string textureName;
     Effects effect;
-    uint32_t id{};
-
-private:
-    static inline uint32_t m_idCounter{};
 };

@@ -17,7 +17,12 @@ bool FileManipulator::open(const std::filesystem::path& path,
     }
     m_file.open(path, mode);
 
-    addNode(path.stem());
+    // create the root node for the user when writing to a file
+    // this way it is more intuative
+    if(mode == std::ios_base::out)
+    {
+        addNode(path.stem());
+    }
 
     return m_file.is_open();
 }
