@@ -32,7 +32,7 @@ private:
     void processKey(sf::Keyboard::Key key, Action::ActionStatus status);
     void processMousePress(sf::Mouse::Button button,
                            Action::ActionStatus status,
-                           const sf::Vector2f& pos);
+                           const sf::Vector2i& pos);
 
     Scene* currentScene() { return m_scenes[m_currentSceneID].get(); }
 

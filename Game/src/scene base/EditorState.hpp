@@ -1,11 +1,12 @@
 #pragma once
 
-#include "EntityManager.hpp"
 #include "GameMap.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFML/System/Vector2.hpp"
 
 #include <string>
 #include <vector>
+#include <optional>
 
 struct EditorState
 {
@@ -26,8 +27,8 @@ struct EditorState
     std::string tileTexture;
     TileEffect brushType{TileEffect::none};
 
-    //TODO: should be a reference or ptr?
-    GameMap::MapTile selectedTile;
+    std::optional<GameMap::MapTile> selectedTile;
+    sf::Vector2i selectedTilePos;
 
     sf::Angle angle;
     GameMap map;

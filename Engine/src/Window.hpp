@@ -20,6 +20,7 @@ public:
     const sf::RenderWindow& getWindow() { return m_window; }
 
     sf::Vector2f pixelToCoords(const sf::Vector2i& pixel);
+    sf::Vector2i coordsToPixel(const sf::Vector2f& point);
 
     bool isInsideView(const sf::Vector2f& pos);
 

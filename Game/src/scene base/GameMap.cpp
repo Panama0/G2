@@ -5,9 +5,7 @@
 #include "sff/sffParser.hpp"
 #include "sff/sffSerialiser.hpp"
 
-#include <algorithm>
 #include <chrono>
-#include <iostream>
 #include <optional>
 #include <sstream>
 #include <vector>
@@ -55,7 +53,7 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 {
     for(const auto& tile : m_tiles)
     {
-        if(tile.pos == pos)
+        if(tile.worldPos == pos)
         {
             return tile;
         }
@@ -100,7 +98,7 @@ bool GameMap::save(const std::filesystem::path& path)
             file.addNode("Tile");
             file.addData("TexName", tile.textureName);
             file.addData("Position",
-                         std::pair<float, float>{tile.pos.x, tile.pos.y});
+                         std::pair<float, float>{tile.worldPos.x, tile.worldPos.y});
             file.addData("Rotation", tile.rotation.asRadians());
             file.addData("ID", static_cast<int>(tile.id));
 
@@ -129,10 +127,7 @@ bool GameMap::save(const std::filesystem::path& path)
 bool GameMap::load(const std::filesystem::path& path)
 {
     std::vector<GameMap::MapTile> mapTiles;
-    // TODO: The file extension should be added elsewhere
-    auto withExtension = path;
-    withExtension.replace_extension(".sff");
-    sff::Parser file{withExtension};
+    sff::Parser file{path};
 
     if(!file.alive())
     {

@@ -1,5 +1,6 @@
 #include "EditorUI.hpp"
 
+#include "imgui.h"
 #include "scene base/TileEffect.hpp"
 #include "scenes/Scene_Editor.hpp"
 #include <filesystem>
@@ -19,9 +20,19 @@ void EditorUI::draw()
     {
         drawSaveLoadUI();
     }
+
+    if(m_state->selectedTile)
+    {
+        drawSelectedInfo();
+    }
 }
 
 void EditorUI::updateState(EditorState* state) { m_state = state; }
+
+void EditorUI::toggleSelect()
+{
+    m_selected ? m_selected = false : m_selected = true;
+}
 
 void EditorUI::drawMainMenuBarUI()
 {
@@ -240,7 +251,7 @@ void EditorUI::drawSaveLoadUI()
             static bool copied{false};
 
             const auto& path = m_state->savePath;
-            const auto& name = m_state->saveName;
+            const auto& name = m_state->saveName.append(".sff");
 
             if(!copied)
             {
@@ -259,7 +270,7 @@ void EditorUI::drawSaveLoadUI()
             if(ImGui::Button("Save", ImVec2{150, 50}))
             {
                 m_state->savePath = folderBuf;
-                m_state->saveName = fnameBuf;
+                m_state->saveName = std::string(fnameBuf);
                 m_scene->sDoAction(
                     Action{static_cast<int>(Scene_Editor::ActionTypes::save),
                            Action::end});
@@ -346,4 +357,36 @@ void EditorUI::drawSaveLoadUI()
     }
 
     ImGui::End();
+}
+
+void EditorUI::drawSelectedInfo()
+{
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize
+                             | ImGuiWindowFlags_NoResize
+                             | ImGuiWindowFlags_NoCollapse;
+
+    if(ImGui::Begin("Selection", nullptr, flags))
+    {
+        auto& tile = m_state->selectedTile.value();
+        ImGui::SetWindowPos(m_state->selectedTilePos);
+        ImGui::Text("Texture Name: %s", tile.textureName.c_str());
+        ImGui::Text("Position: %.2f, %.2f", tile.worldPos.x, tile.worldPos.y);
+        ImGui::Text("Rotation: %.2f", tile.rotation.asDegrees());
+
+        if(!tile.effects.empty())
+        {
+            ImGui::SeparatorText("Effects");
+
+            int count{1};
+            for(auto& effect : tile.effects)
+            {
+                ImGui::Text("Effect %d: %s",
+                            count,
+                            effect.toString(effect.effect).data());
+                count++;
+            }
+        }
+
+        ImGui::End();
+    }
 }

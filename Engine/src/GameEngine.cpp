@@ -102,14 +102,14 @@ void GameEngine::sUserInput()
             {
                 processMousePress(keyP->button,
                                   status,
-                                  m_window.pixelToCoords(keyP->position));
+                                  keyP->position);
             }
             else if(const auto& keyR
                     = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 processMousePress(keyR->button,
                                   status,
-                                  m_window.pixelToCoords(keyR->position));
+                                  keyR->position);
             }
         }
     }
@@ -130,7 +130,7 @@ void GameEngine::processKey(sf::Keyboard::Key key, Action::ActionStatus status)
 
 void GameEngine::processMousePress(sf::Mouse::Button button,
                                    Action::ActionStatus status,
-                                   const sf::Vector2f& pos)
+                                   const sf::Vector2i& pos)
 {
     const auto& actionMap = currentScene()->getMouseActions();
     if(actionMap.find(button) == actionMap.end())
@@ -139,6 +139,6 @@ void GameEngine::processMousePress(sf::Mouse::Button button,
         return;
     }
     // create the action and send to the scene for processisng
-    Action action{actionMap.at(button), status, pos};
+    Action action{actionMap.at(button), status, m_window.pixelToCoords(pos)};
     currentScene()->sDoAction(action);
 }

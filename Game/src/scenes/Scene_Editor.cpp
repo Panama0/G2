@@ -1,11 +1,13 @@
 #include "scenes/Scene_Editor.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "scene base/Components.hpp"
+#include <optional>
 
 void Scene_Editor::init()
 {
-    //* temp
+    //WARN: temp
     m_gridSize = {32, 32};
     m_hasGui = true;
 
@@ -234,7 +236,7 @@ void Scene_Editor::sRender()
     {
         sf::Texture tex{m_assets.getTexture(tile.textureName)};
         sf::Sprite spr{tex};
-        spr.setPosition(tile.pos);
+        spr.setPosition(tile.worldPos);
         spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
 
         window.draw(spr);
@@ -317,7 +319,7 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 
     auto& transform = m_entities.addComponent<cTransform>(entitiy);
     transform.scale = {0.8f, 0.8f};
-    transform.pos = tile.pos;
+    transform.pos = tile.worldPos;
 
     m_entities.addComponent<cId>(entitiy);
 
@@ -328,12 +330,13 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 void Scene_Editor::select(const sf::Vector2f& pos)
 {
     const auto& gridPos = m_globalGrid.getGridAt(pos);
-    auto tile = m_state.map.getTileAt(gridPos.midPos);
-
-    if(tile)
+    m_state.selectedTile = m_state.map.getTileAt(gridPos.midPos);
+    if(m_state.selectedTile)
     {
-        m_state.selectedTile = tile.value();
+        m_state.selectedTilePos = m_game->getWindow().coordsToPixel(gridPos.worldPos);
+        // offset to the right edge of the tile
+        m_state.selectedTilePos.x += m_gridSize.x;
     }
 }
 
-void Scene_Editor::deSelect() { m_state.selectedTile = {}; }
+void Scene_Editor::deSelect() { m_state.selectedTile = std::nullopt; }

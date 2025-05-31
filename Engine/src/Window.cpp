@@ -54,6 +54,11 @@ sf::Vector2f Window::pixelToCoords(const sf::Vector2i& pixel)
     return m_window.mapPixelToCoords(pixel, m_view);
 }
 
+sf::Vector2i Window::coordsToPixel(const sf::Vector2f& point)
+{
+    return m_window.mapCoordsToPixel(point, m_view);
+}
+
 bool Window::isInsideView(const sf::Vector2f& pos)
 {
     auto viewSize = m_view.getSize();

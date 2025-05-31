@@ -17,11 +17,11 @@ public:
         MapTile(const sf::Vector2f& p,
                 const sf::Angle& r,
                 std::string_view texName)
-            : pos{p}, rotation{r}, textureName{texName}, id{m_idCounter++}
+            : worldPos{p}, rotation{r}, textureName{texName}, id{m_idCounter++}
         {
         }
 
-        sf::Vector2f pos;
+        sf::Vector2f worldPos;
         sf::Angle rotation;
         std::string textureName;
         uint32_t id{};
@@ -45,8 +45,6 @@ public:
     bool load(const std::filesystem::path& path);
 
 private:
-    // takes in a string like "30,42"
-    template <typename T> sf::Vector2<T> stovec(std::string_view string);
     void clear();
 
     std::vector<MapTile> m_tiles;
