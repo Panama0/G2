@@ -15,21 +15,19 @@ class Scene
 {
 public:
     Scene() = default;
-    Scene(GameEngine* game, uint32_t id) : m_game{game}, m_id{id} {}
+    Scene(GameEngine* game) : m_game{game}{}
 
     virtual void update() = 0;
     virtual void sDoAction(const Action& action) = 0;
     virtual void sRender() = 0;
     virtual void init() = 0;
 
-    bool hasGUI() { return m_hasGui; }
+    bool hasGUI() const { return m_hasGui; }
 
-    virtual void end() { m_hasEnded = true; }
+    // end behavior, maybe we want to open another scene on closing 
+    virtual void onExit() {}
 
-    bool hasEnded() { return m_hasEnded; }
-    uint32_t id() { return m_id; }
-
-    void simulate(int iterations);
+    bool hasEnded() const { return m_hasEnded; }
 
     void registerAction(sf::Keyboard::Key key, int index);
     void registerAction(sf::Mouse::Button button, int index);
@@ -57,15 +55,14 @@ public:
     virtual ~Scene() {};
 
 protected:
-    uint32_t m_parentSceneID{};
     GameEngine* m_game;
-    uint32_t m_id{};
     SECS::EntityManager m_entities;
-    int m_currentFrame{};
     Assets m_assets;
     std::map<sf::Keyboard::Key, int> m_keyboardActions;
     std::map<sf::Mouse::Button, int> m_mouseActions;
     bool m_paused{false};
+
+    // Indicates to the game engine that the scene is over, next game loop, it will be deleted
     bool m_hasEnded{false};
     bool m_hasGui{false};
 

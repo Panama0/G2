@@ -170,7 +170,7 @@ void EditorUI::drawTilesUI()
                     auto name = TileEffect::toString(effect);
 
                     if(ImGui::Selectable(name.data(),
-                                         effect == m_state->brushType.effect))
+                                         effect == m_state->brushType.type))
                     {
                         m_state->brushType = effect;
                     }
@@ -382,7 +382,7 @@ void EditorUI::drawSelectedInfo()
             {
                 ImGui::Text("Effect %d: %s",
                             count,
-                            effect.toString(effect.effect).data());
+                            effect.toString(effect.type).data());
                 count++;
             }
         }

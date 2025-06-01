@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Action.hpp"
-#include "Scene.hpp"
+#include "SceneManager.hpp"
 #include "Window.hpp"
 
 #include "SFML/Graphics.hpp"
-#include <cstdint>
-#include <unordered_map>
+#include <memory>
 
 class Scene;
 
@@ -17,13 +16,12 @@ public:
     void run();
     void quit() { m_running = false; }
 
-    void changeScene(uint32_t sceneID) { m_currentSceneID = sceneID; }
-    void startScene(std::unique_ptr<Scene> scene);
-    uint32_t generateID() { return ++m_idCounter; }
+    // Create and open a new scene
+    void startScene(std::shared_ptr<Scene> scene);
 
     Window& getWindow() { return m_window; }
 
-    const sf::Time& getDT() { return m_dt; }
+    const sf::Time& getDT() const { return m_dt; }
 
     void sUserInput();
 
@@ -34,16 +32,12 @@ private:
                            Action::ActionStatus status,
                            const sf::Vector2i& pos);
 
-    Scene* currentScene() { return m_scenes[m_currentSceneID].get(); }
-
-    std::unordered_map<uint32_t, std::unique_ptr<Scene>> m_scenes;
-    uint32_t m_currentSceneID{};
+    Scene* currentScene();
+    SceneManager m_scenes;
 
     Window m_window;
 
     bool m_running{false};
     sf::Clock m_clock;
     sf::Time m_dt;
-
-    uint32_t m_idCounter{0};
 };

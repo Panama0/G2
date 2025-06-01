@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Scene.hpp"
 #include "scene base/EditorState.hpp"
 #include "scene base/EditorUI.hpp"
-#include "Scene.hpp"
-
 #include "scenes/Scene_MainMenu.hpp"
+#include <memory>
 
 class Scene_Editor : public Scene
 {
@@ -26,15 +26,16 @@ public:
     };
 
     Scene_Editor() = default;
-    Scene_Editor(GameEngine* game, uint32_t id) : Scene(game, id) { init(); }
+    Scene_Editor(GameEngine* game) : Scene(game) { init(); }
 
     void init() override;
+    void onExit() override;
     void update() override;
     void sDoAction(const Action& action) override;
     void sRender() override;
 
-    //TODO: need to remove this in favour of the assetList in the editorState
-    // struct
+    // TODO: need to remove this in favour of the assetList in the editorState
+    //  struct
     Assets& getAssets() { return m_assets; }
 
 private:
@@ -46,7 +47,7 @@ private:
     void select(const sf::Vector2f& pos);
     void deSelect();
 
-    //WARN: maybe temporary
+    // WARN: maybe temporary
     std::unordered_map<TileEffect::Effects, std::string_view> m_effectTextures;
 
     EditorState m_state;

@@ -46,7 +46,7 @@ void Scene_MainMenu::sDoAction(const Action& action)
         if(action.status() == Action::end)
         {
             m_game->startScene(
-                std::make_unique<Scene_Editor>(m_game, m_game->generateID()));
+                std::make_unique<Scene_Editor>(m_game));
         }
         break;
     }

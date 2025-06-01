@@ -1,23 +1,25 @@
 #include "GameEngine.hpp"
 #include "Action.hpp"
+#include "Scene.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 
 #include <iostream>
+#include <memory>
 #include <optional>
 
 GameEngine::GameEngine() { init(); }
 
-void GameEngine::init()
-{
-    m_window.init();
-}
+void GameEngine::init() { m_window.init(); }
 
 void GameEngine::run()
 {
     m_running = true;
+
+    // load the new scene if one was created before running
+    m_scenes.update();
 
     while(m_running)
     {
@@ -28,24 +30,16 @@ void GameEngine::run()
 
         m_dt = m_clock.restart();
 
-        sUserInput();
         currentScene()->update();
 
-        if(currentScene()->hasEnded())
-        {
-            uint32_t endedSceneID{currentScene()->id()};
-            currentScene()->end();
-            // destroy the scene
-            sUserInput();
-            m_scenes.erase(endedSceneID);
-        }
+        sUserInput();
+        m_scenes.update();
     }
 }
 
-void GameEngine::startScene(std::unique_ptr<Scene> scene)
+void GameEngine::startScene(std::shared_ptr<Scene> scene)
 {
-    m_currentSceneID = scene->id();
-    m_scenes.emplace(scene->id(), std::move(scene));
+    m_scenes.start(scene);
 }
 
 void GameEngine::sUserInput()
@@ -100,16 +94,12 @@ void GameEngine::sUserInput()
             if(const auto& keyP
                = event->getIf<sf::Event::MouseButtonPressed>())
             {
-                processMousePress(keyP->button,
-                                  status,
-                                  keyP->position);
+                processMousePress(keyP->button, status, keyP->position);
             }
             else if(const auto& keyR
                     = event->getIf<sf::Event::MouseButtonReleased>())
             {
-                processMousePress(keyR->button,
-                                  status,
-                                  keyR->position);
+                processMousePress(keyR->button, status, keyR->position);
             }
         }
     }
@@ -141,4 +131,9 @@ void GameEngine::processMousePress(sf::Mouse::Button button,
     // create the action and send to the scene for processisng
     Action action{actionMap.at(button), status, m_window.pixelToCoords(pos)};
     currentScene()->sDoAction(action);
+}
+
+Scene* GameEngine::currentScene()
+{
+    return m_scenes.getCurrentScene();
 }

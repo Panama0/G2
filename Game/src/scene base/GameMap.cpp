@@ -109,7 +109,7 @@ bool GameMap::save(const std::filesystem::path& path)
                 {
                     file.addData(
                         "Effect",
-                        std::string{TileEffect::toString(effect.effect)});
+                        std::string{TileEffect::toString(effect.type)});
                 }
             }
 

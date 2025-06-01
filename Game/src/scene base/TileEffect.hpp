@@ -64,7 +64,7 @@ struct TileEffect
     }
 
     TileEffect() = default;
-    TileEffect(Effects eff) : effect{eff} {}
+    TileEffect(Effects eff) : type{eff} {}
 
-    Effects effect;
+    Effects type;
 };

@@ -13,13 +13,13 @@ public:
     };
 
     Scene_MainMenu() = default;
-    Scene_MainMenu(GameEngine* game, uint32_t id) : Scene(game, id) { init(); }
+    Scene_MainMenu(GameEngine* game) : Scene(game) { init(); }
 
     void update() override;
     void sDoAction(const Action& action) override;
     void sRender() override;
     void sAnimation();
-    void end() override { m_game->quit(); }
+    void onExit() override { m_game->quit(); }
 
     void init() override;
 

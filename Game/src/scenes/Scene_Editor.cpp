@@ -7,7 +7,7 @@
 
 void Scene_Editor::init()
 {
-    //WARN: temp
+    // WARN: temp
     m_gridSize = {32, 32};
     m_hasGui = true;
 
@@ -43,6 +43,11 @@ void Scene_Editor::init()
     }
 
     m_editorUI.init(m_game->getWindow());
+}
+
+void Scene_Editor::onExit()
+{
+    m_game->startScene(std::make_shared<Scene_MainMenu>(m_game));
 }
 
 void Scene_Editor::update()
@@ -272,7 +277,6 @@ void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
                           m_state.angle,
                           m_state.tileTexture};
     m_state.map.placeTile(tile);
-    // do other stuff
 }
 
 void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
@@ -300,13 +304,13 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 {
     auto entitiy = m_entities.addEntity();
 
-    if(m_effectTextures.find(effect.effect) == m_effectTextures.end())
+    if(m_effectTextures.find(effect.type) == m_effectTextures.end())
     {
         std::cerr << "Could not find effect texture!\n";
         return;
     }
 
-    std::string_view texName = m_effectTextures.at(effect.effect);
+    std::string_view texName = m_effectTextures.at(effect.type);
 
     auto& spr = m_entities.addComponent<cSprite>(entitiy).sprite;
     // set the texture and resize the shape
@@ -333,7 +337,8 @@ void Scene_Editor::select(const sf::Vector2f& pos)
     m_state.selectedTile = m_state.map.getTileAt(gridPos.midPos);
     if(m_state.selectedTile)
     {
-        m_state.selectedTilePos = m_game->getWindow().coordsToPixel(gridPos.worldPos);
+        m_state.selectedTilePos
+            = m_game->getWindow().coordsToPixel(gridPos.worldPos);
         // offset to the right edge of the tile
         m_state.selectedTilePos.x += m_gridSize.x;
     }

@@ -47,6 +47,7 @@ FetchContent_MakeAvailable(ECS)
 
 set(SRC_FILES
     src/GameEngine.cpp
+    src/SceneManager.cpp
     src/Window.cpp
     src/Scene.cpp
     src/Animation.cpp
@@ -60,6 +61,7 @@ set(SRC_FILES
 set(H_FILES
     src/Action.hpp
     src/GameEngine.hpp
+    src/SceneManager.hpp
     src/Window.hpp
     src/Gui.hpp
     src/Scene.hpp
