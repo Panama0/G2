@@ -1,13 +1,9 @@
 #include "Scene.hpp"
+#include "Buttons.hpp"
 
-void Scene::registerAction(sf::Keyboard::Key key, int index)
+void Scene::registerAction(Buttons::Button button, int typeIndex)
 {
-    m_keyboardActions[key] = index;
-}
-
-void Scene::registerAction(sf::Mouse::Button button, int index)
-{
-    m_mouseActions[button] = index;
+    m_actions[button] = typeIndex;
 }
 
 void Scene::registerFont(std::string_view name,

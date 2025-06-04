@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Action.hpp"
+#include "Buttons.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "SceneManager.hpp"
 #include "Window.hpp"
 
@@ -23,14 +25,11 @@ public:
 
     const sf::Time& getDT() const { return m_dt; }
 
-    void sUserInput();
+    void handleInput();
 
 private:
     void init();
-    void processKey(sf::Keyboard::Key key, Action::ActionStatus status);
-    void processMousePress(sf::Mouse::Button button,
-                           Action::ActionStatus status,
-                           const sf::Vector2i& pos);
+    void processIOEvent(Buttons::Button button, sf::Vector2i mousePos, Action::Status status);
 
     Scene* currentScene();
     SceneManager m_scenes;

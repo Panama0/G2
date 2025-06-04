@@ -1,4 +1,5 @@
 #include "scenes/Scene_Editor.hpp"
+#include "Buttons.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -14,20 +15,14 @@ void Scene_Editor::init()
     m_assets.setResourceDir("../../../Game/res/");
     m_globalGrid.init(m_game->getWindow().getSize(), m_gridSize);
 
-    registerAction(sf::Keyboard::Key::F,
-                   static_cast<int>(ActionTypes::toggleFS));
-    registerAction(sf::Keyboard::Key::G,
-                   static_cast<int>(ActionTypes::toggleGrid));
-    registerAction(sf::Keyboard::Key::B,
-                   static_cast<int>(ActionTypes::toggleBrushes));
-    registerAction(sf::Mouse::Button::Left,
-                   static_cast<int>(ActionTypes::place));
-    registerAction(sf::Mouse::Button::Right,
-                   static_cast<int>(ActionTypes::remove));
-    registerAction(sf::Keyboard::Key::S, static_cast<int>(ActionTypes::save));
-    registerAction(sf::Keyboard::Key::L, static_cast<int>(ActionTypes::load));
-    registerAction(sf::Keyboard::Key::Escape,
-                   static_cast<int>(ActionTypes::deselect));
+    registerAction(Buttons::F, static_cast<int>(ActionTypes::toggleFS));
+    registerAction(Buttons::G, static_cast<int>(ActionTypes::toggleGrid));
+    registerAction(Buttons::B, static_cast<int>(ActionTypes::toggleBrushes));
+    registerAction(Buttons::MouseLeft, static_cast<int>(ActionTypes::place));
+    registerAction(Buttons::MouseRight, static_cast<int>(ActionTypes::remove));
+    registerAction(Buttons::S, static_cast<int>(ActionTypes::save));
+    registerAction(Buttons::L, static_cast<int>(ActionTypes::load));
+    registerAction(Buttons::Escape, static_cast<int>(ActionTypes::deselect));
 
     m_assets.loadTextureDir("../../../Game/res/tiles/");
 

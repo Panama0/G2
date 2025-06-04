@@ -1,12 +1,14 @@
 #include "GameEngine.hpp"
 #include "Action.hpp"
+#include "Buttons.hpp"
+#include "SFML/System/Vector2.hpp"
+#include "SFML/Window/Event.hpp"
 #include "Scene.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 
-#include <iostream>
 #include <memory>
 #include <optional>
 
@@ -32,7 +34,7 @@ void GameEngine::run()
 
         currentScene()->update();
 
-        sUserInput();
+        handleInput();
         m_scenes.update();
     }
 }
@@ -42,7 +44,7 @@ void GameEngine::startScene(std::shared_ptr<Scene> scene)
     m_scenes.start(scene);
 }
 
-void GameEngine::sUserInput()
+void GameEngine::handleInput()
 {
     while(auto event = m_window.getEvent())
     {
@@ -67,73 +69,44 @@ void GameEngine::sUserInput()
         }
 
         // main input handling
-        if(event->is<sf::Event::KeyPressed>()
-           || event->is<sf::Event::KeyReleased>())
+        if(const auto& keyPressed = event->getIf<sf::Event::KeyPressed>())
         {
-            Action::ActionStatus status;
-            event->is<sf::Event::KeyPressed>() ? status = Action::start
-                                               : status = Action::end;
-
-            if(const auto& keyP = event->getIf<sf::Event::KeyPressed>())
-            {
-                processKey(keyP->code, status);
-            }
-            else if(const auto& keyR = event->getIf<sf::Event::KeyReleased>())
-            {
-                processKey(keyR->code, status);
-            }
+            auto button = Buttons::toButton(keyPressed->code);
+            processIOEvent(button, m_window.getMousePos(), Action::start);
         }
-
-        if(event->is<sf::Event::MouseButtonPressed>()
-           || event->is<sf::Event::MouseButtonReleased>())
+        if(const auto& keyReleased = event->getIf<sf::Event::KeyReleased>())
         {
-            Action::ActionStatus status;
-            event->is<sf::Event::MouseButtonPressed>() ? status = Action::start
-                                                       : status = Action::end;
-
-            if(const auto& keyP
-               = event->getIf<sf::Event::MouseButtonPressed>())
-            {
-                processMousePress(keyP->button, status, keyP->position);
-            }
-            else if(const auto& keyR
-                    = event->getIf<sf::Event::MouseButtonReleased>())
-            {
-                processMousePress(keyR->button, status, keyR->position);
-            }
+            auto button = Buttons::toButton(keyReleased->code);
+            processIOEvent(button, m_window.getMousePos(), Action::end);
+        }
+        if(const auto& mousePressed
+           = event->getIf<sf::Event::MouseButtonPressed>())
+        {
+            auto button = Buttons::toButton(mousePressed->button);
+            processIOEvent(button, mousePressed->position, Action::start);
+        }
+        if(const auto& mouseReleased
+           = event->getIf<sf::Event::MouseButtonReleased>())
+        {
+            auto button = Buttons::toButton(mouseReleased->button);
+            processIOEvent(button, mouseReleased->position, Action::end);
         }
     }
 }
-
-void GameEngine::processKey(sf::Keyboard::Key key, Action::ActionStatus status)
+void GameEngine::processIOEvent(Buttons::Button button,
+                                sf::Vector2i mousePos,
+                                Action::Status status)
 {
-    const auto& actionMap = currentScene()->getKeyboardActions();
-    if(actionMap.find(key) == actionMap.end())
-    {
-        // the key is not mapped
-        return;
-    }
-    // create the action and send to the scene for processisng
-    Action action{actionMap.at(key), status};
-    currentScene()->sDoAction(action);
-}
-
-void GameEngine::processMousePress(sf::Mouse::Button button,
-                                   Action::ActionStatus status,
-                                   const sf::Vector2i& pos)
-{
-    const auto& actionMap = currentScene()->getMouseActions();
+    const auto& actionMap = currentScene()->getActions();
     if(actionMap.find(button) == actionMap.end())
     {
         // the key is not mapped
         return;
     }
-    // create the action and send to the scene for processisng
-    Action action{actionMap.at(button), status, m_window.pixelToCoords(pos)};
+    // create the action and send to the scene for processing
+    Action action{
+        actionMap.at(button), status, m_window.pixelToCoords(mousePos)};
     currentScene()->sDoAction(action);
 }
 
-Scene* GameEngine::currentScene()
-{
-    return m_scenes.getCurrentScene();
-}
+Scene* GameEngine::currentScene() { return m_scenes.getCurrentScene(); }
