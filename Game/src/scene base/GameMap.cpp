@@ -1,6 +1,7 @@
 #include "GameMap.hpp"
 
 #include "SFML/System/Angle.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "scene base/TileEffect.hpp"
 #include "sff/sffParser.hpp"
 #include "sff/sffSerialiser.hpp"
@@ -8,23 +9,25 @@
 #include <chrono>
 #include <optional>
 #include <sstream>
-#include <vector>
 #include <string>
+#include <vector>
 
-void GameMap::init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize)
+void GameMap::placeTile(const MapTile& tile)
 {
-    m_gridSize = gridSize;
-    m_worldSize = worldSize;
-    m_tiles.reserve(gridSize.x * gridSize.y);
+    // remove the existing tile if there is one
+    if(accessTile(tile.pos))
+    {
+        removeTile(tile.pos);
+    }
+
+    m_tiles.push_back(tile);
 }
 
-void GameMap::placeTile(const MapTile& tile) { m_tiles.push_back(tile); }
-
-void GameMap::removeTile(uint32_t id)
+void GameMap::removeTile(const sf::Vector2u& pos)
 {
     for(auto it = m_tiles.begin(); it != m_tiles.end(); it++)
     {
-        if(it->id == id)
+        if(it->pos == pos)
         {
             m_tiles.erase(it);
             break;
@@ -32,34 +35,51 @@ void GameMap::removeTile(uint32_t id)
     }
 }
 
-void GameMap::placeEffect(uint32_t tileId, const TileEffect& effect)
+void GameMap::placeBrush(const TileEffect& effect, const sf::Vector2u& pos)
 {
-    for(auto& tile : m_tiles)
+    if(auto tile = accessTile(pos))
     {
-        if(tile.id == tileId)
-        {
-            tile.effects.emplace_back(effect);
-        }
+        tile->effects.push_back(effect);
+    }
+    else
+    {
+        std::cerr << "Could not place tile effect, there was no tile at the "
+                     "given location\n";
     }
 }
 
-// Removes all effects from a tile
-void GameMap::removeEffect(MapTile& tile, uint32_t effectId)
+void GameMap::clearBrushes(const sf::Vector2u& pos)
 {
-    tile.effects.clear();
+    if(auto tile = accessTile(pos))
+    {
+        tile->effects.clear();
+    }
 }
 
 std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 {
     for(const auto& tile : m_tiles)
     {
-        if(tile.worldPos == pos)
+        if(m_grid.getGridAt(tile.pos).midPos == pos)
         {
             return tile;
         }
     }
     // there was no tile with the same position
     return std::nullopt;
+}
+
+GameMap::MapTile* GameMap::accessTile(const sf::Vector2u& pos)
+{
+    for(auto& tile : m_tiles)
+    {
+        if(tile.pos == pos)
+        {
+            return &tile;
+        }
+    }
+    // there was no tile with the same position
+    return nullptr;
 }
 
 bool GameMap::save(const std::filesystem::path& path)
@@ -83,9 +103,6 @@ bool GameMap::save(const std::filesystem::path& path)
     // MetaData
     file.addNode("MetaData");
     file.addData("Identifier", identString);
-    file.addData("GridSize", std::pair<int, int>{m_gridSize.x, m_gridSize.y});
-    file.addData("WorldSize",
-                 std::pair<int, int>{m_worldSize.x, m_worldSize.y});
     file.endNode();
 
     // Tile Data
@@ -98,9 +115,8 @@ bool GameMap::save(const std::filesystem::path& path)
             file.addNode("Tile");
             file.addData("TexName", tile.textureName);
             file.addData("Position",
-                         std::pair<float, float>{tile.worldPos.x, tile.worldPos.y});
+                         std::pair<int, int>{tile.pos.x, tile.pos.y});
             file.addData("Rotation", tile.rotation.asRadians());
-            file.addData("ID", static_cast<int>(tile.id));
 
             // Effects
             if(!tile.effects.empty())
@@ -156,11 +172,13 @@ bool GameMap::load(const std::filesystem::path& path)
         for(auto& tile : tiles)
         {
             std::string tex = tile->getData("TexName");
-            int id {tile->getData("ID")};
-            std::pair<float, float> pos {tile->getData("Position")};
+            std::pair<int, int> pos{tile->getData("Position")};
             float rotation{tile->getData("Rotation")};
 
-            GameMap::MapTile mapTile {{pos.first, pos.second},sf::radians(rotation),tex};
+            GameMap::MapTile mapTile{{static_cast<uint32_t>(pos.first),
+                                      static_cast<uint32_t>(pos.second)},
+                                     sf::radians(rotation),
+                                     tex};
 
             if(tile->hasData("Effect"))
             {
@@ -169,7 +187,7 @@ bool GameMap::load(const std::filesystem::path& path)
                 for(auto& effect : effects)
                 {
                     std::string effectName = effect;
-                    TileEffect tileEffect {TileEffect::fromString(effectName)};
+                    TileEffect tileEffect{TileEffect::fromString(effectName)};
                     mapTile.effects.push_back(tileEffect);
                 }
             }

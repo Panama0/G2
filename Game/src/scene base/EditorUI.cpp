@@ -370,7 +370,7 @@ void EditorUI::drawSelectedInfo()
         auto& tile = m_state->selectedTile.value();
         ImGui::SetWindowPos(m_state->selectedTilePos);
         ImGui::Text("Texture Name: %s", tile.textureName.c_str());
-        ImGui::Text("Position: %.2f, %.2f", tile.worldPos.x, tile.worldPos.y);
+        ImGui::Text("Position: %u, %u", tile.pos.x, tile.pos.y);
         ImGui::Text("Rotation: %.2f", tile.rotation.asDegrees());
 
         if(!tile.effects.empty())

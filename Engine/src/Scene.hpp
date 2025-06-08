@@ -5,7 +5,6 @@
 #include "Buttons.hpp"
 #include "EntityManager.hpp"
 #include "GameEngine.hpp"
-#include "Grid.hpp"
 
 #include <filesystem>
 #include <map>
@@ -58,6 +57,4 @@ protected:
     // will be deleted
     bool m_hasEnded{false};
     bool m_hasGui{false};
-
-    Grid m_globalGrid;
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Grid.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "TileEffect.hpp"
 
 #include "SFML/Graphics.hpp"
@@ -14,29 +16,32 @@ public:
     struct MapTile
     {
         MapTile() = default;
-        MapTile(const sf::Vector2f& p,
+        MapTile(const sf::Vector2u& p,
                 const sf::Angle& r,
                 std::string_view texName)
-            : worldPos{p}, rotation{r}, textureName{texName}, id{m_idCounter++}
+            : pos{p}, rotation{r}, textureName{texName}
         {
         }
 
-        sf::Vector2f worldPos;
+        sf::Vector2u pos;
+
         sf::Angle rotation;
         std::string textureName;
-        uint32_t id{};
         std::vector<TileEffect> effects;
-
-    private:
-        static inline uint32_t m_idCounter{};
     };
 
-    void init(const sf::Vector2u& gridSize, const sf::Vector2f& worldSize);
+    void init(const sf::Vector2u& mapSize, const sf::Vector2u& tileSize)
+    {
+        m_grid.init(mapSize, tileSize);
+    }
+
+    Grid* getGrid() { return &m_grid; }
 
     void placeTile(const MapTile& tile);
-    void removeTile(uint32_t id);
-    void placeEffect(uint32_t tileId, const TileEffect& effect);
-    void removeEffect(MapTile& tile, uint32_t id);
+    void removeTile(const sf::Vector2u& pos);
+
+    void placeBrush(const TileEffect& effect, const sf::Vector2u& pos);
+    void clearBrushes(const sf::Vector2u& pos);
 
     std::optional<MapTile> getTileAt(const sf::Vector2f& pos);
     const std::vector<MapTile>& getTiles() { return m_tiles; }
@@ -46,11 +51,12 @@ public:
 
 private:
     void clear();
+    MapTile* accessTile(const sf::Vector2u& pos);
+
+    // NOTE: testing for now
+    Grid m_grid;
 
     std::vector<MapTile> m_tiles;
-
-    sf::Vector2u m_gridSize;
-    sf::Vector2f m_worldSize;
 
     // this is the string we will use to determine if a save is legitimate
     std::string m_identifier{"G2SAVE"};

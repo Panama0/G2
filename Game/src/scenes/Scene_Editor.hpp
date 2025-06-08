@@ -47,11 +47,13 @@ private:
     void select(const sf::Vector2f& pos);
     void deSelect();
 
-    // WARN: maybe temporary
     std::unordered_map<TileEffect::Effects, std::string_view> m_effectTextures;
 
     EditorState m_state;
     EditorUI m_editorUI{this};
+
+    //WARN: maybe temp:
+    Grid* m_mapGrid;
 
     sf::Vector2u m_gridSize;
 };
