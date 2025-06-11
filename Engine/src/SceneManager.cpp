@@ -19,6 +19,9 @@ void SceneManager::update()
     // delete the old scene
     if(m_currentScene->hasEnded())
     {
+        // run closing code
+        m_currentScene->onExit();
+
         // find and destroy the scene
         for(auto it = m_scenes.begin(); it != m_scenes.end(); it++)
         {

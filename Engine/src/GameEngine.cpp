@@ -103,6 +103,14 @@ void GameEngine::processIOEvent(Buttons::Button button,
         // the key is not mapped
         return;
     }
+
+    auto mouseWorldPos = m_window.pixelToCoords(mousePos);
+    if(!m_window.isInsideView(mouseWorldPos))
+    {
+        // we have clicked outside the game world
+        return;
+    }
+
     // create the action and send to the scene for processing
     Action action{
         actionMap.at(button), status, m_window.pixelToCoords(mousePos)};

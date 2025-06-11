@@ -90,9 +90,9 @@ void Scene_MainMenu::sAnimation()
     //     }
     // }
 
-    for(auto& ent : m_entities.getEntities<cAnimation, cSprite>())
+    for(auto& ent : m_entities.getEntities<cAnimatedSprite, cSprite>())
     {
-        auto& animationC = m_entities.getComponent<cAnimation>(ent);
+        auto& animationC = m_entities.getComponent<cAnimatedSprite>(ent);
         if(animationC.animation.hasEnded())
         {
             if(!animationC.repeat)

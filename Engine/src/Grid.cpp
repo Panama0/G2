@@ -1,6 +1,5 @@
 #include "Grid.hpp"
 
-#include <cmath>
 #include <iostream>
 
 void Grid::init(sf::Vector2u renderSpace, sf::Vector2u squareSize)

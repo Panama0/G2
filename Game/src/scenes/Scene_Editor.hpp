@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SFML/System/Vector2.hpp"
 #include "Scene.hpp"
 #include "scene base/EditorState.hpp"
 #include "scene base/EditorUI.hpp"
@@ -52,8 +53,6 @@ private:
     EditorState m_state;
     EditorUI m_editorUI{this};
 
-    //WARN: maybe temp:
-    Grid* m_mapGrid;
-
+    sf::Vector2f m_worldSize;
     sf::Vector2u m_gridSize;
 };

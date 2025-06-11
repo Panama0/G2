@@ -1,5 +1,8 @@
 #include "GameMap.hpp"
 
+#include "SFML/Graphics/Image.hpp"
+#include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/Texture.hpp"
 #include "SFML/System/Angle.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "scene base/TileEffect.hpp"
@@ -12,61 +15,71 @@
 #include <string>
 #include <vector>
 
-void GameMap::placeTile(const MapTile& tile)
+void GameMap::init(const sf::Vector2u& mapSize,
+                   const sf::Vector2u& tileSize,
+                   Assets* assets)
 {
+    m_grid.init(mapSize, tileSize);
+    m_assets = assets;
+    m_mapSize = mapSize;
+    updateTexture();
+}
+
+void GameMap::placeTile(const sf::Vector2f& pos,
+                        const sf::Angle& angle,
+                        const std::string& texName)
+{
+    GameMap::MapTile tile{m_grid.getGridAt(pos).gridPos, angle, texName};
     // remove the existing tile if there is one
     if(accessTile(tile.pos))
     {
-        removeTile(tile.pos);
+        removeTile(m_grid.getGridAt(tile.pos).worldPos);
     }
 
     m_tiles.push_back(tile);
+    updateTexture();
 }
 
-void GameMap::removeTile(const sf::Vector2u& pos)
+void GameMap::removeTile(const sf::Vector2f& worldPos)
 {
     for(auto it = m_tiles.begin(); it != m_tiles.end(); it++)
     {
-        if(it->pos == pos)
+        if(it->pos == m_grid.getGridAt(worldPos).gridPos)
         {
             m_tiles.erase(it);
             break;
         }
     }
+    updateTexture();
 }
 
-void GameMap::placeBrush(const TileEffect& effect, const sf::Vector2u& pos)
+void GameMap::placeBrush(const TileEffect& effect,
+                         const sf::Vector2f& worldPos)
 {
-    if(auto tile = accessTile(pos))
-    {
-        tile->effects.push_back(effect);
-    }
-    else
-    {
-        std::cerr << "Could not place tile effect, there was no tile at the "
-                     "given location\n";
-    }
+    accessTile(m_grid.getGridAt(worldPos).gridPos)->effects.push_back(effect);
 }
 
-void GameMap::clearBrushes(const sf::Vector2u& pos)
+void GameMap::clearBrushes(const sf::Vector2f& worldPos)
 {
-    if(auto tile = accessTile(pos))
-    {
-        tile->effects.clear();
-    }
+    accessTile(m_grid.getGridAt(worldPos).gridPos)->effects.clear();
 }
 
 std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 {
     for(const auto& tile : m_tiles)
     {
-        if(m_grid.getGridAt(tile.pos).midPos == pos)
+        if(tile.pos == m_grid.getGridAt(pos).gridPos)
         {
             return tile;
         }
     }
     // there was no tile with the same position
     return std::nullopt;
+}
+
+sf::Vector2f GameMap::toWorldPos(const sf::Vector2u& pos)
+{
+    return m_grid.getGridAt(pos).midPos;
 }
 
 GameMap::MapTile* GameMap::accessTile(const sf::Vector2u& pos)
@@ -197,7 +210,37 @@ bool GameMap::load(const std::filesystem::path& path)
 
     // we have loaded successfully, its safe to store the tiles
     m_tiles = std::move(mapTiles);
+    updateTexture();
     return true;
+}
+
+void GameMap::updateTexture()
+{
+    if(!m_renderTexture.resize(m_mapSize))
+    {
+        std::cerr << "Could not resize game map texture\n";
+    }
+    m_renderTexture.clear(sf::Color::Transparent);
+
+    // draw tiles
+    for(auto& tile : m_tiles)
+    {
+        sf::Texture tex{m_assets->getTexture(tile.textureName)};
+        sf::Sprite spr{tex};
+        spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
+        spr.setPosition(m_grid.getGridAt(tile.pos).midPos);
+
+        m_renderTexture.draw(spr);
+    }
+
+    // draw grid
+    if(m_showGrid)
+    {
+        sf::Sprite grid{m_grid.getTexture()};
+        m_renderTexture.draw(grid);
+    }
+
+    m_renderTexture.display();
 }
 
 void GameMap::clear() { m_tiles.clear(); }

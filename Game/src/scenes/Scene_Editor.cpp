@@ -1,21 +1,23 @@
 #include "scenes/Scene_Editor.hpp"
 #include "Buttons.hpp"
+#include "SFML/Graphics/Rect.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "scene base/Components.hpp"
+
 #include <optional>
 
 void Scene_Editor::init()
 {
     // WARN: temp
     m_gridSize = {32, 32};
+    m_worldSize = {1280.f, 720.f};
     m_hasGui = true;
 
-    m_assets.setResourceDir("../../../Game/res/");
-
-    m_state.map.init({1280, 720}, m_gridSize);
-    m_mapGrid = m_state.map.getGrid();
+    m_state.map.init(
+        static_cast<sf::Vector2u>(m_worldSize), m_gridSize, &m_assets);
 
     registerAction(Buttons::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(Buttons::G, static_cast<int>(ActionTypes::toggleGrid));
@@ -26,7 +28,7 @@ void Scene_Editor::init()
     registerAction(Buttons::L, static_cast<int>(ActionTypes::load));
     registerAction(Buttons::Escape, static_cast<int>(ActionTypes::deselect));
 
-    m_assets.loadTextureDir("../../../Game/res/tiles/");
+    m_assets.loadTextureDir("tiles");
 
     m_effectTextures = {{TileEffect::none, "tile9"},
                         {TileEffect::water, "tile9"},
@@ -80,14 +82,7 @@ void Scene_Editor::sDoAction(const Action& action)
     case static_cast<int>(ActionTypes::toggleGrid):
         if(action.status() == Action::end)
         {
-            if(m_state.gridVisible)
-            {
-                m_state.gridVisible = false;
-            }
-            else
-            {
-                m_state.gridVisible = true;
-            }
+                m_state.map.toggleGrid();
         }
         break;
 
@@ -113,12 +108,10 @@ void Scene_Editor::sDoAction(const Action& action)
             case EditorState::Modes::none:
                 break;
             case EditorState::Modes::tilePlaceTileRemove:
-                placeSelectedTile(
-                    m_mapGrid->getGridAt(action.mousePosition()).midPos);
+                placeSelectedTile(action.mousePosition());
                 break;
             case EditorState::Modes::brushPlaceBrushRemove:
-                placeSelectedBrush(
-                    m_mapGrid->getGridAt(action.mousePosition()).midPos);
+                placeSelectedBrush(action.mousePosition());
                 break;
             case EditorState::Modes::selectNone:
                 select(action.mousePosition());
@@ -132,29 +125,28 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             if(m_state.currentMode == EditorState::Modes::tilePlaceTileRemove)
             {
-                auto pos = m_mapGrid->getGridAt(action.mousePosition());
-                if(m_state.map.getTileAt(pos.worldPos))
+                if(m_state.map.getTileAt(action.mousePosition()))
                 {
-                    m_state.map.removeTile(pos.gridPos);
+                    m_state.map.removeTile(action.mousePosition());
                 }
             }
             else if(m_state.currentMode
                     == EditorState::Modes::brushPlaceBrushRemove)
             {
-                auto pos = m_mapGrid->getGridAt(action.mousePosition());
-                auto tile = m_state.map.getTileAt(pos.midPos);
+                auto tile = m_state.map.getTileAt(action.mousePosition());
 
                 if(tile)
                 {
-                    for(auto& ent :
-                        m_entities.getEntities<cTileEffect, cTransform, cId>())
-                    {
-                        auto& transform
-                            = m_entities.getComponent<cTransform>(ent);
+                    m_state.map.clearBrushes(action.mousePosition());
 
-                        if(transform.pos == pos.midPos)
+                    for(auto& ent :
+                        m_entities.getEntities<cTileEffect, cTransform>())
+                    {
+                        auto& entityPos
+                            = m_entities.getComponent<cTransform>(ent).pos;
+
+                        if(m_state.map.getTileAt(entityPos)->pos == tile->pos)
                         {
-                            m_state.map.clearBrushes(pos.gridPos);
                             m_entities.killEntity(ent);
                         }
                     }
@@ -224,22 +216,8 @@ void Scene_Editor::sRender()
     auto& window = m_game->getWindow();
     window.beginDraw();
 
-    if(m_state.gridVisible)
-    {
-        sf::Sprite grid{m_mapGrid->getTexture()};
-        window.draw(grid);
-    }
-
-    auto tiles = m_state.map.getTiles();
-    for(auto& tile : tiles)
-    {
-        sf::Texture tex{m_assets.getTexture(tile.textureName)};
-        sf::Sprite spr{tex};
-        spr.setPosition(m_mapGrid->getGridAt(tile.pos).midPos);
-        spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
-
-        window.draw(spr);
-    }
+    sf::Sprite map{m_state.map.getTexture()};
+    window.draw(map);
 
     if(m_state.brushesVisible)
     {
@@ -267,9 +245,7 @@ void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
         return;
     }
 
-    GameMap::MapTile tile{
-        m_mapGrid->getGridAt(pos).gridPos, m_state.angle, m_state.tileTexture};
-    m_state.map.placeTile(tile);
+    m_state.map.placeTile(pos, m_state.angle, m_state.tileTexture);
 }
 
 void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
@@ -287,9 +263,10 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
     // we know that there is a tile at this location now
     GameMap::MapTile tile = m_state.map.getTileAt(pos).value();
 
-    // WARN:we need to remove the error checking in place brush and the like,
-    // we should do in before calling like above
-    m_state.map.placeBrush(m_state.brushType, tile.pos);
+    // place on the map
+    m_state.map.placeBrush(m_state.brushType, pos);
+
+    // spawn the entity
     spawnBrush(tile, m_state.brushType);
 }
 
@@ -317,9 +294,7 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 
     auto& transform = m_entities.addComponent<cTransform>(entitiy);
     transform.scale = {0.8f, 0.8f};
-    transform.pos = m_mapGrid->getGridAt(tile.pos).midPos;
-
-    m_entities.addComponent<cId>(entitiy);
+    transform.pos = m_state.map.toWorldPos(tile.pos);
 
     auto& eff = m_entities.addComponent<cTileEffect>(entitiy).effect;
     eff = effect;
@@ -327,12 +302,10 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
 
 void Scene_Editor::select(const sf::Vector2f& pos)
 {
-    const auto& gridPos = m_mapGrid->getGridAt(pos);
-    m_state.selectedTile = m_state.map.getTileAt(gridPos.midPos);
+    m_state.selectedTile = m_state.map.getTileAt(pos);
     if(m_state.selectedTile)
     {
-        m_state.selectedTilePos
-            = m_game->getWindow().coordsToPixel(gridPos.worldPos);
+        m_state.selectedTilePos = m_game->getWindow().coordsToPixel(pos);
         // offset to the right edge of the tile
         m_state.selectedTilePos.x += m_gridSize.x;
     }

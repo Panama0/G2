@@ -1,10 +1,11 @@
 #include "Assets.hpp"
+#include <fstream>
 
 bool Assets::addTexture(std::string_view name,
                         const std::filesystem::path& fname)
 {
     sf::Texture texture;
-    if(!texture.loadFromFile(m_resourcesDir / fname))
+    if(!texture.loadFromFile(currentPath() / fname))
     {
         return false;
     }
@@ -18,7 +19,7 @@ bool Assets::addAnimation(std::string_view name,
                           uint32_t frames,
                           uint32_t interval)
 {
-    Animation animation{m_resourcesDir / fname, frames, interval};
+    Animation animation{m_resourceSubdir / fname, frames, interval};
     if(!animation.isValid)
     {
         return false;
@@ -38,7 +39,7 @@ bool Assets::addSound(std::string_view name,
 bool Assets::addFont(std::string_view name, const std::filesystem::path& fname)
 {
     sf::Font font;
-    if(!font.openFromFile(m_resourcesDir / fname))
+    if(!font.openFromFile(m_resourceSubdir / fname))
     {
         return false;
     }
@@ -49,13 +50,19 @@ bool Assets::addFont(std::string_view name, const std::filesystem::path& fname)
 
 bool Assets::loadTextureDir(const std::filesystem::path path)
 {
-    if(!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
+    auto fullPath = currentPath() / path;
+    if(!std::filesystem::exists(fullPath))
     {
         std::cerr << "Failed to load texture dir, path does not exist!\n";
         return false;
     }
+    else if (!std::filesystem::is_directory(fullPath))
+    {
+        std::cerr << "Failed to load texture dir, path is not valid\n";
+        return false;
+    }
 
-    for(const auto& file : std::filesystem::directory_iterator(path))
+    for(const auto& file : std::filesystem::directory_iterator(fullPath))
     {
         sf::Texture texture;
         if(!texture.loadFromFile(file.path()))

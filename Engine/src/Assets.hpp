@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Animation.hpp"
 #include "SFML/Audio.hpp"
 #include "SFML/Graphics.hpp"
-#include "Animation.hpp"
 #include <filesystem>
 #include <string>
 #include <unordered_map>
@@ -10,6 +10,15 @@
 class Assets
 {
 public:
+    Assets()
+    {
+#ifdef DEBUG
+        m_resourceRoot = "../../../Game/res/";
+#else
+        m_resourceRoot = "res/";
+#endif
+    }
+
     bool addTexture(std::string_view name, const std::filesystem::path& fname);
     bool addAnimation(std::string_view name,
                       const std::filesystem::path& fname,
@@ -18,6 +27,7 @@ public:
     bool addSound(std::string_view name, const std::filesystem::path& fname);
     bool addFont(std::string_view name, const std::filesystem::path& fname);
 
+    // load a whole folder of textures, relative to the current path
     bool loadTextureDir(const std::filesystem::path path);
 
     const sf::Texture& getTexture(std::string_view name)
@@ -39,9 +49,16 @@ public:
 
     const std::vector<std::string>& getTextureList() { return m_textureList; }
 
+    // can be used to have specific folders in the resouce root for different
+    // scenes etc.
     void setResourceDir(const std::filesystem::path& path)
     {
-        m_resourcesDir = path;
+        m_resourceSubdir = m_resourceRoot / path;
+    }
+
+    std::filesystem::path currentPath()
+    {
+        return m_resourceRoot / m_resourceSubdir;
     }
 
 private:
@@ -55,5 +72,6 @@ private:
     std::vector<std::string> m_soundList;
     std::vector<std::string> m_fontList;
 
-    std::filesystem::path m_resourcesDir;
+    std::filesystem::path m_resourceRoot;
+    std::filesystem::path m_resourceSubdir;
 };

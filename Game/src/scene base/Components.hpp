@@ -1,8 +1,9 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
 #include "Animation.hpp"
 #include "GameMap.hpp"
+#include "SFML/Graphics.hpp"
+#include "SFML/System/Angle.hpp"
 
 //* surely we can merge animated sprite with this at some point
 struct cSprite
@@ -26,7 +27,7 @@ struct cTransform
     sf::Vector2f prevPos;
     sf::Vector2f vel;
     sf::Vector2f scale{1.f, 1.f};
-    float angle;
+    sf::Angle angle;
 };
 
 struct cInput
@@ -59,18 +60,6 @@ struct cAnimatedSprite
     bool repeat{false};
 };
 
-struct cAnimation
-{
-    cAnimation() = default;
-    cAnimation(const Animation& an, bool rep = false)
-        : animation{an}, repeat{rep}
-    {
-    }
-
-    Animation animation;
-    bool repeat{false};
-};
-
 struct cTileEffect
 {
     TileEffect effect;
@@ -78,8 +67,6 @@ struct cTileEffect
 
 struct cId
 {
-    cId() = default;
-    cId(uint32_t _id) : id{_id} {}
-
     uint32_t id{};
 };
+

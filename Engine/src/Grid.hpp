@@ -1,9 +1,11 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "SFML/System/Vector2.hpp"
 
 #include <vector>
 
+// Generic utility class used for creating grids
 class Grid
 {
 public:

@@ -77,6 +77,8 @@ set(H_FILES
 
 add_library(${PROJECT_NAME} STATIC ${SRC_FILES} ${H_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
+# define debug
+target_compile_definitions(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 
 option(SFML_BUILD_AUDIO "Build audio" ON)
 
