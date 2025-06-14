@@ -131,4 +131,8 @@ constexpr Button toButton(sf::Mouse::Button button)
     return static_cast<Button>(static_cast<int>(button) + _keyboardEnd + 1);
 }
 
+constexpr bool isKeyboard(Button button) { return button < _keyboardEnd; }
+
+constexpr bool isMouse(Button button) { return button > _keyboardEnd; }
+
 }

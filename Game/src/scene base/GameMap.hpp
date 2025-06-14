@@ -48,6 +48,7 @@ public:
 
     std::optional<MapTile> getTileAt(const sf::Vector2f& pos);
     sf::Vector2f toWorldPos(const sf::Vector2u& pos);
+    sf::Vector2u toGridPos(const sf::Vector2f& pos);
 
     const std::vector<MapTile>& getTiles() { return m_tiles; }
 
@@ -55,7 +56,7 @@ public:
     bool load(const std::filesystem::path& path);
 
     const sf::Texture& getTexture() { return m_renderTexture.getTexture(); }
-    void toggleGrid() { m_showGrid ? m_showGrid = false : m_showGrid = true; }
+    void toggleGrid();
 
 private:
     void clear();

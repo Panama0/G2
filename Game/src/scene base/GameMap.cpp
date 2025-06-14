@@ -1,6 +1,5 @@
 #include "GameMap.hpp"
 
-#include "SFML/Graphics/Image.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Texture.hpp"
 #include "SFML/System/Angle.hpp"
@@ -33,7 +32,7 @@ void GameMap::placeTile(const sf::Vector2f& pos,
     // remove the existing tile if there is one
     if(accessTile(tile.pos))
     {
-        removeTile(m_grid.getGridAt(tile.pos).worldPos);
+        removeTile(pos);
     }
 
     m_tiles.push_back(tile);
@@ -80,6 +79,11 @@ std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
 sf::Vector2f GameMap::toWorldPos(const sf::Vector2u& pos)
 {
     return m_grid.getGridAt(pos).midPos;
+}
+
+sf::Vector2u GameMap::toGridPos(const sf::Vector2f& pos)
+{
+    return m_grid.getGridAt(pos).gridPos;
 }
 
 GameMap::MapTile* GameMap::accessTile(const sf::Vector2u& pos)
@@ -212,6 +216,12 @@ bool GameMap::load(const std::filesystem::path& path)
     m_tiles = std::move(mapTiles);
     updateTexture();
     return true;
+}
+
+void GameMap::toggleGrid()
+{
+    m_showGrid ? m_showGrid = false : m_showGrid = true;
+    updateTexture();
 }
 
 void GameMap::updateTexture()

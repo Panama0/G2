@@ -193,42 +193,42 @@ void EditorUI::drawToolsUI()
     {
         ImGui::Text("Current Tool: %s", getToolName(m_state->currentMode));
 
-        if(ImGui::Button(getToolName(EditorState::Modes::none)))
+        if(ImGui::Button(getToolName(EditorState::Mode::none)))
         {
-            m_state->currentMode = EditorState::Modes::none;
+            m_state->currentMode = EditorState::Mode::none;
         }
         ImGui::SameLine();
-        if(ImGui::Button(getToolName(EditorState::Modes::tilePlaceTileRemove)))
+        if(ImGui::Button(getToolName(EditorState::Mode::tilePlaceTileRemove)))
         {
-            m_state->currentMode = EditorState::Modes::tilePlaceTileRemove;
+            m_state->currentMode = EditorState::Mode::tilePlaceTileRemove;
         }
         ImGui::SameLine();
         if(ImGui::Button(
-               getToolName(EditorState::Modes::brushPlaceBrushRemove)))
+               getToolName(EditorState::Mode::brushPlaceBrushRemove)))
         {
-            m_state->currentMode = EditorState::Modes::brushPlaceBrushRemove;
+            m_state->currentMode = EditorState::Mode::brushPlaceBrushRemove;
         }
         ImGui::SameLine();
-        if(ImGui::Button(getToolName(EditorState::Modes::selectNone)))
+        if(ImGui::Button(getToolName(EditorState::Mode::selectNone)))
         {
-            m_state->currentMode = EditorState::Modes::selectNone;
+            m_state->currentMode = EditorState::Mode::selectNone;
         }
 
         ImGui::End();
     }
 }
 
-const char* EditorUI::getToolName(EditorState::Modes mode)
+const char* EditorUI::getToolName(EditorState::Mode mode)
 {
     switch(mode)
     {
-    case EditorState::Modes::none:
+    case EditorState::Mode::none:
         return "View";
-    case EditorState::Modes::tilePlaceTileRemove:
+    case EditorState::Mode::tilePlaceTileRemove:
         return "Place and Remove Tiles";
-    case EditorState::Modes::brushPlaceBrushRemove:
+    case EditorState::Mode::brushPlaceBrushRemove:
         return "Place and Remove Brushes";
-    case EditorState::Modes::selectNone:
+    case EditorState::Mode::selectNone:
         return "Select";
     }
     return "Invalid\n";

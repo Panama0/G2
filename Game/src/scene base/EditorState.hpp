@@ -4,14 +4,14 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Vector2.hpp"
 
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 struct EditorState
 {
     // some modes for the editor, format is leftclickRightclick
-    enum class Modes
+    enum class Mode
     {
         none,
         tilePlaceTileRemove,
@@ -19,9 +19,28 @@ struct EditorState
         selectNone,
     };
 
-    Modes currentMode{Modes::none};
+    Mode currentMode{Mode::none};
 
-    bool gridVisible{true};
+    struct Mouse
+    {
+        enum State
+        {
+            none,
+            leftDown,
+            rightDown
+        };
+
+        State state{none};
+        std::optional<sf::Vector2u> lastPlaced;
+
+        void reset()
+        {
+            state = none;
+            lastPlaced = std::nullopt;
+        }
+    };
+    Mouse mouseState;
+
     bool brushesVisible{true};
 
     std::string tileTexture;
@@ -32,8 +51,6 @@ struct EditorState
 
     sf::Angle angle;
     GameMap map;
-
-    sf::Vector2u gridSize;
 
     std::vector<std::string> textureList;
 

@@ -1,11 +1,11 @@
 #include "scenes/Scene_Editor.hpp"
 #include "Buttons.hpp"
-#include "SFML/Graphics/Rect.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "scene base/Components.hpp"
+#include "scene base/EditorState.hpp"
 
 #include <optional>
 
@@ -22,8 +22,10 @@ void Scene_Editor::init()
     registerAction(Buttons::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(Buttons::G, static_cast<int>(ActionTypes::toggleGrid));
     registerAction(Buttons::B, static_cast<int>(ActionTypes::toggleBrushes));
-    registerAction(Buttons::MouseLeft, static_cast<int>(ActionTypes::place));
-    registerAction(Buttons::MouseRight, static_cast<int>(ActionTypes::remove));
+    registerAction(Buttons::MouseLeft,
+                   static_cast<int>(ActionTypes::toggleLeftC));
+    registerAction(Buttons::MouseRight,
+                   static_cast<int>(ActionTypes::toggleRightC));
     registerAction(Buttons::S, static_cast<int>(ActionTypes::save));
     registerAction(Buttons::L, static_cast<int>(ActionTypes::load));
     registerAction(Buttons::Escape, static_cast<int>(ActionTypes::deselect));
@@ -51,6 +53,10 @@ void Scene_Editor::onExit()
 
 void Scene_Editor::update()
 {
+    // place/remove any tiles if applicable
+    handleMouse();
+
+    // update entities
     for(auto& entity : m_entities.getEntities<cTransform, cSprite>())
     {
         auto& spr = m_entities.getComponent<cSprite>(entity).sprite;
@@ -70,23 +76,23 @@ void Scene_Editor::update()
 
 void Scene_Editor::sDoAction(const Action& action)
 {
-    switch(action.type())
+    switch(static_cast<ActionTypes>(action.type()))
     {
-    case static_cast<int>(ActionTypes::toggleFS):
+    case ActionTypes::toggleFS:
         if(action.status() == Action::end)
         {
             m_game->getWindow().toggleFullscreen();
         }
         break;
 
-    case static_cast<int>(ActionTypes::toggleGrid):
-        if(action.status() == Action::end)
+    case ActionTypes::toggleGrid:
+        if(action.status() == Action::start)
         {
-                m_state.map.toggleGrid();
+            m_state.map.toggleGrid();
         }
         break;
 
-    case static_cast<int>(ActionTypes::toggleBrushes):
+    case ActionTypes::toggleBrushes:
         if(action.status() == Action::end)
         {
             if(m_state.brushesVisible)
@@ -100,76 +106,45 @@ void Scene_Editor::sDoAction(const Action& action)
         }
         break;
 
-    case static_cast<int>(ActionTypes::place):
+    case ActionTypes::toggleLeftC:
         if(action.status() == Action::start)
         {
-            switch(m_state.currentMode)
-            {
-            case EditorState::Modes::none:
-                break;
-            case EditorState::Modes::tilePlaceTileRemove:
-                placeSelectedTile(action.mousePosition());
-                break;
-            case EditorState::Modes::brushPlaceBrushRemove:
-                placeSelectedBrush(action.mousePosition());
-                break;
-            case EditorState::Modes::selectNone:
-                select(action.mousePosition());
-                break;
-            }
+            m_state.mouseState.state = EditorState::Mouse::leftDown;
         }
-        break;
 
-    case static_cast<int>(ActionTypes::remove):
         if(action.status() == Action::end)
         {
-            if(m_state.currentMode == EditorState::Modes::tilePlaceTileRemove)
-            {
-                if(m_state.map.getTileAt(action.mousePosition()))
-                {
-                    m_state.map.removeTile(action.mousePosition());
-                }
-            }
-            else if(m_state.currentMode
-                    == EditorState::Modes::brushPlaceBrushRemove)
-            {
-                auto tile = m_state.map.getTileAt(action.mousePosition());
-
-                if(tile)
-                {
-                    m_state.map.clearBrushes(action.mousePosition());
-
-                    for(auto& ent :
-                        m_entities.getEntities<cTileEffect, cTransform>())
-                    {
-                        auto& entityPos
-                            = m_entities.getComponent<cTransform>(ent).pos;
-
-                        if(m_state.map.getTileAt(entityPos)->pos == tile->pos)
-                        {
-                            m_entities.killEntity(ent);
-                        }
-                    }
-                }
-            }
+            m_state.mouseState.reset();
         }
         break;
 
-    case static_cast<int>(ActionTypes::deselect):
+    case ActionTypes::toggleRightC:
+        if(action.status() == Action::start)
+        {
+            m_state.mouseState.state = EditorState::Mouse::rightDown;
+        }
+
+        if(action.status() == Action::end)
+        {
+            m_state.mouseState.reset();
+        }
+        break;
+
+    case ActionTypes::deselect:
         if(action.status() == Action::end)
         {
             deSelect();
         }
         break;
 
-    case static_cast<int>(ActionTypes::save):
+    case ActionTypes::save:
         if(action.status() == Action::end)
         {
             m_state.map.save(m_state.savePath / m_state.saveName);
         }
         break;
 
-    case static_cast<int>(ActionTypes::load):
+    case ActionTypes::load:
         if(action.status() == Action::end)
         {
             m_state.map.load(m_state.savePath / m_state.saveName);
@@ -195,14 +170,14 @@ void Scene_Editor::sDoAction(const Action& action)
         }
         break;
 
-    case static_cast<int>(ActionTypes::exit):
+    case ActionTypes::exit:
         if(action.status() == Action::end)
         {
             m_game->quit();
         }
         break;
 
-    case static_cast<int>(ActionTypes::endScene):
+    case ActionTypes::endScene:
         if(action.status() == Action::end)
         {
             m_hasEnded = true;
@@ -236,6 +211,90 @@ void Scene_Editor::drawUI()
 {
     m_editorUI.draw();
     m_editorUI.display();
+}
+
+void Scene_Editor::handleMouse()
+{
+    if(m_state.mouseState.state != EditorState::Mouse::none)
+    {
+        auto& window = m_game->getWindow();
+        auto mousePos = window.pixelToCoords(window.getMousePos());
+
+        // if we left the view area, we dont need to continue processing
+        if(!window.isInsideView(mousePos))
+        {
+            return;
+        }
+        auto gridPos = m_state.map.toGridPos(mousePos);
+
+        if(gridPos != m_state.mouseState.lastPlaced
+           || !m_state.mouseState.lastPlaced)
+        {
+            switch(m_state.mouseState.state)
+            {
+            case EditorState::Mouse::leftDown:
+                place(mousePos);
+                break;
+
+            case EditorState::Mouse::rightDown:
+                remove(mousePos);
+                break;
+
+            case EditorState::Mouse::none:
+                break;
+            }
+
+            m_state.mouseState.lastPlaced = gridPos;
+        }
+    }
+}
+
+void Scene_Editor::remove(const sf::Vector2f& pos)
+{
+    if(m_state.currentMode == EditorState::Mode::tilePlaceTileRemove)
+    {
+        if(m_state.map.getTileAt(pos))
+        {
+            m_state.map.removeTile(pos);
+        }
+    }
+    else if(m_state.currentMode == EditorState::Mode::brushPlaceBrushRemove)
+    {
+        auto tile = m_state.map.getTileAt(pos);
+
+        if(tile)
+        {
+            m_state.map.clearBrushes(pos);
+
+            for(auto& ent : m_entities.getEntities<cTileEffect, cTransform>())
+            {
+                auto& entityPos = m_entities.getComponent<cTransform>(ent).pos;
+
+                if(m_state.map.getTileAt(entityPos)->pos == tile->pos)
+                {
+                    m_entities.killEntity(ent);
+                }
+            }
+        }
+    }
+}
+
+void Scene_Editor::place(const sf::Vector2f& pos)
+{
+    switch(m_state.currentMode)
+    {
+    case EditorState::Mode::none:
+        break;
+    case EditorState::Mode::tilePlaceTileRemove:
+        placeSelectedTile(pos);
+        break;
+    case EditorState::Mode::brushPlaceBrushRemove:
+        placeSelectedBrush(pos);
+        break;
+    case EditorState::Mode::selectNone:
+        select(pos);
+        break;
+    }
 }
 
 void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)

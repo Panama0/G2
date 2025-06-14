@@ -21,7 +21,7 @@ private:
     void drawSaveLoadUI();
     void drawToolsUI();
     void drawSelectedInfo();
-    const char* getToolName(EditorState::Modes mode);
+    const char* getToolName(EditorState::Mode mode);
 
     sf::RenderTexture m_currentTileRenderTex{{200, 200}};
     bool m_showSaveLoad{false};

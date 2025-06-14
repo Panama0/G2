@@ -105,9 +105,10 @@ void GameEngine::processIOEvent(Buttons::Button button,
     }
 
     auto mouseWorldPos = m_window.pixelToCoords(mousePos);
-    if(!m_window.isInsideView(mouseWorldPos))
+    if(!m_window.isInsideView(mouseWorldPos) && Buttons::isMouse(button))
     {
         // we have clicked outside the game world
+        // and it was really a click and not a keyboard press event
         return;
     }
 

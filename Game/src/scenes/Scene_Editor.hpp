@@ -16,8 +16,8 @@ public:
         toggleFS,
         toggleGrid,
         toggleBrushes,
-        place,
-        remove,
+        toggleLeftC,
+        toggleRightC,
         deselect,
         rotate,
         save,
@@ -42,8 +42,15 @@ public:
 private:
     void drawUI();
 
+    // place/remove tiles if the mouse is down
+    void handleMouse();
+
+    void place(const sf::Vector2f& pos);
+    void remove(const sf::Vector2f& pos);
+
     void placeSelectedTile(const sf::Vector2f& pos);
     void placeSelectedBrush(const sf::Vector2f& pos);
+
     void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
     void select(const sf::Vector2f& pos);
     void deSelect();

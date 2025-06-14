@@ -11,13 +11,14 @@ FetchContent_Declare(
 FetchContent_Declare(
     ImGui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG docking
+    GIT_TAG v1.91.9b-docking
+
 )
 
 FetchContent_Declare(
     SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 3.0.x
+    GIT_TAG 3.0.1
 )
 
 FetchContent_Declare(
