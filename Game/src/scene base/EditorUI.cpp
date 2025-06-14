@@ -367,18 +367,18 @@ void EditorUI::drawSelectedInfo()
 
     if(ImGui::Begin("Selection", nullptr, flags))
     {
-        auto& tile = m_state->selectedTile.value();
+        auto& tile = m_state->selectedTile;
         ImGui::SetWindowPos(m_state->selectedTilePos);
-        ImGui::Text("Texture Name: %s", tile.textureName.c_str());
-        ImGui::Text("Position: %u, %u", tile.pos.x, tile.pos.y);
-        ImGui::Text("Rotation: %.2f", tile.rotation.asDegrees());
+        ImGui::Text("Texture Name: %s", tile->textureName.c_str());
+        ImGui::Text("Position: %u, %u", tile->pos.x, tile->pos.y);
+        ImGui::Text("Rotation: %.2f", tile->rotation.asDegrees());
 
-        if(!tile.effects.empty())
+        if(!tile->effects.empty())
         {
             ImGui::SeparatorText("Effects");
 
             int count{1};
-            for(auto& effect : tile.effects)
+            for(auto& effect : tile->effects)
             {
                 ImGui::Text("Effect %d: %s",
                             count,

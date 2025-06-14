@@ -9,7 +9,7 @@
 #include "sff/sffSerialiser.hpp"
 
 #include <chrono>
-#include <optional>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -21,6 +21,10 @@ void GameMap::init(const sf::Vector2u& mapSize,
     m_grid.init(mapSize, tileSize);
     m_assets = assets;
     m_mapSize = mapSize;
+
+    auto& mapGridSize = m_grid.getSize();
+    m_tiles.resize(mapGridSize.x * mapGridSize.y);
+
     updateTexture();
 }
 
@@ -28,52 +32,28 @@ void GameMap::placeTile(const sf::Vector2f& pos,
                         const sf::Angle& angle,
                         const std::string& texName)
 {
-    GameMap::MapTile tile{m_grid.getGridAt(pos).gridPos, angle, texName};
-    // remove the existing tile if there is one
-    if(accessTile(tile.pos))
-    {
-        removeTile(pos);
-    }
+    auto clickedPos = m_grid.getGridAt(pos).gridPos;
 
-    m_tiles.push_back(tile);
+    getTile(pos) = std::make_shared<MapTile>(clickedPos, angle, texName);
+
     updateTexture();
 }
 
-void GameMap::removeTile(const sf::Vector2f& worldPos)
+void GameMap::clearTile(const sf::Vector2f& worldPos)
 {
-    for(auto it = m_tiles.begin(); it != m_tiles.end(); it++)
-    {
-        if(it->pos == m_grid.getGridAt(worldPos).gridPos)
-        {
-            m_tiles.erase(it);
-            break;
-        }
-    }
+    getTile(worldPos) = nullptr;
     updateTexture();
 }
 
 void GameMap::placeBrush(const TileEffect& effect,
                          const sf::Vector2f& worldPos)
 {
-    accessTile(m_grid.getGridAt(worldPos).gridPos)->effects.push_back(effect);
+    getTile(worldPos)->effects.push_back(effect);
 }
 
 void GameMap::clearBrushes(const sf::Vector2f& worldPos)
 {
-    accessTile(m_grid.getGridAt(worldPos).gridPos)->effects.clear();
-}
-
-std::optional<GameMap::MapTile> GameMap::getTileAt(const sf::Vector2f& pos)
-{
-    for(const auto& tile : m_tiles)
-    {
-        if(tile.pos == m_grid.getGridAt(pos).gridPos)
-        {
-            return tile;
-        }
-    }
-    // there was no tile with the same position
-    return std::nullopt;
+    getTile(worldPos)->effects.clear();
 }
 
 sf::Vector2f GameMap::toWorldPos(const sf::Vector2u& pos)
@@ -86,17 +66,14 @@ sf::Vector2u GameMap::toGridPos(const sf::Vector2f& pos)
     return m_grid.getGridAt(pos).gridPos;
 }
 
-GameMap::MapTile* GameMap::accessTile(const sf::Vector2u& pos)
+std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const sf::Vector2u& pos)
 {
-    for(auto& tile : m_tiles)
-    {
-        if(tile.pos == pos)
-        {
-            return &tile;
-        }
-    }
-    // there was no tile with the same position
-    return nullptr;
+    return m_tiles[pos.y * m_grid.getSize().x + pos.x];
+}
+
+std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const sf::Vector2f& pos)
+{
+    return getTile(toGridPos(pos));
 }
 
 bool GameMap::save(const std::filesystem::path& path)
@@ -120,6 +97,12 @@ bool GameMap::save(const std::filesystem::path& path)
     // MetaData
     file.addNode("MetaData");
     file.addData("Identifier", identString);
+
+    file.addData("WorldSize", std::pair<int, int>{m_mapSize.x, m_mapSize.y});
+    auto& squareSize = m_grid.getSquareSize();
+    file.addData("SquareSize",
+                 std::pair<int, int>{static_cast<uint32_t>(squareSize.x),
+                                     static_cast<uint32_t>(squareSize.y)});
     file.endNode();
 
     // Tile Data
@@ -129,24 +112,27 @@ bool GameMap::save(const std::filesystem::path& path)
 
         for(const auto& tile : m_tiles)
         {
-            file.addNode("Tile");
-            file.addData("TexName", tile.textureName);
-            file.addData("Position",
-                         std::pair<int, int>{tile.pos.x, tile.pos.y});
-            file.addData("Rotation", tile.rotation.asRadians());
-
-            // Effects
-            if(!tile.effects.empty())
+            if(tile)
             {
-                for(const auto& effect : tile.effects)
-                {
-                    file.addData(
-                        "Effect",
-                        std::string{TileEffect::toString(effect.type)});
-                }
-            }
+                file.addNode("Tile");
+                file.addData("TexName", tile->textureName);
+                file.addData("Position",
+                             std::pair<int, int>{tile->pos.x, tile->pos.y});
+                file.addData("Rotation", tile->rotation.asRadians());
 
-            file.endNode();
+                // Effects
+                if(!tile->effects.empty())
+                {
+                    for(const auto& effect : tile->effects)
+                    {
+                        file.addData(
+                            "Effect",
+                            std::string{TileEffect::toString(effect.type)});
+                    }
+                }
+
+                file.endNode();
+            }
         }
 
         file.endNode();
@@ -159,7 +145,10 @@ bool GameMap::save(const std::filesystem::path& path)
 
 bool GameMap::load(const std::filesystem::path& path)
 {
-    std::vector<GameMap::MapTile> mapTiles;
+    std::vector<std::shared_ptr<MapTile>> mapTiles;
+    sf::Vector2u mapSize;
+    sf::Vector2u squareSize;
+
     sff::Parser file{path};
 
     if(!file.alive())
@@ -172,8 +161,17 @@ bool GameMap::load(const std::filesystem::path& path)
     auto metaData = data->findChild("MetaData");
     if(metaData)
     {
-        // TODO: use metadata
         std::string ident = metaData->getData("Identifier");
+        std::pair<int, int> worldSizeData = metaData->getData("WorldSize");
+        std::pair<int, int> squareSizeData = metaData->getData("SquareSize");
+        mapSize = {static_cast<uint32_t>(worldSizeData.first),
+                   static_cast<uint32_t>(worldSizeData.second)};
+
+        squareSize = {static_cast<uint32_t>(squareSizeData.first),
+                      static_cast<uint32_t>(squareSizeData.second)};
+
+        auto& mapGridSize = m_grid.getSize();
+        mapTiles.resize(mapGridSize.x * mapGridSize.y);
     }
     else
     {
@@ -184,37 +182,43 @@ bool GameMap::load(const std::filesystem::path& path)
     auto tileData = data->findChild("TileData");
     if(tileData)
     {
-        auto& tiles = tileData->getChildren();
+        auto& tileNodes = tileData->getChildren();
 
-        for(auto& tile : tiles)
+        for(auto& tileNode : tileNodes)
         {
-            std::string tex = tile->getData("TexName");
-            std::pair<int, int> pos{tile->getData("Position")};
-            float rotation{tile->getData("Rotation")};
+            std::string tex = tileNode->getData("TexName");
+            std::pair<int, int> pos{tileNode->getData("Position")};
+            float rotation{tileNode->getData("Rotation")};
 
-            GameMap::MapTile mapTile{{static_cast<uint32_t>(pos.first),
-                                      static_cast<uint32_t>(pos.second)},
-                                     sf::radians(rotation),
-                                     tex};
+            sf::Vector2u tilePosition{static_cast<uint32_t>(pos.first),
+                                      static_cast<uint32_t>(pos.second)};
 
-            if(tile->hasData("Effect"))
+            auto mapTile = std::make_shared<MapTile>(
+                tilePosition, sf::radians(rotation), tex);
+
+            if(tileNode->hasData("Effect"))
             {
-                auto& effects{tile->getDataVec("Effect")};
+                auto& effects{tileNode->getDataVec("Effect")};
 
                 for(auto& effect : effects)
                 {
                     std::string effectName = effect;
                     TileEffect tileEffect{TileEffect::fromString(effectName)};
-                    mapTile.effects.push_back(tileEffect);
+                    mapTile->effects.push_back(tileEffect);
                 }
             }
-            mapTiles.push_back(mapTile);
+
+            mapTiles[pos.second * m_grid.getSize().x + pos.first] = mapTile;
         }
     }
 
     // we have loaded successfully, its safe to store the tiles
     m_tiles = std::move(mapTiles);
+
+    m_grid.init(m_mapSize, squareSize);
+
     updateTexture();
+
     return true;
 }
 
@@ -235,12 +239,15 @@ void GameMap::updateTexture()
     // draw tiles
     for(auto& tile : m_tiles)
     {
-        sf::Texture tex{m_assets->getTexture(tile.textureName)};
-        sf::Sprite spr{tex};
-        spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
-        spr.setPosition(m_grid.getGridAt(tile.pos).midPos);
+        if(tile)
+        {
+            sf::Texture tex{m_assets->getTexture(tile->textureName)};
+            sf::Sprite spr{tex};
+            spr.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
+            spr.setPosition(m_grid.getGridAt(tile->pos).midPos);
 
-        m_renderTexture.draw(spr);
+            m_renderTexture.draw(spr);
+        }
     }
 
     // draw grid

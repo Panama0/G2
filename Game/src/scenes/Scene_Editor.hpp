@@ -4,8 +4,6 @@
 #include "Scene.hpp"
 #include "scene base/EditorState.hpp"
 #include "scene base/EditorUI.hpp"
-#include "scenes/Scene_MainMenu.hpp"
-#include <memory>
 
 class Scene_Editor : public Scene
 {
@@ -52,6 +50,9 @@ private:
     void placeSelectedBrush(const sf::Vector2f& pos);
 
     void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
+
+    void sUpdateBrushes(const sf::Vector2f& pos);
+
     void select(const sf::Vector2f& pos);
     void deSelect();
 

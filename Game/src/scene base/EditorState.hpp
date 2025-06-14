@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Vector2.hpp"
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@ struct EditorState
     std::string tileTexture;
     TileEffect brushType{TileEffect::none};
 
-    std::optional<GameMap::MapTile> selectedTile;
+    std::shared_ptr<GameMap::MapTile> selectedTile;
     sf::Vector2i selectedTilePos;
 
     sf::Angle angle;

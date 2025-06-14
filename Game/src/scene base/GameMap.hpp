@@ -11,7 +11,7 @@
 #include "SFML/Graphics.hpp"
 
 #include <filesystem>
-#include <optional>
+#include <memory>
 #include <vector>
 
 class GameMap
@@ -41,16 +41,18 @@ public:
     void placeTile(const sf::Vector2f& pos,
                    const sf::Angle& angle,
                    const std::string& texName);
-    void removeTile(const sf::Vector2f& worldPos);
+    void clearTile(const sf::Vector2f& worldPos);
 
     void placeBrush(const TileEffect& effect, const sf::Vector2f& worldPos);
     void clearBrushes(const sf::Vector2f& worldPos);
 
-    std::optional<MapTile> getTileAt(const sf::Vector2f& pos);
+    std::shared_ptr<MapTile>& getTile(const sf::Vector2u& pos);
+    std::shared_ptr<MapTile>& getTile(const sf::Vector2f& pos);
+
     sf::Vector2f toWorldPos(const sf::Vector2u& pos);
     sf::Vector2u toGridPos(const sf::Vector2f& pos);
 
-    const std::vector<MapTile>& getTiles() { return m_tiles; }
+    const std::vector<std::shared_ptr<MapTile>>& getTiles() { return m_tiles; }
 
     bool save(const std::filesystem::path& path);
     bool load(const std::filesystem::path& path);
@@ -60,7 +62,6 @@ public:
 
 private:
     void clear();
-    MapTile* accessTile(const sf::Vector2u& pos);
 
     // update the texture that is passed to the game to render
     void updateTexture();
@@ -75,7 +76,8 @@ private:
     // we need mapSize because at some point the map may differ in size to the
     // game world size
     sf::Vector2u m_mapSize;
-    std::vector<MapTile> m_tiles;
+
+    std::vector<std::shared_ptr<MapTile>> m_tiles;
     // this is the string we will use to determine if a save is legitimate
     std::string m_identifier{"G2SAVE"};
 };

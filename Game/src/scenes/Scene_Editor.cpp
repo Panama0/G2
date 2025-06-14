@@ -6,12 +6,13 @@
 #include "imgui.h"
 #include "scene base/Components.hpp"
 #include "scene base/EditorState.hpp"
+#include "scenes/Scene_MainMenu.hpp"
 
 #include <optional>
 
 void Scene_Editor::init()
 {
-    // WARN: temp
+    // NOTE: temp
     m_gridSize = {32, 32};
     m_worldSize = {1280.f, 720.f};
     m_hasGui = true;
@@ -111,8 +112,7 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             m_state.mouseState.state = EditorState::Mouse::leftDown;
         }
-
-        if(action.status() == Action::end)
+        else if(action.status() == Action::end)
         {
             m_state.mouseState.reset();
         }
@@ -123,8 +123,7 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             m_state.mouseState.state = EditorState::Mouse::rightDown;
         }
-
-        if(action.status() == Action::end)
+        else if(action.status() == Action::end)
         {
             m_state.mouseState.reset();
         }
@@ -158,12 +157,12 @@ void Scene_Editor::sDoAction(const Action& action)
 
             for(const auto& tile : m_state.map.getTiles())
             {
-                if(!tile.effects.empty())
+                if(tile && !tile->effects.empty())
                 {
                     // there may be multiple effects, so we loop
-                    for(const auto& brush : tile.effects)
+                    for(const auto& brush : tile->effects)
                     {
-                        spawnBrush(tile, brush);
+                        spawnBrush(*tile, brush);
                     }
                 }
             }
@@ -253,28 +252,15 @@ void Scene_Editor::remove(const sf::Vector2f& pos)
 {
     if(m_state.currentMode == EditorState::Mode::tilePlaceTileRemove)
     {
-        if(m_state.map.getTileAt(pos))
-        {
-            m_state.map.removeTile(pos);
-        }
+        sUpdateBrushes(pos);
+        m_state.map.clearTile(pos);
     }
     else if(m_state.currentMode == EditorState::Mode::brushPlaceBrushRemove)
     {
-        auto tile = m_state.map.getTileAt(pos);
-
-        if(tile)
+        if(m_state.map.getTile(pos))
         {
             m_state.map.clearBrushes(pos);
-
-            for(auto& ent : m_entities.getEntities<cTileEffect, cTransform>())
-            {
-                auto& entityPos = m_entities.getComponent<cTransform>(ent).pos;
-
-                if(m_state.map.getTileAt(entityPos)->pos == tile->pos)
-                {
-                    m_entities.killEntity(ent);
-                }
-            }
+            sUpdateBrushes(pos);
         }
     }
 }
@@ -314,19 +300,15 @@ void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
         return;
     }
 
-    if(!m_state.map.getTileAt(pos))
+    auto tile = m_state.map.getTile(pos);
+    if(tile)
     {
-        std::cerr << "No tile at this location!\n";
-        return;
+        // place on the map
+        m_state.map.placeBrush(m_state.brushType, pos);
+
+        // spawn the entity
+        spawnBrush(*tile, m_state.brushType);
     }
-    // we know that there is a tile at this location now
-    GameMap::MapTile tile = m_state.map.getTileAt(pos).value();
-
-    // place on the map
-    m_state.map.placeBrush(m_state.brushType, pos);
-
-    // spawn the entity
-    spawnBrush(tile, m_state.brushType);
 }
 
 void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
@@ -359,9 +341,22 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
     eff = effect;
 }
 
+void Scene_Editor::sUpdateBrushes(const sf::Vector2f& pos)
+{
+    for(auto& ent : m_entities.getEntities<cTileEffect, cTransform>())
+    {
+        auto& entityPos = m_entities.getComponent<cTransform>(ent).pos;
+
+        if(m_state.map.getTile(entityPos)->pos == m_state.map.toGridPos(pos))
+        {
+            m_entities.killEntity(ent);
+        }
+    }
+}
+
 void Scene_Editor::select(const sf::Vector2f& pos)
 {
-    m_state.selectedTile = m_state.map.getTileAt(pos);
+    m_state.selectedTile = m_state.map.getTile(pos);
     if(m_state.selectedTile)
     {
         m_state.selectedTilePos = m_game->getWindow().coordsToPixel(pos);
@@ -370,4 +365,4 @@ void Scene_Editor::select(const sf::Vector2f& pos)
     }
 }
 
-void Scene_Editor::deSelect() { m_state.selectedTile = std::nullopt; }
+void Scene_Editor::deSelect() { m_state.selectedTile = nullptr; }

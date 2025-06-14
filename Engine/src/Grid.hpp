@@ -31,6 +31,10 @@ public:
     const GridSquare& getGridAt(sf::Vector2f worldPos) const;
     const GridSquare& getGridAt(sf::Vector2u gridPos) const;
 
+    // get the size of the grid in squares
+    const sf::Vector2u& getSize() { return m_gridSize; }
+    const sf::Vector2u& getSquareSize() { return m_squareSize; }
+
     const sf::Texture& getTexture() const
     {
         return m_gridTexture.getTexture();
