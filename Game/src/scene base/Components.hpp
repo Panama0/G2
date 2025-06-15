@@ -4,6 +4,7 @@
 #include "GameMap.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Angle.hpp"
+#include <sys/types.h>
 
 //* surely we can merge animated sprite with this at some point
 struct cSprite
@@ -32,8 +33,6 @@ struct cTransform
 
 struct cInput
 {
-    cInput() = default;
-
     bool up{false};
     bool down{false};
     bool left{false};
@@ -68,5 +67,15 @@ struct cTileEffect
 struct cId
 {
     uint32_t id{};
+};
+
+struct cSpawner
+{
+    // how long between waves
+    int waveTimer{};
+    // how often to spawn enemies during a wave
+    int waveSpawnInterval{};
+
+    uint32_t enemiesToSpawn{};
 };
 

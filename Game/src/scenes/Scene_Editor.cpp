@@ -195,7 +195,7 @@ void Scene_Editor::sRender()
 
     if(m_state.brushesVisible)
     {
-        for(auto& ent : m_entities.getEntities<cSprite, cTileEffect>())
+        for(auto& ent : m_entities.getEntities<cSprite>())
         {
             auto& spr = m_entities.getComponent<cSprite>(ent);
             m_game->getWindow().draw(spr.sprite);

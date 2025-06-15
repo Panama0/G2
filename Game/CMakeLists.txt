@@ -4,6 +4,7 @@ set(SRC_FILES
     src/main.cpp
     src/scenes/Scene_MainMenu.cpp
     src/scenes/Scene_Editor.cpp
+    src/scenes/Scene_Game.cpp
     "src/scene base/GameMap.cpp"
     "src/scene base/EditorUI.cpp"
 )
@@ -11,6 +12,7 @@ set(SRC_FILES
 set(H_FILES
     src/scenes/Scene_MainMenu.hpp
     src/scenes/Scene_Editor.hpp
+    src/scenes/Scene_Game.hpp
     "src/scene base/GameMap.hpp"
     "src/scene base/EditorUI.hpp"
     "src/scene base/EditorState.hpp"
