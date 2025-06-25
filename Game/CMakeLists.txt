@@ -7,6 +7,7 @@ set(SRC_FILES
     src/scenes/Scene_Game.cpp
     "src/scene base/GameMap.cpp"
     "src/scene base/EditorUI.cpp"
+    "src/scene base/Pathfinding.cpp"
 )
 
 set(H_FILES
@@ -16,6 +17,7 @@ set(H_FILES
     "src/scene base/GameMap.hpp"
     "src/scene base/EditorUI.hpp"
     "src/scene base/EditorState.hpp"
+    "src/scene base/Pathfinding.hpp"
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${H_FILES})

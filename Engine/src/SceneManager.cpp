@@ -17,7 +17,7 @@ void SceneManager::start(std::shared_ptr<Scene> scene)
 void SceneManager::update()
 {
     // delete the old scene
-    if(m_currentScene->hasEnded())
+    if(m_currentScene && m_currentScene->hasEnded())
     {
         // run closing code
         m_currentScene->onExit();

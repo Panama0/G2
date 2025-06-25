@@ -3,7 +3,7 @@
 
 int main()
 {
-        GameEngine g;
-        g.startScene(std::make_unique<Scene_Game>(&g));
-        g.run();
+    GameEngine g;
+    g.startScene(std::make_unique<Scene_Game>(&g));
+    g.run();
 }

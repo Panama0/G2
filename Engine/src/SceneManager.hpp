@@ -16,6 +16,6 @@ public:
 
 private:
     std::vector<std::shared_ptr<Scene>> m_scenes;
-    Scene* m_currentScene;
+    Scene* m_currentScene{};
     std::shared_ptr<Scene> m_nextScene;
 };

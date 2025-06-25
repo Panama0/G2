@@ -4,7 +4,9 @@
 #include "GameMap.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Angle.hpp"
+#include "SFML/System/Vector2.hpp"
 #include <sys/types.h>
+#include <vector>
 
 //* surely we can merge animated sprite with this at some point
 struct cSprite
@@ -77,5 +79,15 @@ struct cSpawner
     int waveSpawnInterval{};
 
     uint32_t enemiesToSpawn{};
+};
+
+struct cPathfinder
+{
+    std::vector<sf::Vector2f>waypoints;
+};
+
+struct cTarget
+{
+    float health{};
 };
 
