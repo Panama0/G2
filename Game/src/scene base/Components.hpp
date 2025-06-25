@@ -17,7 +17,7 @@ struct cSprite
     sf::Sprite sprite;
 
 private:
-    static inline sf::Image m_defaultImg{sf::Vector2u{100, 400},
+    static inline sf::Image m_defaultImg{Vec2u{100, 400},
                                          sf::Color::Magenta};
     static inline sf::Texture m_defaultTexture{m_defaultImg};
 };
@@ -25,11 +25,11 @@ private:
 struct cTransform
 {
     cTransform() = default;
-    cTransform(sf::Vector2f p, sf::Vector2f v = {0.f, 0.f}) : pos{p}, vel{v} {}
-    sf::Vector2f pos;
-    sf::Vector2f prevPos;
-    sf::Vector2f vel;
-    sf::Vector2f scale{1.f, 1.f};
+    cTransform(Vec2f p, Vec2f v = {0.f, 0.f}) : pos{p}, vel{v} {}
+    Vec2f pos;
+    Vec2f prevPos;
+    Vec2f vel;
+    Vec2f scale{1.f, 1.f};
     sf::Angle angle;
 };
 
@@ -44,9 +44,9 @@ struct cInput
 struct cBoundingBox
 {
     cBoundingBox() = default;
-    cBoundingBox(sf::Vector2f d) : dimensions{d}, halfDimensions{d / 2.f} {}
-    sf::Vector2f dimensions;
-    sf::Vector2f halfDimensions;
+    cBoundingBox(const Vec2f& d) : dimensions{d}, halfDimensions{d / 2.f} {}
+    Vec2f dimensions;
+    Vec2f halfDimensions;
 };
 
 struct cAnimatedSprite
@@ -83,7 +83,7 @@ struct cSpawner
 
 struct cPathfinder
 {
-    std::vector<sf::Vector2f>waypoints;
+    std::vector<Vec2f>waypoints;
 };
 
 struct cTarget

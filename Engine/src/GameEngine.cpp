@@ -1,7 +1,6 @@
 #include "GameEngine.hpp"
 #include "Action.hpp"
 #include "Buttons.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "SFML/Window/Event.hpp"
 #include "Scene.hpp"
 
@@ -65,7 +64,7 @@ void GameEngine::handleInput()
         // resize view when window changes size
         if(const auto& resized = event->getIf<sf::Event::Resized>())
         {
-            m_window.updateView(static_cast<sf::Vector2f>(resized->size));
+            m_window.updateView(static_cast<Vec2f>(resized->size));
         }
 
         // main input handling
@@ -83,18 +82,18 @@ void GameEngine::handleInput()
            = event->getIf<sf::Event::MouseButtonPressed>())
         {
             auto button = Buttons::toButton(mousePressed->button);
-            processIOEvent(button, mousePressed->position, Action::start);
+            processIOEvent(button, static_cast<Vec2i>(mousePressed->position), Action::start);
         }
         if(const auto& mouseReleased
            = event->getIf<sf::Event::MouseButtonReleased>())
         {
             auto button = Buttons::toButton(mouseReleased->button);
-            processIOEvent(button, mouseReleased->position, Action::end);
+            processIOEvent(button, static_cast<Vec2i>(mouseReleased->position), Action::end);
         }
     }
 }
 void GameEngine::processIOEvent(Buttons::Button button,
-                                sf::Vector2i mousePos,
+                                Vec2i mousePos,
                                 Action::Status status)
 {
     const auto& actionMap = currentScene()->getActions();

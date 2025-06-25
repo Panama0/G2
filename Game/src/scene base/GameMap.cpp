@@ -14,9 +14,7 @@
 #include <string>
 #include <vector>
 
-void GameMap::init(const sf::Vector2u& mapSize,
-                   const sf::Vector2u& tileSize,
-                   Assets* assets)
+void GameMap::init(const Vec2u& mapSize, const Vec2u& tileSize, Assets* assets)
 {
     m_grid.init(mapSize, tileSize);
     m_assets = assets;
@@ -28,7 +26,7 @@ void GameMap::init(const sf::Vector2u& mapSize,
     updateTexture();
 }
 
-void GameMap::placeTile(const sf::Vector2f& pos,
+void GameMap::placeTile(const Vec2f& pos,
                         const sf::Angle& angle,
                         const std::string& texName)
 {
@@ -39,39 +37,38 @@ void GameMap::placeTile(const sf::Vector2f& pos,
     updateTexture();
 }
 
-void GameMap::clearTile(const sf::Vector2f& worldPos)
+void GameMap::clearTile(const Vec2f& worldPos)
 {
     getTile(worldPos) = nullptr;
     updateTexture();
 }
 
-void GameMap::placeBrush(const TileEffect& effect,
-                         const sf::Vector2f& worldPos)
+void GameMap::placeBrush(const TileEffect& effect, const Vec2f& worldPos)
 {
     getTile(worldPos)->effects.push_back(effect);
 }
 
-void GameMap::clearBrushes(const sf::Vector2f& worldPos)
+void GameMap::clearBrushes(const Vec2f& worldPos)
 {
     getTile(worldPos)->effects.clear();
 }
 
-sf::Vector2f GameMap::toWorldPos(const sf::Vector2u& pos)
+Vec2f GameMap::toWorldPos(const Vec2u& pos)
 {
     return m_grid.getGridAt(pos).midPos;
 }
 
-sf::Vector2u GameMap::toGridPos(const sf::Vector2f& pos)
+Vec2u GameMap::toGridPos(const Vec2f& pos)
 {
     return m_grid.getGridAt(pos).gridPos;
 }
 
-std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const sf::Vector2u& pos)
+std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const Vec2u& pos)
 {
     return m_tiles[pos.y * m_grid.getSize().x + pos.x];
 }
 
-std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const sf::Vector2f& pos)
+std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const Vec2f& pos)
 {
     return getTile(toGridPos(pos));
 }
@@ -146,8 +143,8 @@ bool GameMap::save(const std::filesystem::path& path)
 bool GameMap::load(const std::filesystem::path& path)
 {
     std::vector<std::shared_ptr<MapTile>> mapTiles;
-    sf::Vector2u mapSize;
-    sf::Vector2u squareSize;
+    Vec2u mapSize;
+    Vec2u squareSize;
 
     sff::Parser file{path};
 
@@ -161,6 +158,8 @@ bool GameMap::load(const std::filesystem::path& path)
     auto metaData = data->findChild("MetaData");
     if(metaData)
     {
+        // TODO: rewrite this with new vector conversions
+
         std::string ident = metaData->getData("Identifier");
         std::pair<int, int> worldSizeData = metaData->getData("WorldSize");
         std::pair<int, int> squareSizeData = metaData->getData("SquareSize");
@@ -190,8 +189,8 @@ bool GameMap::load(const std::filesystem::path& path)
             std::pair<int, int> pos{tileNode->getData("Position")};
             float rotation{tileNode->getData("Rotation")};
 
-            sf::Vector2u tilePosition{static_cast<uint32_t>(pos.first),
-                                      static_cast<uint32_t>(pos.second)};
+            Vec2u tilePosition{static_cast<uint32_t>(pos.first),
+                               static_cast<uint32_t>(pos.second)};
 
             auto mapTile = std::make_shared<MapTile>(
                 tilePosition, sf::radians(rotation), tex);

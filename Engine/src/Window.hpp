@@ -1,8 +1,8 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "SFML/Window/Mouse.hpp"
+#include "Vec2.hpp"
 
 class Window
 {
@@ -15,17 +15,17 @@ public:
     void draw(sf::Drawable& drawable) { m_window.draw(drawable); }
     void render() { m_window.display(); }
 
-    void updateView(sf::Vector2f size);
+    void updateView(Vec2f size);
     const sf::View& getView() { return m_view; }
-    const sf::Vector2u& getSize() { return m_renderSpace; }
+    const Vec2u& getSize() { return m_renderSpace; }
     std::optional<sf::Event> getEvent() { return m_window.pollEvent(); }
     const sf::RenderWindow& getWindow() { return m_window; }
-    sf::Vector2i getMousePos() { return sf::Mouse::getPosition(m_window); }
+    Vec2i getMousePos() { return static_cast<Vec2i>(sf::Mouse::getPosition(m_window)); }
 
-    sf::Vector2f pixelToCoords(const sf::Vector2i& pixel);
-    sf::Vector2i coordsToPixel(const sf::Vector2f& point);
+    Vec2f pixelToCoords(const Vec2i& pixel);
+    Vec2i coordsToPixel(const Vec2f& point);
 
-    bool isInsideView(const sf::Vector2f& pos);
+    bool isInsideView(const Vec2f& pos);
 
     void toggleFullscreen(bool mode);
     void toggleFullscreen();
@@ -34,7 +34,7 @@ private:
     sf::RenderWindow m_window;
     sf::View m_view;
 
-    sf::Vector2u m_renderSpace{1280, 720};
+    Vec2u m_renderSpace{1280, 720};
 
     bool m_isFullscreen{false};
 };

@@ -1,4 +1,5 @@
 #include "scenes/Scene_MainMenu.hpp"
+#include "Vec2.hpp"
 #include "scene base/Components.hpp"
 #include "scenes/Scene_Editor.hpp"
 
@@ -45,8 +46,7 @@ void Scene_MainMenu::sDoAction(const Action& action)
     case ActionTypes::launchEditor:
         if(action.status() == Action::end)
         {
-            m_game->startScene(
-                std::make_unique<Scene_Editor>(m_game));
+            m_game->startScene(std::make_unique<Scene_Editor>(m_game));
         }
         break;
     }
@@ -119,41 +119,31 @@ void Scene_MainMenu::init()
 
     m_view = m_game->getWindow().getView();
 
-
     spawnMainMenu();
 }
 
 void Scene_MainMenu::spawnMainMenu()
 {
     float offsetY{m_view.getSize().y / 10.f};
-    // sf::Vector2f startPos{m_globalGrid.getGridAt(m_view.getCenter()).worldPos};
-    // spawnButton("Start", "Start", startPos);
 
+    Vec2f center{m_view.getCenter()};
+    spawnButton("Map", "Start", center + Vec2f{0.f, offsetY * 2.f});
+
+    auto sizeSave = static_cast<Vec2f>(m_assets.getTexture("Save").getSize());
+    auto sizeLoad = static_cast<Vec2f>(m_assets.getTexture("Load").getSize());
     spawnButton(
-        "Map", "Start", m_view.getCenter() + sf::Vector2f{0.f, offsetY * 2.f});
-
-    const auto& sizeSave
-        = static_cast<sf::Vector2f>(m_assets.getTexture("Save").getSize());
-    const auto& sizeLoad
-        = static_cast<sf::Vector2f>(m_assets.getTexture("Load").getSize());
-    spawnButton("Save",
-                "Save",
-                m_view.getCenter()
-                    + sf::Vector2f{-sizeSave.x * 3.f, offsetY * 4.f});
-    spawnButton("Load",
-                "Load",
-                m_view.getCenter()
-                    + sf::Vector2f{sizeLoad.x * 3.f, offsetY * 4.f});
+        "Save", "Save", center + Vec2f{-sizeSave.x * 3.f, offsetY * 4.f});
+    spawnButton(
+        "Load", "Load", center + Vec2f{sizeLoad.x * 3.f, offsetY * 4.f});
 
     const auto& sizeEditor
-        = static_cast<sf::Vector2f>(m_assets.getTexture("Editor").getSize());
-    spawnButton(
-        "Editor", "Editor", sf::Vector2f{sizeEditor.x * 2.f, offsetY * 9.f});
+        = static_cast<Vec2f>(m_assets.getTexture("Editor").getSize());
+    spawnButton("Editor", "Editor", Vec2f{sizeEditor.x * 2.f, offsetY * 9.f});
 }
 
 void Scene_MainMenu::spawnButton(const std::string& name,
                                  std::string_view tex,
-                                 sf::Vector2f worldPos)
+                                 Vec2f worldPos)
 {
     auto ent = m_entities.addEntity();
     auto& spr = m_entities.addComponent<cSprite>(ent).sprite;

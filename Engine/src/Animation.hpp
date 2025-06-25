@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "Vec2.hpp"
 
 #include <iostream>
 
@@ -22,7 +23,7 @@ public:
     void updateSprite();
     void addSprite(sf::Sprite* sprite);
     bool hasEnded();
-    sf::Vector2u getSize() { return m_size; }
+    Vec2u getSize() { return m_size; }
     bool isValid{false};
 
 private:
@@ -31,5 +32,5 @@ private:
     uint32_t m_framecount{};
     uint32_t m_currentGameFrame{};
     uint32_t m_interval{};
-    sf::Vector2u m_size{};
+    Vec2u m_size{};
 };

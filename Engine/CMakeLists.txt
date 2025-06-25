@@ -92,3 +92,23 @@ if(MSVC)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+# Tests
+option(BUILD_TESTS "Build the tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest
+        GIT_TAG v1.17.0
+    )
+    FetchContent_MakeAvailable(googletest)
+
+    set(TEST_FILES test/vec2.cpp)
+
+    add_executable(${PROJECT_NAME}_Test ${TEST_FILES})
+    target_link_libraries(${PROJECT_NAME}_Test  ${PROJECT_NAME} GTest::gtest_main)
+    add_test(NAME ${PROJECT_NAME}_Test COMMAND ${PROJECT_NAME}_Test)
+
+endif()

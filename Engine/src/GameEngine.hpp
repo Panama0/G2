@@ -29,7 +29,7 @@ public:
 
 private:
     void init();
-    void processIOEvent(Buttons::Button button, sf::Vector2i mousePos, Action::Status status);
+    void processIOEvent(Buttons::Button button, Vec2i mousePos, Action::Status status);
 
     Scene* currentScene();
     SceneManager m_scenes;

@@ -16,8 +16,8 @@ void Animation::updateSprite()
                               % m_framecount};
 
     sf::IntRect renderArea{
-        sf::Vector2i{static_cast<int>(currentAnimFrame * m_size.x), 0},
-        static_cast<sf::Vector2i>(m_size)};
+        Vec2i{static_cast<int>(currentAnimFrame * m_size.x), 0},
+        static_cast<Vec2i>(m_size)};
     m_sprite->setTextureRect(renderArea);
 
     m_currentGameFrame++;

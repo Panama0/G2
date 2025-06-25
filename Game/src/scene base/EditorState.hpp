@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GameMap.hpp"
-#include "SFML/Graphics.hpp"
-#include "SFML/System/Vector2.hpp"
+#include "SFML/System/Angle.hpp"
+#include "Vec2.hpp"
 
 #include <memory>
 #include <optional>
@@ -32,7 +32,7 @@ struct EditorState
         };
 
         State state{none};
-        std::optional<sf::Vector2u> lastPlaced;
+        std::optional<Vec2u> lastPlaced;
 
         void reset()
         {
@@ -48,7 +48,7 @@ struct EditorState
     TileEffect brushType{TileEffect::none};
 
     std::shared_ptr<GameMap::MapTile> selectedTile;
-    sf::Vector2i selectedTilePos;
+    Vec2f selectedTilePos;
 
     sf::Angle angle;
     GameMap map;

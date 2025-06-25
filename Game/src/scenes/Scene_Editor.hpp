@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SFML/System/Vector2.hpp"
 #include "Scene.hpp"
+#include "Vec2.hpp"
 #include "scene base/EditorState.hpp"
 #include "scene base/EditorUI.hpp"
 
@@ -43,17 +43,17 @@ private:
     // place/remove tiles if the mouse is down
     void handleMouse();
 
-    void place(const sf::Vector2f& pos);
-    void remove(const sf::Vector2f& pos);
+    void place(const Vec2f& pos);
+    void remove(const Vec2f& pos);
 
-    void placeSelectedTile(const sf::Vector2f& pos);
-    void placeSelectedBrush(const sf::Vector2f& pos);
+    void placeSelectedTile(const Vec2f& pos);
+    void placeSelectedBrush(const Vec2f& pos);
 
     void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
 
-    void sUpdateBrushes(const sf::Vector2f& pos);
+    void sUpdateBrushes(const Vec2f& pos);
 
-    void select(const sf::Vector2f& pos);
+    void select(const Vec2f& pos);
     void deSelect();
 
     std::unordered_map<TileEffect::Effects, std::string_view> m_effectTextures;
@@ -61,6 +61,6 @@ private:
     EditorState m_state;
     EditorUI m_editorUI{this};
 
-    sf::Vector2f m_worldSize;
-    sf::Vector2u m_gridSize;
+    Vec2f m_worldSize;
+    Vec2u m_gridSize;
 };

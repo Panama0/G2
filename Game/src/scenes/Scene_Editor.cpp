@@ -7,6 +7,7 @@
 #include "scene base/Components.hpp"
 #include "scene base/EditorState.hpp"
 #include "scenes/Scene_MainMenu.hpp"
+#include "Vec2.hpp"
 
 #include <optional>
 
@@ -18,7 +19,7 @@ void Scene_Editor::init()
     m_hasGui = true;
 
     m_state.map.init(
-        static_cast<sf::Vector2u>(m_worldSize), m_gridSize, &m_assets);
+        static_cast<Vec2u>(m_worldSize), m_gridSize, &m_assets);
 
     registerAction(Buttons::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(Buttons::G, static_cast<int>(ActionTypes::toggleGrid));
@@ -248,7 +249,7 @@ void Scene_Editor::handleMouse()
     }
 }
 
-void Scene_Editor::remove(const sf::Vector2f& pos)
+void Scene_Editor::remove(const Vec2f& pos)
 {
     if(m_state.currentMode == EditorState::Mode::tilePlaceTileRemove)
     {
@@ -265,7 +266,7 @@ void Scene_Editor::remove(const sf::Vector2f& pos)
     }
 }
 
-void Scene_Editor::place(const sf::Vector2f& pos)
+void Scene_Editor::place(const Vec2f& pos)
 {
     switch(m_state.currentMode)
     {
@@ -283,7 +284,7 @@ void Scene_Editor::place(const sf::Vector2f& pos)
     }
 }
 
-void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
+void Scene_Editor::placeSelectedTile(const Vec2f& pos)
 {
     if(!m_game->getWindow().isInsideView(pos))
     {
@@ -293,7 +294,7 @@ void Scene_Editor::placeSelectedTile(const sf::Vector2f& pos)
     m_state.map.placeTile(pos, m_state.angle, m_state.tileTexture);
 }
 
-void Scene_Editor::placeSelectedBrush(const sf::Vector2f& pos)
+void Scene_Editor::placeSelectedBrush(const Vec2f& pos)
 {
     if(!m_game->getWindow().isInsideView(pos))
     {
@@ -341,7 +342,7 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
     eff = effect;
 }
 
-void Scene_Editor::sUpdateBrushes(const sf::Vector2f& pos)
+void Scene_Editor::sUpdateBrushes(const Vec2f& pos)
 {
     for(auto& ent : m_entities.getEntities<cTileEffect, cTransform>())
     {
@@ -354,12 +355,12 @@ void Scene_Editor::sUpdateBrushes(const sf::Vector2f& pos)
     }
 }
 
-void Scene_Editor::select(const sf::Vector2f& pos)
+void Scene_Editor::select(const Vec2f& pos)
 {
     m_state.selectedTile = m_state.map.getTile(pos);
     if(m_state.selectedTile)
     {
-        m_state.selectedTilePos = m_game->getWindow().coordsToPixel(pos);
+        m_state.selectedTilePos = static_cast<Vec2f>(m_game->getWindow().coordsToPixel(pos));
         // offset to the right edge of the tile
         m_state.selectedTilePos.x += m_gridSize.x;
     }

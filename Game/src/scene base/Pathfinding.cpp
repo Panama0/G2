@@ -1,12 +1,10 @@
 #pragma once
 
 #include "scene base/Pathfinding.hpp"
-#include "SFML/System/Vector2.hpp"
 
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <iostream>
 #include <queue>
 #include <unordered_set>
 #include <vector>
@@ -14,9 +12,9 @@
 struct Node
 {
     Node() = default;
-    Node(const sf::Vector2i& _pos) : pos{_pos} {}
+    Node(const Vec2i& _pos) : pos{_pos} {}
 
-    sf::Vector2i pos;
+    Vec2i pos;
     Node* parent{};
     float gCost{0.f};
     float hCost{0.f};
@@ -39,7 +37,7 @@ struct CompareNodes
 
 struct VecHash
 {
-    size_t operator()(const sf::Vector2i& vec) const
+    size_t operator()(const Vec2i& vec) const
     {
         return std::hash<int>{}(vec.x + vec.y);
     }
@@ -47,7 +45,7 @@ struct VecHash
 
 // Heuristics
 
-float diagonal(const sf::Vector2i& start, const sf::Vector2i& end)
+float diagonal(const Vec2i& start, const Vec2i& end)
 {
     // length of each node
     float D = 1.f;
@@ -60,7 +58,7 @@ float diagonal(const sf::Vector2i& start, const sf::Vector2i& end)
     return D * (dx + dy) + (D2 - 2 * D) * std::min(dx, dy);
 }
 
-Node* getNode(const sf::Vector2i& pos, NodeList& nodes)
+Node* getNode(const Vec2i& pos, NodeList& nodes)
 {
     if(nodes.find(pos) == nodes.end())
     {
@@ -69,20 +67,20 @@ Node* getNode(const sf::Vector2i& pos, NodeList& nodes)
     return nodes[pos].get();
 }
 
-bool isDiagonal(const sf::Vector2i& a, const sf::Vector2i& b)
+bool isDiagonal(const Vec2i& a, const Vec2i& b)
 {
     int dx = std::abs(a.x - b.x);
     int dy = std::abs(a.y - b.y);
     return dx == 1 && dy == 1;
 }
 
-std::vector<sf::Vector2i> printPath(Node* node) {}
+std::vector<Vec2i> printPath(Node* node) {}
 
-std::vector<sf::Vector2i> findPath(
-    const sf::Vector2i& start,
-    const sf::Vector2i& end,
-    const std::function<bool(const sf::Vector2i& pos)>& pathable,
-    const std::function<float(const sf::Vector2i& pos)>& getWeight)
+std::vector<Vec2i> findPath(
+    const Vec2i& start,
+    const Vec2i& end,
+    const std::function<bool(const Vec2i& pos)>& pathable,
+    const std::function<float(const Vec2i& pos)>& getWeight)
 {
     std::priority_queue<Node*, std::vector<Node*>, CompareNodes> openList;
 
@@ -93,15 +91,15 @@ std::vector<sf::Vector2i> findPath(
 
     openList.push(getNode(start, nodeList));
 
-    constexpr std::array<sf::Vector2i, 8> directions = {
-        sf::Vector2i{1, 0},  // right
-        sf::Vector2i{-1, 0}, // left
-        sf::Vector2i{0, 1},  // down
-        sf::Vector2i{0, -1}, // up
-        sf::Vector2i{1, 1},  // down-right
-        sf::Vector2i{-1, 1}, // down-left
-        sf::Vector2i{1, -1}, // up-right
-        sf::Vector2i{-1, -1} // up-left
+    constexpr std::array<Vec2i, 8> directions = {
+        Vec2i{1, 0},  // right
+        Vec2i{-1, 0}, // left
+        Vec2i{0, 1},  // down
+        Vec2i{0, -1}, // up
+        Vec2i{1, 1},  // down-right
+        Vec2i{-1, 1}, // down-left
+        Vec2i{1, -1}, // up-right
+        Vec2i{-1, -1} // up-left
     };
 
     while(!openList.empty())
@@ -112,7 +110,7 @@ std::vector<sf::Vector2i> findPath(
         if(currentNode->pos == end)
         {
             // we found the end
-            std::vector<sf::Vector2i> path;
+            std::vector<Vec2i> path;
             Node* current{currentNode};
 
             while(current)

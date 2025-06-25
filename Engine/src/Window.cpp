@@ -12,7 +12,7 @@ void Window::init()
     m_window.create(sf::VideoMode{m_renderSpace}, "G2", state);
     m_view = m_window.getView();
 
-    updateView(static_cast<sf::Vector2f>(m_renderSpace));
+    updateView(static_cast<Vec2f>(m_renderSpace));
     m_window.setFramerateLimit(60u);
     if(!ImGui::SFML::Init(m_window))
     {
@@ -20,13 +20,13 @@ void Window::init()
     }
 }
 
-void Window::updateView(sf::Vector2f size)
+void Window::updateView(Vec2f size)
 {
     float desiredRatio{size.x / size.y};
     float currentRatio{m_view.getSize().x / m_view.getSize().y};
 
-    sf::Vector2f newSize{1.f, 1.f};
-    sf::Vector2f newPos{0.f, 0.f};
+    Vec2f newSize{1.f, 1.f};
+    Vec2f newPos{0.f, 0.f};
 
     bool horizontalSpacing{true};
     if(desiredRatio < currentRatio)
@@ -49,17 +49,17 @@ void Window::updateView(sf::Vector2f size)
     m_window.setView(m_view);
 }
 
-sf::Vector2f Window::pixelToCoords(const sf::Vector2i& pixel)
+Vec2f Window::pixelToCoords(const Vec2i& pixel)
 {
-    return m_window.mapPixelToCoords(pixel, m_view);
+    return static_cast<Vec2f>(m_window.mapPixelToCoords(pixel, m_view));
 }
 
-sf::Vector2i Window::coordsToPixel(const sf::Vector2f& point)
+Vec2i Window::coordsToPixel(const Vec2f& point)
 {
-    return m_window.mapCoordsToPixel(point, m_view);
+    return static_cast<Vec2i>(m_window.mapCoordsToPixel(point, m_view));
 }
 
-bool Window::isInsideView(const sf::Vector2f& pos)
+bool Window::isInsideView(const Vec2f& pos)
 {
     auto viewSize = m_view.getSize();
     auto viewCenter = m_view.getCenter();

@@ -2,14 +2,18 @@
 #include "Action.hpp"
 #include "Buttons.hpp"
 #include "SFML/System/Angle.hpp"
-#include "SFML/System/Vector2.hpp"
+#include "Vec2.hpp"
 #include "scene base/Components.hpp"
+#include "scene base/GameMap.hpp"
 #include "scene base/TileEffect.hpp"
 #include "scenes/Scene_MainMenu.hpp"
 
+#include "scene base/Pathfinding.hpp"
+
 #include <algorithm>
-#include <iostream>
+#include <functional>
 #include <memory>
+#include <vector>
 
 void Scene_Game::init()
 {
@@ -26,6 +30,7 @@ void Scene_Game::init()
     registerTexture("Spawner", "spawner.png");
     registerTexture("Enemy", "enemy.png");
     registerTexture("Target", "target.png");
+    loadLevel();
 }
 
 void Scene_Game::onExit()
@@ -35,6 +40,8 @@ void Scene_Game::onExit()
 
 void Scene_Game::update()
 {
+    sPathfinding();
+
     sMovement();
     sSprites();
 
@@ -102,7 +109,6 @@ void Scene_Game::sDoAction(const Action& action)
     case ActionTypes::loadLevel:
         if(action.status() == Action::start)
         {
-
             loadLevel();
         }
         break;
@@ -128,7 +134,7 @@ void Scene_Game::sRender()
 
 void Scene_Game::sSpawners()
 {
-    //WARN: debug code
+    // WARN: debug code
     for(auto& ent : m_entities.getEntities<cSpawner>())
     {
         auto& spawner = m_entities.getComponent<cSpawner>(ent);
@@ -157,6 +163,50 @@ void Scene_Game::sSpawners()
         else
         {
             spawner.waveTimer--;
+        }
+    }
+}
+
+void Scene_Game::sPathfinding()
+{
+    auto& tiles = m_map.getTiles();
+
+    for(auto& ent : m_entities.getEntities<cPathfinder, cTransform>())
+    {
+        // auto& startPos = m_entities.getComponent<cTransform>(ent).pos;
+        Vec2i endPos{20, 16};
+        Vec2i startPos{0, 0};
+
+        auto isPathable
+            = [&](const Vec2i& pos) { return pos.x > 0 && pos.y > 0; };
+        auto getWeight = [&](const Vec2i& pos)
+        {
+            if(m_map.getTile(static_cast<Vec2u>(pos))->textureName
+               == "tile7")
+            {
+                return 1.f;
+            }
+            else
+            {
+                return 10.f;
+            }
+        };
+        // find path
+        auto path = findPath(static_cast<Vec2i>(startPos),
+                             static_cast<Vec2i>(endPos),
+                             isPathable,
+                             getWeight);
+
+        // DEBUG
+
+        for(auto& player : m_entities.getEntities<cInput>())
+        {
+            m_entities.killEntity(player);
+        }
+        for(auto& waypoint : path)
+        {
+            auto gridPos = static_cast<Vec2u>(waypoint);
+            spawnPlayer(m_map.toWorldPos(gridPos));
         }
     }
 }
@@ -224,7 +274,7 @@ void Scene_Game::sMovement()
     }
 }
 
-void Scene_Game::spawnPlayer(const sf::Vector2f& pos)
+void Scene_Game::spawnPlayer(const Vec2f& pos)
 {
     auto ent = m_entities.addEntity();
     m_player = ent;
@@ -240,7 +290,7 @@ void Scene_Game::spawnPlayer(const sf::Vector2f& pos)
     sprite.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
 }
 
-void Scene_Game::spawnSpawner(const sf::Vector2f& pos)
+void Scene_Game::spawnSpawner(const Vec2f& pos)
 {
     auto ent = m_entities.addEntity();
 
@@ -259,12 +309,13 @@ void Scene_Game::spawnSpawner(const sf::Vector2f& pos)
     spawner.waveTimer = 300;
 }
 
-void Scene_Game::spawnEnemy(const sf::Vector2f& pos)
+void Scene_Game::spawnEnemy(const Vec2f& pos)
 {
     auto ent = m_entities.addEntity();
 
     auto& transform = m_entities.addComponent<cTransform>(ent);
     auto& sprite = m_entities.addComponent<cSprite>(ent).sprite;
+    m_entities.addComponent<cPathfinder>(ent);
 
     transform.pos = pos;
     transform.vel.x = 5;
@@ -274,7 +325,7 @@ void Scene_Game::spawnEnemy(const sf::Vector2f& pos)
     sprite.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
 }
 
-void Scene_Game::spawnTarget(const sf::Vector2f& pos) {}
+void Scene_Game::spawnTarget(const Vec2f& pos) {}
 
 void Scene_Game::loadLevel()
 {
@@ -303,4 +354,3 @@ void Scene_Game::loadLevel()
         }
     }
 }
-

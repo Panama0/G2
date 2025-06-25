@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Defines.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "Scene.hpp"
+#include "Vec2.hpp"
 #include "scene base/GameMap.hpp"
 
 class Scene_Game : public Scene
@@ -29,17 +29,16 @@ public:
     void sRender() override;
 
 private:
-
     void sSpawners();
     void sPathfinding();
     void sSprites();
     void sMovement();
     void sCollision();
 
-    void spawnPlayer(const sf::Vector2f& pos);
-    void spawnSpawner(const sf::Vector2f& pos);
-    void spawnEnemy(const sf::Vector2f& pos);
-    void spawnTarget(const sf::Vector2f& pos);
+    void spawnPlayer(const Vec2f& pos);
+    void spawnSpawner(const Vec2f& pos);
+    void spawnEnemy(const Vec2f& pos);
+    void spawnTarget(const Vec2f& pos);
 
     void loadLevel();
 
@@ -47,4 +46,3 @@ private:
 
     GameMap m_map;
 };
-
