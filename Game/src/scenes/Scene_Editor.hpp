@@ -4,6 +4,7 @@
 #include "Vec2.hpp"
 #include "scene base/EditorState.hpp"
 #include "scene base/EditorUI.hpp"
+#include "scene base/TileEffect.hpp"
 
 class Scene_Editor : public Scene
 {
@@ -49,7 +50,7 @@ private:
     void placeSelectedTile(const Vec2f& pos);
     void placeSelectedBrush(const Vec2f& pos);
 
-    void spawnBrush(const GameMap::MapTile& tile, const TileEffect& effect);
+    void spawnBrush(const GameMap::MapTile& tile, TileEffect::Effects effect);
 
     void sUpdateBrushes(const Vec2f& pos);
 
@@ -62,5 +63,5 @@ private:
     EditorUI m_editorUI{this};
 
     Vec2f m_worldSize;
-    Vec2u m_gridSize;
+    Vec2i m_gridSize;
 };

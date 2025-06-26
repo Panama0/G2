@@ -5,13 +5,14 @@
 #include "SFML/Graphics/RenderTexture.hpp"
 #include "SFML/Graphics/Texture.hpp"
 #include "SFML/System/Angle.hpp"
-#include "Vec2.hpp"
 #include "TileEffect.hpp"
+#include "Vec2.hpp"
 
 #include "SFML/Graphics.hpp"
 
 #include <filesystem>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 class GameMap
@@ -20,37 +21,44 @@ public:
     struct MapTile
     {
         MapTile() = default;
-        MapTile(const Vec2u& p,
-                const sf::Angle& r,
-                std::string_view texName)
+        MapTile(const Vec2i& p, const sf::Angle& r, std::string_view texName)
             : pos{p}, rotation{r}, textureName{texName}
         {
         }
 
-        Vec2u pos;
+        bool hasEffect(TileEffect::Effects effect)
+        {
+            return staticEffects.find(effect) != staticEffects.end();
+        }
+
+        Vec2i pos;
 
         sf::Angle rotation;
         std::string textureName;
-        std::vector<TileEffect> effects;
+        std::unordered_set<TileEffect::Effects> staticEffects;
     };
 
-    void init(const Vec2u& mapSize,
-              const Vec2u& tileSize,
-              Assets* assets);
+    void init(const Vec2i& mapSize, const Vec2i& tileSize, Assets* assets);
 
     void placeTile(const Vec2f& pos,
                    const sf::Angle& angle,
                    const std::string& texName);
     void clearTile(const Vec2f& worldPos);
 
-    void placeBrush(const TileEffect& effect, const Vec2f& worldPos);
+    // add a static effect to a location
+    void placeBrush(const TileEffect::Effects& effect, const Vec2f& worldPos);
     void clearBrushes(const Vec2f& worldPos);
 
-    std::shared_ptr<MapTile>& getTile(const Vec2u& pos);
+    std::shared_ptr<MapTile>& getTile(const Vec2i& pos);
     std::shared_ptr<MapTile>& getTile(const Vec2f& pos);
 
-    Vec2f toWorldPos(const Vec2u& pos);
-    Vec2u toGridPos(const Vec2f& pos);
+    const Vec2i& getGridSize() { return m_grid.getSize(); }
+
+    Vec2f toWorldPos(const Vec2i& pos);
+    Vec2i toGridPos(const Vec2f& pos);
+
+    bool inBounds(const Vec2i& pos);
+    bool inBounds(const Vec2f& pos);
 
     const std::vector<std::shared_ptr<MapTile>>& getTiles() { return m_tiles; }
 
@@ -59,10 +67,9 @@ public:
 
     const sf::Texture& getTexture() { return m_renderTexture.getTexture(); }
     void toggleGrid();
-
-private:
     void clear();
 
+private:
     // update the texture that is passed to the game to render
     void updateTexture();
 
@@ -75,7 +82,7 @@ private:
 
     // we need mapSize because at some point the map may differ in size to the
     // game world size
-    Vec2u m_mapSize;
+    Vec2i m_mapSize;
 
     std::vector<std::shared_ptr<MapTile>> m_tiles;
     // this is the string we will use to determine if a save is legitimate

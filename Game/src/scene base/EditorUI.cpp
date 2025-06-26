@@ -170,7 +170,7 @@ void EditorUI::drawTilesUI()
                     auto name = TileEffect::toString(effect);
 
                     if(ImGui::Selectable(name.data(),
-                                         effect == m_state->brushType.type))
+                                         effect == m_state->brushType))
                     {
                         m_state->brushType = effect;
                     }
@@ -373,16 +373,16 @@ void EditorUI::drawSelectedInfo()
         ImGui::Text("Position: %u, %u", tile->pos.x, tile->pos.y);
         ImGui::Text("Rotation: %.2f", tile->rotation.asDegrees());
 
-        if(!tile->effects.empty())
+        if(!tile->staticEffects.empty())
         {
             ImGui::SeparatorText("Effects");
 
             int count{1};
-            for(auto& effect : tile->effects)
+            for(auto& effect : tile->staticEffects)
             {
                 ImGui::Text("Effect %d: %s",
                             count,
-                            effect.toString(effect.type).data());
+                            TileEffect::toString(effect).data());
                 count++;
             }
         }

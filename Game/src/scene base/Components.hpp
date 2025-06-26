@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/System/Angle.hpp"
 #include "SFML/System/Vector2.hpp"
+#include "scene base/TileEffect.hpp"
 #include <sys/types.h>
 #include <vector>
 
@@ -17,8 +18,7 @@ struct cSprite
     sf::Sprite sprite;
 
 private:
-    static inline sf::Image m_defaultImg{Vec2u{100, 400},
-                                         sf::Color::Magenta};
+    static inline sf::Image m_defaultImg{Vec2u{100, 400}, sf::Color::Magenta};
     static inline sf::Texture m_defaultTexture{m_defaultImg};
 };
 
@@ -61,9 +61,10 @@ struct cAnimatedSprite
     bool repeat{false};
 };
 
-struct cTileEffect
+struct cEffect
 {
-    TileEffect effect;
+    TileEffect::Effects effect;
+    // Could also store a size?
 };
 
 struct cId
@@ -83,11 +84,10 @@ struct cSpawner
 
 struct cPathfinder
 {
-    std::vector<Vec2f>waypoints;
+    std::vector<Vec2f> waypoints;
 };
 
 struct cTarget
 {
     float health{};
 };
-

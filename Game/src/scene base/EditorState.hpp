@@ -32,7 +32,7 @@ struct EditorState
         };
 
         State state{none};
-        std::optional<Vec2u> lastPlaced;
+        std::optional<Vec2i> lastPlaced;
 
         void reset()
         {
@@ -45,7 +45,7 @@ struct EditorState
     bool brushesVisible{true};
 
     std::string tileTexture;
-    TileEffect brushType{TileEffect::none};
+    TileEffect::Effects brushType{TileEffect::none};
 
     std::shared_ptr<GameMap::MapTile> selectedTile;
     Vec2f selectedTilePos;

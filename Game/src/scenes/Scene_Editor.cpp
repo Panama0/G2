@@ -2,14 +2,13 @@
 #include "Buttons.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/System/Vector2.hpp"
+#include "Vec2.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "scene base/Components.hpp"
 #include "scene base/EditorState.hpp"
+#include "scene base/TileEffect.hpp"
 #include "scenes/Scene_MainMenu.hpp"
-#include "Vec2.hpp"
-
-#include <optional>
 
 void Scene_Editor::init()
 {
@@ -18,8 +17,7 @@ void Scene_Editor::init()
     m_worldSize = {1280.f, 720.f};
     m_hasGui = true;
 
-    m_state.map.init(
-        static_cast<Vec2u>(m_worldSize), m_gridSize, &m_assets);
+    m_state.map.init(static_cast<Vec2i>(m_worldSize), m_gridSize, &m_assets);
 
     registerAction(Buttons::F, static_cast<int>(ActionTypes::toggleFS));
     registerAction(Buttons::G, static_cast<int>(ActionTypes::toggleGrid));
@@ -151,17 +149,17 @@ void Scene_Editor::sDoAction(const Action& action)
 
             // remove old brushes and add the new ones
 
-            for(auto ent : m_entities.getEntities<cTileEffect>())
+            for(auto ent : m_entities.getEntities<cEffect>())
             {
                 m_entities.killEntity(ent);
             }
 
             for(const auto& tile : m_state.map.getTiles())
             {
-                if(tile && !tile->effects.empty())
+                if(tile && !tile->staticEffects.empty())
                 {
                     // there may be multiple effects, so we loop
-                    for(const auto& brush : tile->effects)
+                    for(const auto& brush : tile->staticEffects)
                     {
                         spawnBrush(*tile, brush);
                     }
@@ -313,17 +311,17 @@ void Scene_Editor::placeSelectedBrush(const Vec2f& pos)
 }
 
 void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
-                              const TileEffect& effect)
+                              TileEffect::Effects effect)
 {
     auto entitiy = m_entities.addEntity();
 
-    if(m_effectTextures.find(effect.type) == m_effectTextures.end())
+    if(m_effectTextures.find(effect) == m_effectTextures.end())
     {
         std::cerr << "Could not find effect texture!\n";
         return;
     }
 
-    std::string_view texName = m_effectTextures.at(effect.type);
+    std::string_view texName = m_effectTextures.at(effect);
 
     auto& spr = m_entities.addComponent<cSprite>(entitiy).sprite;
     // set the texture and resize the shape
@@ -338,13 +336,12 @@ void Scene_Editor::spawnBrush(const GameMap::MapTile& tile,
     transform.scale = {0.8f, 0.8f};
     transform.pos = m_state.map.toWorldPos(tile.pos);
 
-    auto& eff = m_entities.addComponent<cTileEffect>(entitiy).effect;
-    eff = effect;
+    m_entities.addComponent<cEffect>(entitiy).effect = effect;
 }
 
 void Scene_Editor::sUpdateBrushes(const Vec2f& pos)
 {
-    for(auto& ent : m_entities.getEntities<cTileEffect, cTransform>())
+    for(auto& ent : m_entities.getEntities<cEffect, cTransform>())
     {
         auto& entityPos = m_entities.getComponent<cTransform>(ent).pos;
 
@@ -360,7 +357,8 @@ void Scene_Editor::select(const Vec2f& pos)
     m_state.selectedTile = m_state.map.getTile(pos);
     if(m_state.selectedTile)
     {
-        m_state.selectedTilePos = static_cast<Vec2f>(m_game->getWindow().coordsToPixel(pos));
+        m_state.selectedTilePos
+            = static_cast<Vec2f>(m_game->getWindow().coordsToPixel(pos));
         // offset to the right edge of the tile
         m_state.selectedTilePos.x += m_gridSize.x;
     }

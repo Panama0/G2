@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-void GameMap::init(const Vec2u& mapSize, const Vec2u& tileSize, Assets* assets)
+void GameMap::init(const Vec2i& mapSize, const Vec2i& tileSize, Assets* assets)
 {
     m_grid.init(mapSize, tileSize);
     m_assets = assets;
@@ -43,27 +43,40 @@ void GameMap::clearTile(const Vec2f& worldPos)
     updateTexture();
 }
 
-void GameMap::placeBrush(const TileEffect& effect, const Vec2f& worldPos)
+void GameMap::placeBrush(const TileEffect::Effects& effect,
+                         const Vec2f& worldPos)
 {
-    getTile(worldPos)->effects.push_back(effect);
+    getTile(worldPos)->staticEffects.emplace(effect);
 }
 
 void GameMap::clearBrushes(const Vec2f& worldPos)
 {
-    getTile(worldPos)->effects.clear();
+    getTile(worldPos)->staticEffects.clear();
 }
 
-Vec2f GameMap::toWorldPos(const Vec2u& pos)
+Vec2f GameMap::toWorldPos(const Vec2i& pos)
 {
     return m_grid.getGridAt(pos).midPos;
 }
 
-Vec2u GameMap::toGridPos(const Vec2f& pos)
+Vec2i GameMap::toGridPos(const Vec2f& pos)
 {
     return m_grid.getGridAt(pos).gridPos;
 }
 
-std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const Vec2u& pos)
+bool GameMap::inBounds(const Vec2i& pos)
+{
+    return pos.x >= 0 && pos.y >= 0 && pos.x <= m_grid.getSize().x
+           && pos.y <= m_grid.getSize().y;
+}
+
+bool GameMap::inBounds(const Vec2f& pos)
+{
+    return pos.x >= 0 && pos.y >= 0 && pos.x <= m_mapSize.x
+           && pos.y <= m_mapSize.y;
+}
+
+std::shared_ptr<GameMap::MapTile>& GameMap::getTile(const Vec2i& pos)
 {
     return m_tiles[pos.y * m_grid.getSize().x + pos.x];
 }
@@ -118,13 +131,13 @@ bool GameMap::save(const std::filesystem::path& path)
                 file.addData("Rotation", tile->rotation.asRadians());
 
                 // Effects
-                if(!tile->effects.empty())
+                if(!tile->staticEffects.empty())
                 {
-                    for(const auto& effect : tile->effects)
+                    for(const auto& effect : tile->staticEffects)
                     {
                         file.addData(
                             "Effect",
-                            std::string{TileEffect::toString(effect.type)});
+                            std::string{TileEffect::toString(effect)});
                     }
                 }
 
@@ -143,8 +156,8 @@ bool GameMap::save(const std::filesystem::path& path)
 bool GameMap::load(const std::filesystem::path& path)
 {
     std::vector<std::shared_ptr<MapTile>> mapTiles;
-    Vec2u mapSize;
-    Vec2u squareSize;
+    Vec2i mapSize;
+    Vec2i squareSize;
 
     sff::Parser file{path};
 
@@ -163,11 +176,9 @@ bool GameMap::load(const std::filesystem::path& path)
         std::string ident = metaData->getData("Identifier");
         std::pair<int, int> worldSizeData = metaData->getData("WorldSize");
         std::pair<int, int> squareSizeData = metaData->getData("SquareSize");
-        mapSize = {static_cast<uint32_t>(worldSizeData.first),
-                   static_cast<uint32_t>(worldSizeData.second)};
+        mapSize = {worldSizeData.first, worldSizeData.second};
 
-        squareSize = {static_cast<uint32_t>(squareSizeData.first),
-                      static_cast<uint32_t>(squareSizeData.second)};
+        squareSize = {squareSizeData.first, squareSizeData.second};
 
         auto& mapGridSize = m_grid.getSize();
         mapTiles.resize(mapGridSize.x * mapGridSize.y);
@@ -189,8 +200,7 @@ bool GameMap::load(const std::filesystem::path& path)
             std::pair<int, int> pos{tileNode->getData("Position")};
             float rotation{tileNode->getData("Rotation")};
 
-            Vec2u tilePosition{static_cast<uint32_t>(pos.first),
-                               static_cast<uint32_t>(pos.second)};
+            Vec2i tilePosition{pos.first, pos.second};
 
             auto mapTile = std::make_shared<MapTile>(
                 tilePosition, sf::radians(rotation), tex);
@@ -202,8 +212,9 @@ bool GameMap::load(const std::filesystem::path& path)
                 for(auto& effect : effects)
                 {
                     std::string effectName = effect;
-                    TileEffect tileEffect{TileEffect::fromString(effectName)};
-                    mapTile->effects.push_back(tileEffect);
+                    TileEffect::Effects tileEffect{
+                        TileEffect::fromString(effectName)};
+                    mapTile->staticEffects.emplace(tileEffect);
                 }
             }
 
@@ -229,7 +240,7 @@ void GameMap::toggleGrid()
 
 void GameMap::updateTexture()
 {
-    if(!m_renderTexture.resize(m_mapSize))
+    if(!m_renderTexture.resize(static_cast<Vec2u>(m_mapSize)))
     {
         std::cerr << "Could not resize game map texture\n";
     }

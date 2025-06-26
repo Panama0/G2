@@ -3,7 +3,7 @@
 #include <string_view>
 
 // Any effect that we may want to apply to a tile
-struct TileEffect
+namespace TileEffect
 {
     enum Effects
     {
@@ -62,9 +62,4 @@ struct TileEffect
             return Effects::none;
         }
     }
-
-    TileEffect() = default;
-    TileEffect(Effects eff) : type{eff} {}
-
-    Effects type;
 };

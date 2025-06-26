@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 void Scene_Game::init()
@@ -128,6 +130,18 @@ void Scene_Game::sRender()
         auto& spr = m_entities.getComponent<cSprite>(ent);
         m_game->getWindow().draw(spr.sprite);
     }
+    // DEBUG
+    for(auto& ent : m_entities.getEntities<cPathfinder, cTransform>())
+    {
+        auto& path = m_entities.getComponent<cPathfinder>(ent).waypoints;
+        for(auto& waypoint : path)
+        {
+            sf::Sprite spr{m_assets.getTexture("tile1")};
+            spr.setPosition(waypoint);
+            spr.setScale({0.2f, 0.2f});
+            window.draw(spr);
+        }
+    }
 
     window.render();
 }
@@ -169,20 +183,42 @@ void Scene_Game::sSpawners()
 
 void Scene_Game::sPathfinding()
 {
-    auto& tiles = m_map.getTiles();
+    // get targets
+    std::vector<Vec2f*> targetLocations;
+    for(auto& ent : m_entities.getEntities<cTarget, cTransform>())
+    {
+        targetLocations.push_back(
+            &m_entities.getComponent<cTransform>(ent).pos);
+    }
+    if(targetLocations.empty())
+    {
+        // there are no targets to go to
+        return;
+    }
 
     for(auto& ent : m_entities.getEntities<cPathfinder, cTransform>())
     {
-        // auto& startPos = m_entities.getComponent<cTransform>(ent).pos;
-        Vec2i endPos{20, 16};
-        Vec2i startPos{0, 0};
+        auto& entityPos = m_entities.getComponent<cTransform>(ent).pos;
+        Vec2i startPos;
+        if(m_map.inBounds(entityPos))
+        {
+            startPos = m_map.toGridPos(entityPos);
+        }
+        else
+        {
+            // the entity is not in the map
+            return;
+        }
+        // TODO: we should be giving all to the pathfinding, which should
+        // locate the closest one
+        auto endPos = m_map.toGridPos(*targetLocations.front());
 
         auto isPathable
-            = [&](const Vec2i& pos) { return pos.x > 0 && pos.y > 0; };
+            = [&](const Vec2i& pos) { return m_map.inBounds(pos); };
+
         auto getWeight = [&](const Vec2i& pos)
         {
-            if(m_map.getTile(static_cast<Vec2u>(pos))->textureName
-               == "tile7")
+            if(m_map.getTile(pos)->hasEffect(TileEffect::path))
             {
                 return 1.f;
             }
@@ -192,22 +228,15 @@ void Scene_Game::sPathfinding()
             }
         };
         // find path
-        auto path = findPath(static_cast<Vec2i>(startPos),
-                             static_cast<Vec2i>(endPos),
-                             isPathable,
-                             getWeight);
+        auto path = findPath(startPos, endPos, isPathable, getWeight);
 
-        // DEBUG
+        std::vector<Vec2f> realPath;
 
-        for(auto& player : m_entities.getEntities<cInput>())
-        {
-            m_entities.killEntity(player);
-        }
         for(auto& waypoint : path)
         {
-            auto gridPos = static_cast<Vec2u>(waypoint);
-            spawnPlayer(m_map.toWorldPos(gridPos));
+            realPath.push_back(m_map.toWorldPos(waypoint));
         }
+        m_entities.getComponent<cPathfinder>(ent).waypoints = realPath;
     }
 }
 
@@ -325,7 +354,20 @@ void Scene_Game::spawnEnemy(const Vec2f& pos)
     sprite.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
 }
 
-void Scene_Game::spawnTarget(const Vec2f& pos) {}
+void Scene_Game::spawnTarget(const Vec2f& pos)
+{
+    auto ent = m_entities.addEntity();
+
+    auto& transform = m_entities.addComponent<cTransform>(ent);
+    auto& sprite = m_entities.addComponent<cSprite>(ent).sprite;
+    m_entities.addComponent<cTarget>(ent);
+
+    transform.pos = pos;
+
+    sprite.setTexture(m_assets.getTexture("Target"), true);
+    auto& tex = sprite.getTexture();
+    sprite.setOrigin({tex.getSize().x / 2.f, tex.getSize().y / 2.f});
+}
 
 void Scene_Game::loadLevel()
 {
@@ -335,17 +377,17 @@ void Scene_Game::loadLevel()
 
     for(auto& tile : m_map.getTiles())
     {
-        if(!tile->effects.empty())
+        if(!tile->staticEffects.empty())
         {
             auto tileWorldPos = m_map.toWorldPos(tile->pos);
-            for(auto& effect : tile->effects)
+            for(auto& effect : tile->staticEffects)
             {
-                if(effect.type == TileEffect::spawner)
+                if(effect == TileEffect::spawner)
                 {
                     spawnSpawner(tileWorldPos);
                 }
                 // WARN: water is being used as a stand in for target
-                else if(effect.type == TileEffect::water)
+                else if(effect == TileEffect::water)
                 {
                     spawnPlayer(tileWorldPos);
                     spawnTarget(tileWorldPos);
