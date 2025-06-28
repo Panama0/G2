@@ -47,7 +47,10 @@ public:
         return m_fonts[std::string(name)];
     }
 
-    const std::vector<std::string>& getTextureList() { return m_textureList; }
+    const std::vector<std::string>& getTextureList() const { return m_textureList; }
+    const std::vector<std::string>& getAnimationList() const { return m_animationList; }
+    const std::vector<std::string>& getSoundList() const { return m_soundList; }
+    const std::vector<std::string>& getFontList() const { return m_fontList; }
 
     // can be used to have specific folders in the resouce root for different
     // scenes etc.

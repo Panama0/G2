@@ -28,5 +28,5 @@ public:
     virtual void draw() = 0;
 
 private:
-    sf::RenderWindow* m_windowPtr;
+    sf::RenderWindow* m_windowPtr{};
 };

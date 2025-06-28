@@ -16,16 +16,19 @@ public:
     void render() { m_window.display(); }
 
     void updateView(Vec2f size);
-    const sf::View& getView() { return m_view; }
-    const Vec2u& getSize() { return m_renderSpace; }
+    const sf::View& getView() const { return m_view; }
+    Vec2u getSize() const { return Vec2u{m_window.getSize()}; }
     std::optional<sf::Event> getEvent() { return m_window.pollEvent(); }
     const sf::RenderWindow& getWindow() { return m_window; }
-    Vec2i getMousePos() { return static_cast<Vec2i>(sf::Mouse::getPosition(m_window)); }
+    Vec2i getMousePos() const
+    {
+        return static_cast<Vec2i>(sf::Mouse::getPosition(m_window));
+    }
 
-    Vec2f pixelToCoords(const Vec2i& pixel);
-    Vec2i coordsToPixel(const Vec2f& point);
+    Vec2f pixelToCoords(const Vec2i& pixel) const;
+    Vec2i coordsToPixel(const Vec2f& point) const;
 
-    bool isInsideView(const Vec2f& pos);
+    bool isInsideView(const Vec2f& pos) const;
 
     void toggleFullscreen(bool mode);
     void toggleFullscreen();

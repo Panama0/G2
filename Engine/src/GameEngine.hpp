@@ -2,11 +2,11 @@
 
 #include "Action.hpp"
 #include "Buttons.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "SceneManager.hpp"
 #include "Window.hpp"
 
 #include "SFML/Graphics.hpp"
+#include <cstdint>
 #include <memory>
 
 class Scene;
@@ -24,12 +24,15 @@ public:
     Window& getWindow() { return m_window; }
 
     const sf::Time& getDT() const { return m_dt; }
+    uint32_t getMaxFps() const { return m_maxFps; }
 
     void handleInput();
 
 private:
     void init();
-    void processIOEvent(Buttons::Button button, Vec2i mousePos, Action::Status status);
+    void processIOEvent(Buttons::Button button,
+                        Vec2i mousePos,
+                        Action::Status status);
 
     Scene* currentScene();
     SceneManager m_scenes;
@@ -39,4 +42,5 @@ private:
     bool m_running{false};
     sf::Clock m_clock;
     sf::Time m_dt;
+    uint32_t m_maxFps{120};
 };

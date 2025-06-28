@@ -13,7 +13,10 @@
 
 GameEngine::GameEngine() { init(); }
 
-void GameEngine::init() { m_window.init(); }
+void GameEngine::init()
+{
+    m_window.init();
+}
 
 void GameEngine::run()
 {
@@ -31,9 +34,10 @@ void GameEngine::run()
 
         m_dt = m_clock.restart();
 
+        handleInput();
         currentScene()->update();
 
-        handleInput();
+        m_window.render();
         m_scenes.update();
     }
 }
@@ -47,13 +51,10 @@ void GameEngine::handleInput()
 {
     while(auto event = m_window.getEvent())
     {
-        if(currentScene()->hasGUI())
+        ImGui::SFML::ProcessEvent(m_window.getWindow(), event.value());
+        if(ImGui::GetIO().WantCaptureMouse)
         {
-            ImGui::SFML::ProcessEvent(m_window.getWindow(), event.value());
-            if(ImGui::GetIO().WantCaptureMouse)
-            {
-                continue;
-            }
+            continue;
         }
 
         if(event->is<sf::Event::Closed>())
@@ -64,7 +65,7 @@ void GameEngine::handleInput()
         // resize view when window changes size
         if(const auto& resized = event->getIf<sf::Event::Resized>())
         {
-            m_window.updateView(static_cast<Vec2f>(resized->size));
+            m_window.updateView(static_cast<Vec2f>(Vec2{resized->size}));
         }
 
         // main input handling
@@ -82,13 +83,17 @@ void GameEngine::handleInput()
            = event->getIf<sf::Event::MouseButtonPressed>())
         {
             auto button = Buttons::toButton(mousePressed->button);
-            processIOEvent(button, static_cast<Vec2i>(mousePressed->position), Action::start);
+            processIOEvent(button,
+                           static_cast<Vec2i>(mousePressed->position),
+                           Action::start);
         }
         if(const auto& mouseReleased
            = event->getIf<sf::Event::MouseButtonReleased>())
         {
             auto button = Buttons::toButton(mouseReleased->button);
-            processIOEvent(button, static_cast<Vec2i>(mouseReleased->position), Action::end);
+            processIOEvent(button,
+                           static_cast<Vec2i>(mouseReleased->position),
+                           Action::end);
         }
     }
 }

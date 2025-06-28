@@ -54,6 +54,7 @@ set(SRC_FILES
     src/Animation.cpp
     src/Assets.cpp
     src/Grid.cpp
+    src/DebugUI.cpp
     src/sff/sffParser.cpp
     src/sff/sffFileManipulator.cpp
     src/sff/sffSerialiser.cpp
@@ -69,6 +70,7 @@ set(H_FILES
     src/Action.hpp
     src/Grid.hpp
     src/Animation.hpp
+    src/DebugUI.hpp
     src/sff/sffNode.hpp
     src/sff/sffParser.hpp
     src/sff/sffFileManipulator.hpp

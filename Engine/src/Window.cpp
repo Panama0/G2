@@ -49,17 +49,17 @@ void Window::updateView(Vec2f size)
     m_window.setView(m_view);
 }
 
-Vec2f Window::pixelToCoords(const Vec2i& pixel)
+Vec2f Window::pixelToCoords(const Vec2i& pixel) const 
 {
     return static_cast<Vec2f>(m_window.mapPixelToCoords(pixel, m_view));
 }
 
-Vec2i Window::coordsToPixel(const Vec2f& point)
+Vec2i Window::coordsToPixel(const Vec2f& point) const
 {
     return static_cast<Vec2i>(m_window.mapCoordsToPixel(point, m_view));
 }
 
-bool Window::isInsideView(const Vec2f& pos)
+bool Window::isInsideView(const Vec2f& pos) const
 {
     auto viewSize = m_view.getSize();
     auto viewCenter = m_view.getCenter();

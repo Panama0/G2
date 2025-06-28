@@ -15,7 +15,6 @@ void Scene_Editor::init()
     // NOTE: temp
     m_gridSize = {32, 32};
     m_worldSize = {1280.f, 720.f};
-    m_hasGui = true;
 
     m_state.map.init(static_cast<Vec2i>(m_worldSize), m_gridSize, &m_assets);
 
@@ -202,7 +201,6 @@ void Scene_Editor::sRender()
     }
 
     drawUI();
-    window.render();
 }
 
 void Scene_Editor::drawUI()

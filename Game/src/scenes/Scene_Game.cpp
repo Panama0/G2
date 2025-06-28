@@ -32,6 +32,9 @@ void Scene_Game::init()
     registerTexture("Enemy", "enemy.png");
     registerTexture("Target", "target.png");
     loadLevel();
+
+    // enable debug ui
+    m_debug = true;
 }
 
 void Scene_Game::onExit()
@@ -142,13 +145,18 @@ void Scene_Game::sRender()
         }
     }
 
-    window.render();
+    if(m_debug)
+    {
+        m_debugUI.update(m_game->getDT());
+        m_debugUI.draw();
+        m_debugUI.display();
+    }
 }
 
 void Scene_Game::sSpawners()
 {
     // WARN: debug code
-    for(auto& ent : m_entities.getEntities<cSpawner,cTransform>())
+    for(auto& ent : m_entities.getEntities<cSpawner, cTransform>())
     {
         auto& transform = m_entities.getComponent<cTransform>(ent);
         auto& spawner = m_entities.getComponent<cSpawner>(ent);
