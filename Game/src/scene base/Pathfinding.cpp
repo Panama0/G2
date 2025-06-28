@@ -118,6 +118,8 @@ std::vector<Vec2i> findPath(
                 path.push_back(current->pos);
                 current = current->parent;
             }
+            // remove the root, as it is where the object currently is
+            path.pop_back();
             std::reverse(path.begin(), path.end());
             return path;
         }

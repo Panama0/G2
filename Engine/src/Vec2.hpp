@@ -3,6 +3,7 @@
 #include "SFML/System/Vector2.hpp"
 #include "imgui.h"
 
+#include <cmath>
 #include <cstdint>
 #include <utility>
 
@@ -107,6 +108,44 @@ public:
         x /= scalar;
         y /= scalar;
         return *this;
+    }
+    constexpr Vec2& operator+=(const T& scalar)
+    {
+        x += scalar;
+        y += scalar;
+        return *this;
+    }
+    constexpr Vec2& operator-=(const T& scalar)
+    {
+        x -= scalar;
+        y -= scalar;
+        return *this;
+    }
+
+    // Math
+    constexpr float length() const
+    {
+        static_assert(std::is_floating_point_v<T>,
+                      "Length is only supported for floating point types");
+
+        return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
+    }
+
+    constexpr Vec2 normalised() const
+    {
+        static_assert(
+            std::is_floating_point_v<T>,
+            "Normalisation is only supported for floating point types");
+
+        auto len = length();
+        if(len > 0)
+        {
+            return {x / len, y / len};
+        }
+        else
+        {
+            return {};
+        }
     }
 };
 

@@ -31,6 +31,7 @@ public:
 private:
     void sSpawners();
     void sPathfinding();
+    void updatePaths();
     void sSprites();
     void sMovement();
     void sCollision();

@@ -64,3 +64,23 @@ TEST(VEC2_Tests, compoundAssignment)
 
     ASSERT_EQ(first, correctResult);
 }
+
+TEST(VEC2_Tests, length)
+{
+    Vec2 vec{3.f, 4.f};
+    Vec2 vec1{-3.f, -4.f};
+
+    ASSERT_EQ(vec.length(), 5.f);
+    ASSERT_EQ(vec1.length(), 5.f);
+}
+
+TEST(VEC2_Tests, normalised)
+{
+    Vec2 vec{3.f, 4.f};
+
+    ASSERT_NEAR(vec.normalised().x, 0.6f, 0.0000f);
+    ASSERT_NEAR(vec.normalised().y, 0.8f, 0.0000f);
+
+    Vec2 zero{0.f, 0.f};
+    ASSERT_EQ(zero.normalised(), zero);
+}

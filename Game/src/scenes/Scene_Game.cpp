@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
-#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -149,8 +148,9 @@ void Scene_Game::sRender()
 void Scene_Game::sSpawners()
 {
     // WARN: debug code
-    for(auto& ent : m_entities.getEntities<cSpawner>())
+    for(auto& ent : m_entities.getEntities<cSpawner,cTransform>())
     {
+        auto& transform = m_entities.getComponent<cTransform>(ent);
         auto& spawner = m_entities.getComponent<cSpawner>(ent);
 
         if(spawner.waveTimer == 0)
@@ -159,7 +159,7 @@ void Scene_Game::sSpawners()
             {
                 if(spawner.enemiesToSpawn > 0)
                 {
-                    spawnEnemy({0, 0});
+                    spawnEnemy(transform.pos);
                     spawner.enemiesToSpawn--;
                     spawner.waveSpawnInterval = 60;
                 }
@@ -181,7 +181,7 @@ void Scene_Game::sSpawners()
     }
 }
 
-void Scene_Game::sPathfinding()
+void Scene_Game::updatePaths()
 {
     // get targets
     std::vector<Vec2f*> targetLocations;
@@ -198,11 +198,11 @@ void Scene_Game::sPathfinding()
 
     for(auto& ent : m_entities.getEntities<cPathfinder, cTransform>())
     {
-        auto& entityPos = m_entities.getComponent<cTransform>(ent).pos;
+        auto& transform = m_entities.getComponent<cTransform>(ent);
         Vec2i startPos;
-        if(m_map.inBounds(entityPos))
+        if(m_map.inBounds(transform.pos))
         {
-            startPos = m_map.toGridPos(entityPos);
+            startPos = m_map.toGridPos(transform.pos);
         }
         else
         {
@@ -240,6 +240,27 @@ void Scene_Game::sPathfinding()
     }
 }
 
+void Scene_Game::sPathfinding()
+{
+    const float followSpeed{3.f};
+
+    // TODO: this should only happen every x frames/seconds
+    updatePaths();
+
+    // follow the paths
+    for(auto& ent : m_entities.getEntities<cTransform, cPathfinder>())
+    {
+        auto& transform = m_entities.getComponent<cTransform>(ent);
+        auto& path = m_entities.getComponent<cPathfinder>(ent).waypoints;
+
+        if(!path.empty())
+        {
+            Vec2f towardsPath{path.front() - transform.pos};
+            transform.vel += towardsPath.normalised() * followSpeed;
+        }
+    }
+}
+
 void Scene_Game::sSprites()
 {
     for(auto& ent : m_entities.getEntities<cSprite, cTransform>())
@@ -255,7 +276,7 @@ void Scene_Game::sSprites()
 
 void Scene_Game::sMovement()
 {
-    const float moveSpeed{5.f};
+    const float playerSpeed{5.f};
 
     for(auto& ent : m_entities.getEntities<cInput, cTransform>())
     {
@@ -264,42 +285,41 @@ void Scene_Game::sMovement()
 
         if(input.up)
         {
-            velocity.y -= moveSpeed;
+            velocity.y -= playerSpeed;
         }
 
         if(input.down)
         {
-            velocity.y += moveSpeed;
+            velocity.y += playerSpeed;
         }
 
         if(input.left)
         {
-            velocity.x -= moveSpeed;
+            velocity.x -= playerSpeed;
         }
 
         if(input.right)
         {
-            velocity.x += moveSpeed;
+            velocity.x += playerSpeed;
         }
 
         // clamp the speed if we are pressing muliple buttons
         float speed = std::abs(velocity.x) + std::abs(velocity.y);
-        if(speed > moveSpeed + (moveSpeed / 2.0f))
+        if(speed > playerSpeed + (playerSpeed / 2.0f))
         {
             velocity.x = std::clamp(
-                velocity.x, (-moveSpeed / 1.5f), (moveSpeed / 1.5f));
+                velocity.x, (-playerSpeed / 1.5f), (playerSpeed / 1.5f));
             velocity.y = std::clamp(
-                velocity.y, (-moveSpeed / 1.5f), (moveSpeed / 1.5f));
+                velocity.y, (-playerSpeed / 1.5f), (playerSpeed / 1.5f));
         }
-
-        velocity.x *= 0.8f;
-        velocity.y *= 0.8f;
     }
 
     for(auto& ent : m_entities.getEntities<cTransform>())
     {
         auto& transform = m_entities.getComponent<cTransform>(ent);
         transform.pos += transform.vel;
+        // reset the velocity
+        transform.vel = {};
     }
 }
 
@@ -347,7 +367,7 @@ void Scene_Game::spawnEnemy(const Vec2f& pos)
     m_entities.addComponent<cPathfinder>(ent);
 
     transform.pos = pos;
-    transform.vel.x = 5;
+    sprite.setPosition(pos);
 
     sprite.setTexture(m_assets.getTexture("Enemy"), true);
     auto& tex = sprite.getTexture();
